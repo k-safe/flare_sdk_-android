@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Flare SDK Implementation</string>
+    <string name="start" translatable="false">Start</string>
+    <string name="btn_test_incident" translatable="false">Test Incident</string>
+    <string name="stop" translatable="false">Stop</string>
+    <string name="invalid_contry_code">Please enter country code</string>
+    <string name="invalid_mobile_number">"Please enter mobile number"</string>
+    <string name="invalid_user_name">"Please enter user name"</string>
+    <string name="invalid_user_id">"Please enter user id"</string>
+    <string name="invalid_user_email">"Please enter user email"</string>
+    <string name="SHAKE_YOUR_PHONE">Shake your phone repeatedly to simulate an incident</string>
+    <string name="SHAKE_YOUR_PHONE1">This is in test mode, don\'t worry it will not go off if you shake your phone in real life</string>
+    <string name="welcome_to_side_engine">Welcome to Side Engine</string>
+    <string name="standard_theme">Standard Theme</string>
+    <string name="custom_theme">Custom Theme</string>
+</resources>

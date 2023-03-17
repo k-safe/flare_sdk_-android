@@ -1,0 +1,33 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+        maven {
+            name = "SideEngineSDK"
+            url = uri("https://maven.pkg.github.com/k-safe/busbysdk_android")
+            credentials {
+                username = gitUserName
+                password = gitToken
+            }
+        }
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            name = "SideEngineSDK"
+            url = uri("https://maven.pkg.github.com/k-safe/busbysdk_android")
+            credentials {
+                username = gitUserName
+                password = gitToken
+            }
+        }
+    }
+}
+
+rootProject.name = "Flare SDK Implementation"
+include ':app'

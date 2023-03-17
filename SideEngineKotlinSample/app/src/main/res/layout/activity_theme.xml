@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <ImageView
+        android:id="@+id/ivCloseMain"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="12dp"
+        android:src="@drawable/ic_close"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tvThemeName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/avenir_black"
+                android:text="@string/standard_theme"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="20sp" />
+
+            <EditText
+                android:id="@+id/etvCountryCode"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="30dp"
+                android:background="@drawable/edt_bg_corner"
+                android:hint="Country code"
+                android:paddingStart="10dp" />
+
+            <EditText
+                android:id="@+id/etvMobileNumber"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="30dp"
+                android:background="@drawable/edt_bg_corner"
+                android:hint="Mobile number"
+                android:paddingStart="10dp" />
+
+            <EditText
+                android:id="@+id/etvUserName"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="30dp"
+                android:background="@drawable/edt_bg_corner"
+                android:hint="Username"
+                android:paddingStart="10dp" />
+
+            <EditText
+                android:id="@+id/etvUserEmail"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="30dp"
+                android:background="@drawable/edt_bg_corner"
+                android:hint="Email"
+                android:paddingStart="10dp" />
+
+            <TextView
+                android:id="@+id/mConfidence"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="30dp"
+                android:layout_marginBottom="20dp"
+                android:paddingStart="5dp"
+                android:textColor="@color/black"
+                android:textSize="@dimen/dim_20"
+                tools:text="abcd" />
+
+        </LinearLayout>
+        <TextView
+            android:id="@+id/mStartDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/mConfidence"
+            android:layout_marginStart="@dimen/dim_16"
+            android:layout_marginTop="@dimen/dim_10"
+            android:paddingStart="@dimen/dim_10"
+            android:text="Press start to activate Incident detection in live mode "
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_12"
+            android:visibility="visible" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnStart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="30dp"
+            android:background="@drawable/btn_bg_corner"
+            android:text="Start"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+        <TextView
+            android:id="@+id/mTestDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btnStart"
+            android:layout_marginStart="@dimen/dim_16"
+            android:layout_marginTop="@dimen/dim_10"
+            android:paddingStart="@dimen/dim_10"
+            android:text="Press button below to activate test mode, then shake your phone repeatedly until a test incident triggers"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_12"
+            android:visibility="visible" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnTest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="30dp"
+            android:background="@drawable/btn_bg_corner"
+            android:text="Test Incident"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnStart" />
+
+    </LinearLayout>
+
+    <RelativeLayout android:id="@+id/rlTestIncident"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:background="@color/BG_BlueZodiac"
+        tools:context=".TestIncidentActivity">
+        <LinearLayout
+            android:id="@+id/llCUIAlertTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:layout_alignParentRight="true"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/ivCUIClose"
+                android:layout_width="60dp"
+                android:layout_gravity="end"
+                android:src="@drawable/ic_close"
+                android:layout_height="60dp"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_margin="@dimen/dim_20"
+            android:layout_below="@id/llCUIAlertTop"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/shakeImage"
+                android:layout_centerInParent="true"
+                android:backgroundTint="@color/white"
+                android:background="@drawable/ic_shake_mobile"
+                android:layout_width="67dp"
+                android:layout_height="73dp"/>
+
+            <TextView
+                android:layout_below="@id/shakeImage"
+                android:layout_width="wrap_content"
+                android:textColor="@color/white"
+                android:layout_marginTop="@dimen/dim_10"
+                android:textSize="24dp"
+                android:fontFamily="@font/avenir_black"
+                android:textAlignment="center"
+                android:text="@string/SHAKE_YOUR_PHONE"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:textColor="@color/white"
+                android:fontFamily="@font/avenir_medium"
+                android:layout_marginTop="@dimen/dim_10"
+                android:textSize="14dp"
+                android:layout_centerInParent="true"
+                android:textStyle="bold"
+                android:textAlignment="center"
+                android:text="@string/SHAKE_YOUR_PHONE1"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+
+
+    </RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
