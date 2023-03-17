@@ -28,7 +28,7 @@ To build the associated [Quickstart project](https://github.com/k-safe/busbysdk_
 
 #### **Add the library link below to App build.gradle**
 
-        implementation 'com.k-safe:sideengine:1.3.8'
+        implementation 'com.k-safe:sideengine:1.3.9'
 
         //TODO: If you want to use the custom UI with map, you need to add map lib
         implementation 'com.google.android.gms:play-services-maps:18.0.2'
