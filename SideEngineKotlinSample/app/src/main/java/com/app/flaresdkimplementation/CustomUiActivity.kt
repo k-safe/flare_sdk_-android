@@ -1,6 +1,5 @@
-package com.app.flaresdkimplementation
+package com.sdksideengine.kotlin
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -12,6 +11,7 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.app.flaresdkimplementation.R
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
@@ -93,11 +93,8 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
 
     private fun setListener() {
         startVibrate()
-        var time = 30
-        if (btnTestClicked) {
-            time = 5
-        }
-        countDownTimer = object : CountDownTimer((time * 1000).toLong(), 1000) {
+        val time = common?.timerInterval;
+        countDownTimer = object : CountDownTimer((time?.times(1000))?.toLong()!!, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 tvCUISeconds!!.text = "" + millisUntilFinished / 1000
                 //here you can have your logic to set text to edittext
@@ -119,13 +116,11 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
 
                 //TODO: Send Email
                 if(email !== null && !email.equals("")){
-                    BBSideEngine.getInstance(null).sendEmail(email, btnTestClicked) // Replace your emergency email address
+                    BBSideEngine.getInstance(null).sendEmail(email,false) // Replace your emergency email address
                 }
 
-                if (!btnTestClicked) {
-                    //TODO: notify to partner
-                    BBSideEngine.getInstance(null).notifyPartner()
-                }
+                //TODO: notify to partner
+                BBSideEngine.getInstance(null).notifyPartner()
 
                 if(Common.getInstance().isAppInBackground()) {
                     BBSideEngine.getInstance(null).resumeSensorIfAppInBackground();
@@ -156,7 +151,7 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
             //inactive function
             if (!isSurvey ||
                 (BBSideEngine.getInstance(null).surveyVideoURL() == null ||
-                BBSideEngine.getInstance(null).surveyVideoURL() == "")) {
+                        BBSideEngine.getInstance(null).surveyVideoURL() == "")) {
                 BBSideEngine.getInstance(null).resumeSideEngine();
                 finish()
             }else{
@@ -166,7 +161,7 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
     }
 
     private fun startVibrate() {
-        val pattern = longArrayOf(0, 100, 200, 300, 400)
+        val pattern = longArrayOf(0, 100, 1000, 1500, 2000, 2500, 3000)
         vibrator = this.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
         vibrator!!.vibrate(pattern, 0)
     }
@@ -200,15 +195,15 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
     }
 
     override fun onSendSMSCallback(status: Boolean, response: JSONObject?) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onSendEmailCallback(status: Boolean, response: JSONObject?) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onIncidentCancelCallback(status: Boolean, response: JSONObject?) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onIncidentAutoCancelCallback(status: Boolean, response: JSONObject?) {
@@ -221,7 +216,7 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
     }
 
     override fun onIncidentVerifiedByUser(status: Boolean, response: JSONObject?) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onIncidentAlertCallback(status: Boolean, response: JSONObject?) {

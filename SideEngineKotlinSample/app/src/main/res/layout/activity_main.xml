@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,6 +21,21 @@
             android:textAlignment="center"
             android:padding="20dp"
             android:textSize="22sp"/>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Production mode"
+            android:textColor="@color/black"
+            android:fontFamily="@font/avenir_black"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="30dp"
+            android:textAlignment="center"
+            android:checked="true"
+            android:textSize="@dimen/text_20"
+            />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnStandard"
@@ -45,6 +59,19 @@
             android:layout_marginBottom="20dp"
             android:background="@drawable/btn_bg_corner"
             android:text="@string/custom_theme"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnStart" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnSOS"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/btn_bg_corner"
+            android:text="@string/emergency_sos"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btnStart" />

@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
 
     <ImageView
         android:id="@+id/ivCloseMain"
@@ -38,7 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/avenir_black"
-                android:text="@string/standard_theme"
+                android:text="@string/emergency_sos"
                 android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textSize="20sp" />
@@ -86,45 +87,29 @@
                 android:background="@drawable/edt_bg_corner"
                 android:hint="Email"
                 android:paddingStart="10dp" />
-
-            <TextView
-                android:id="@+id/mConfidence"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="30dp"
-                android:layout_marginBottom="20dp"
-                android:paddingStart="5dp"
-                android:textColor="@color/black"
-                android:textSize="@dimen/dim_20"
-                tools:text="abcd" />
-
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/mStartDesc"
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnSos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/mConfidence"
-            android:layout_marginStart="@dimen/dim_16"
-            android:layout_marginTop="@dimen/dim_10"
-            android:paddingStart="@dimen/dim_10"
-            android:text="Press button below to activate SIDE engine, then shake your phone repeatedly until an incident triggers"
-            android:textAlignment="center"
-            android:textColor="@color/black"
-            android:textSize="@dimen/text_12"
-            android:visibility="visible" />
-
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="30dp"
+            android:background="@drawable/btn_bg_corner"
+            android:text="Activate SOS"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnStart"
+            android:id="@+id/btnSOSLinkShare"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="30dp"
             android:background="@drawable/btn_bg_corner"
-            android:text="Start"
+            android:text="Share sos link "
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout" />

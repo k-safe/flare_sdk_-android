@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Flare SDK Implementation</string>
+    <string name="app_name">Flare SDK Demo</string>
     <string name="start" translatable="false">Start</string>
     <string name="btn_test_incident" translatable="false">Test Incident</string>
     <string name="stop" translatable="false">Stop</string>
@@ -13,4 +13,8 @@
     <string name="welcome_to_side_engine">Welcome to Side Engine</string>
     <string name="standard_theme">Standard Theme</string>
     <string name="custom_theme">Custom Theme</string>
+    <string name="emergency_sos">Emergency SOS</string>
+    <string name="incident_detected">Incident Detected</string>
+    <string name="demo_channel_id">sample_id</string>
+    <string name="channel_name">demo_channel</string>
 </resources>
