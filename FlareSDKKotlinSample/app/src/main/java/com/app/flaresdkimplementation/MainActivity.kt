@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.SwitchCompat
+import androidx.core.view.get
 import com.app.flaresdkimplementation.EmergencySOSActivity
 import com.app.flaresdkimplementation.databinding.ActivityMainBinding
 import com.sos.busbysideengine.Constants
@@ -32,8 +33,10 @@ class MainActivity : AppCompatActivity() {
 
         viewBinding.btnStandard.setOnClickListener {
             var mode = Constants.ENVIRONMENT_PRODUCTION
-            if(!viewBinding.swMode.isChecked){
+            if(viewBinding.rgEnvironment.get(0).isSelected ){
                 mode = Constants.ENVIRONMENT_SANDBOX
+            } else {
+                mode = Constants.ENVIRONMENT_PRODUCTION
             }
             val intent = Intent(this, StandardThemeActivity::class.java)
             intent.putExtra("mode",mode)
@@ -42,8 +45,10 @@ class MainActivity : AppCompatActivity() {
 
         viewBinding.btnCustom.setOnClickListener {
             var mode = Constants.ENVIRONMENT_PRODUCTION
-            if(!viewBinding.swMode.isChecked){
+            if(viewBinding.rgEnvironment.get(0).isSelected ){
                 mode = Constants.ENVIRONMENT_SANDBOX
+            } else {
+                mode = Constants.ENVIRONMENT_PRODUCTION
             }
             val intent = Intent(this, CustomThemeActivity::class.java)
             intent.putExtra("mode",mode)
@@ -51,31 +56,29 @@ class MainActivity : AppCompatActivity() {
         }
         viewBinding.btnCustom.setOnClickListener {
             var mode = Constants.ENVIRONMENT_PRODUCTION
-            if(!viewBinding.swMode.isChecked){
+            if(viewBinding.rgEnvironment.get(0).isSelected ){
                 mode = Constants.ENVIRONMENT_SANDBOX
+            } else {
+                mode = Constants.ENVIRONMENT_PRODUCTION
             }
             val intent = Intent(this, CustomThemeActivity::class.java)
             intent.putExtra("mode",mode)
             startActivity(intent)
         }
         viewBinding.btnSOS.setOnClickListener {
-            var mode = Constants.ENVIRONMENT_PRODUCTION
-            if(!viewBinding.swMode.isChecked){
-                mode = Constants.ENVIRONMENT_SANDBOX
-            }
             val intent = Intent(this, EmergencySOSActivity::class.java)
-            intent.putExtra("mode",mode)
             startActivity(intent)
         }
 
-        viewBinding.swMode.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
+
+        viewBinding.rgEnvironment.setOnCheckedChangeListener { group, checkedId ->
+            if (checkedId == R.id.rbProduction) {
                 // The switch is checked.
-                viewBinding.swMode.text = getString(R.string.production_mode)
+                viewBinding.rbProduction.text = getString(R.string.production_mode)
                 viewBinding.btnSOS.visibility = View.VISIBLE
             } else {
                 // The switch isn't checked.
-                viewBinding.swMode.text = getString(R.string.sandbox_mode)
+                viewBinding.rbSandBox.text = getString(R.string.sandbox_mode)
                 viewBinding.btnSOS.visibility = View.GONE
             }
         }
@@ -83,8 +86,10 @@ class MainActivity : AppCompatActivity() {
         viewBinding.btnEnableFlareAware.setOnClickListener {
 
             var mode = Constants.ENVIRONMENT_PRODUCTION
-            if(!viewBinding.swMode.isChecked){
+            if(viewBinding.rgEnvironment.get(0).isSelected ){
                 mode = Constants.ENVIRONMENT_SANDBOX
+            } else {
+                mode = Constants.ENVIRONMENT_PRODUCTION
             }
             val intent = Intent(this, EnableFlareAwareActivity::class.java)
             intent.putExtra("mode",mode)

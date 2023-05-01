@@ -21,7 +21,32 @@
             android:textColor="@color/black"
             android:textSize="22sp" />
 
-        <androidx.appcompat.widget.SwitchCompat
+
+
+        <RadioGroup
+            android:id="@+id/rgEnvironment"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:layout_height="match_parent" >
+
+            <RadioButton
+                android:id="@+id/rbSandBox"
+                android:layout_width="wrap_content"
+                android:checked="true"
+                android:textSize="20sp"
+                android:text="@string/sandbox_mode"
+                android:layout_height="wrap_content"/>
+
+            <RadioButton
+                android:id="@+id/rbProduction"
+                android:layout_width="wrap_content"
+                android:textSize="20sp"
+                android:text="@string/production_mode"
+                android:layout_height="wrap_content"/>
+
+        </RadioGroup>
+
+        <RadioGroup
             android:id="@+id/swMode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -41,6 +66,7 @@
             android:layout_marginTop="@dimen/dim_16"
             android:layout_gravity="center"
             android:layout_height="@dimen/dim_100"/>
+
 
 
     </LinearLayout>
