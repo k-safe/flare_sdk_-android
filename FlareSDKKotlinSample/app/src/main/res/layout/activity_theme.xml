@@ -51,7 +51,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="30dp"
                 android:background="@drawable/edt_bg_corner"
-                android:hint="Country code"
+                android:hint="@string/country_code"
                 android:paddingStart="10dp" />
 
             <EditText
@@ -62,7 +62,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="30dp"
                 android:background="@drawable/edt_bg_corner"
-                android:hint="Mobile number"
+                android:hint="@string/mobile_number"
                 android:paddingStart="10dp" />
 
             <EditText
@@ -73,7 +73,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="30dp"
                 android:background="@drawable/edt_bg_corner"
-                android:hint="Username"
+                android:hint="@string/username"
                 android:paddingStart="10dp" />
 
             <EditText
@@ -84,7 +84,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="30dp"
                 android:background="@drawable/edt_bg_corner"
-                android:hint="Email"
+                android:hint="@string/email"
                 android:paddingStart="10dp" />
 
             <TextView

@@ -71,13 +71,25 @@ class MainActivity : AppCompatActivity() {
         viewBinding.swMode.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // The switch is checked.
-                viewBinding.swMode.text = "Production mode"
+                viewBinding.swMode.text = getString(R.string.production_mode)
                 viewBinding.btnSOS.visibility = View.VISIBLE
             } else {
                 // The switch isn't checked.
-                viewBinding.swMode.text = "Sandbox mode"
+                viewBinding.swMode.text = getString(R.string.sandbox_mode)
                 viewBinding.btnSOS.visibility = View.GONE
             }
+        }
+
+        viewBinding.btnEnableFlareAware.setOnClickListener {
+
+            var mode = Constants.ENVIRONMENT_PRODUCTION
+            if(!viewBinding.swMode.isChecked){
+                mode = Constants.ENVIRONMENT_SANDBOX
+            }
+            val intent = Intent(this, EnableFlareAwareActivity::class.java)
+            intent.putExtra("mode",mode)
+            startActivity(intent)
+
         }
 
     }
