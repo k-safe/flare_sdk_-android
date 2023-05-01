@@ -1,4 +1,4 @@
-package com.sdksideengine.kotlin
+package com.app.flaresdkimplementation
 
 import android.os.Bundle
 import android.util.Log

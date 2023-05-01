@@ -1,4 +1,4 @@
-package com.sdksideengine.kotlin
+package com.app.flaresdkimplementation
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -8,20 +8,23 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.media.RingtoneManager
-import android.os.*
+import android.os.Build
+import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
-import com.app.flaresdkimplementation.R
 import com.app.flaresdkimplementation.databinding.ActivityThemeBinding
 import com.sos.busbysideengine.BBSideEngine
-import com.sos.busbysideengine.Constants.*
+import com.sos.busbysideengine.Constants.BBSideOperation
+import com.sos.busbysideengine.Constants.BBTheme
+import com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION
 import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener
 import com.sos.busbysideengine.utils.Common
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.*
+import java.util.Calendar
+import java.util.Random
 
 class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
 

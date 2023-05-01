@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Flare SDK Demo</string>
+    <string name="app_name">Flare SDK Sample</string>
     <string name="start" translatable="false">Start</string>
     <string name="btn_test_incident" translatable="false">Test Incident</string>
     <string name="stop" translatable="false">Stop</string>

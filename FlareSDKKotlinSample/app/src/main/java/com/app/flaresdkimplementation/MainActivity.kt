@@ -1,4 +1,4 @@
-package com.sdksideengine.kotlin
+package com.app.flaresdkimplementation
 
 import android.content.Intent
 import android.net.Uri
