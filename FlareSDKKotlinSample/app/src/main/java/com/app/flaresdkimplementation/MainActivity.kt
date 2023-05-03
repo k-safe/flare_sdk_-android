@@ -11,8 +11,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.get
-import com.app.flaresdkimplementation.EmergencySOSActivity
 import com.app.flaresdkimplementation.databinding.ActivityMainBinding
+import com.app.flaresdkimplementation.StandardThemeActivity
 import com.sos.busbysideengine.Constants
 
 class MainActivity : AppCompatActivity() {
@@ -24,16 +24,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-
-
         setListener()
     }
 
     private fun setListener() {
-
+        viewBinding.btnSOS.visibility = View.GONE
+        viewBinding.btnEnableFlareAware.visibility = View.GONE
         viewBinding.btnStandard.setOnClickListener {
-            var mode = Constants.ENVIRONMENT_PRODUCTION
-            if(viewBinding.rgEnvironment.get(0).isSelected ){
+            var mode = Constants.ENVIRONMENT_SANDBOX
+            if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
                 mode = Constants.ENVIRONMENT_SANDBOX
             } else {
                 mode = Constants.ENVIRONMENT_PRODUCTION
@@ -44,19 +43,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewBinding.btnCustom.setOnClickListener {
-            var mode = Constants.ENVIRONMENT_PRODUCTION
-            if(viewBinding.rgEnvironment.get(0).isSelected ){
-                mode = Constants.ENVIRONMENT_SANDBOX
-            } else {
-                mode = Constants.ENVIRONMENT_PRODUCTION
-            }
-            val intent = Intent(this, CustomThemeActivity::class.java)
-            intent.putExtra("mode",mode)
-            startActivity(intent)
-        }
-        viewBinding.btnCustom.setOnClickListener {
-            var mode = Constants.ENVIRONMENT_PRODUCTION
-            if(viewBinding.rgEnvironment.get(0).isSelected ){
+            var mode = Constants.ENVIRONMENT_SANDBOX
+            if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
                 mode = Constants.ENVIRONMENT_SANDBOX
             } else {
                 mode = Constants.ENVIRONMENT_PRODUCTION
@@ -76,21 +64,23 @@ class MainActivity : AppCompatActivity() {
                 // The switch is checked.
                 viewBinding.rbProduction.text = getString(R.string.production_mode)
                 viewBinding.btnSOS.visibility = View.VISIBLE
+                viewBinding.btnEnableFlareAware.visibility = View.VISIBLE
             } else {
                 // The switch isn't checked.
                 viewBinding.rbSandBox.text = getString(R.string.sandbox_mode)
                 viewBinding.btnSOS.visibility = View.GONE
+                viewBinding.btnEnableFlareAware.visibility = View.GONE
             }
         }
 
         viewBinding.btnEnableFlareAware.setOnClickListener {
 
-            var mode = Constants.ENVIRONMENT_PRODUCTION
-            if(viewBinding.rgEnvironment.get(0).isSelected ){
-                mode = Constants.ENVIRONMENT_SANDBOX
-            } else {
-                mode = Constants.ENVIRONMENT_PRODUCTION
-            }
+            val mode =
+                if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
+                    Constants.ENVIRONMENT_SANDBOX
+                } else {
+                    Constants.ENVIRONMENT_PRODUCTION
+                }
             val intent = Intent(this, EnableFlareAwareActivity::class.java)
             intent.putExtra("mode",mode)
             startActivity(intent)

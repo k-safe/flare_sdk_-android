@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.app.flaresdkimplementation.R
 import com.app.flaresdkimplementation.databinding.ActivityThemeBinding
 import com.sos.busbysideengine.BBSideEngine
 import com.sos.busbysideengine.Constants.BBSideOperation
@@ -48,7 +47,7 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
         bbSideEngine = BBSideEngine.getInstance(this)
         bbSideEngine.showLogs(true)
         bbSideEngine.setBBSideEngineListener(this)
-        bbSideEngine.setEnableVRUUpdates(true) //The "enableVRUUpdates" feature is a safety measure designed for cyclists, which allows them to send notifications to nearby fleet users.
+        bbSideEngine.setEnableFlareAwareNetwork(true) //The "enableFlareAwareNetwork" feature is a safety measure designed for cyclists, which allows them to send notifications to nearby fleet users.
         bbSideEngine.setDistanceFilterMeters(20) //It is possible to activate the distance filter in order to transmit location data in the live tracking URL. This will ensure that location updates are transmitted every 20 meters, once the timer interval has been reached.
         bbSideEngine.setLowFrequencyIntervalsSeconds(15) //The default value is 15 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(false) is invoked.
         bbSideEngine.setHighFrequencyIntervalsSeconds(3) //The default value is 3 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(true) is invoked.
@@ -57,9 +56,10 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
         bbSideEngine.enableActivityTelemetry(true)
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
         bbSideEngine.setStickyEnable(true)
-        //Sandbox mode used only for while developing your App (You can use theme STANDARD OR CUSTOM)
+
         val lic = if (ENVIRONMENT_PRODUCTION.equals(mode))
             "Your production license key here" else "Your sandbox license key here"
+
 
         BBSideEngine.configure(this, lic, mode,
             BBTheme.STANDARD
@@ -83,7 +83,7 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
 //        bbSideEngine.setSwipeButtonText("Swipe to Cancel") //Only for standard theme
 //        bbSideEngine.setImpactBody("Detected a potential fall or impact involving") //This message show in the SMS, email, webook and slack body with rider name passed in this method (bbSideEngine.setRiderName("App user name here");) parameter
 
-        //enableVRUUpdates is a safety for cyclist to send notifcation for near by fleet users
+        //enableFlareAwareNetwork is a safety for cyclist to send notifcation for near by fleet users
 
         setListener()
     }
@@ -151,16 +151,16 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 viewBinding.progressBar.visibility = View.GONE
             }
             BBSideOperation.START -> {
-                //Update your UI here (e.g. update START button color or text here when SIDE engine started)
+            //Update your UI here (e.g. update START button color or text here when SIDE engine started)
             }
             BBSideOperation.STOP -> {
-                //Update your UI here (e.g. update STOP button color or text here when SIDE engine started)
+            //Update your UI here (e.g. update STOP button color or text here when SIDE engine started)
             }
             BBSideOperation.SMS -> {
-                //Returns SMS delivery status and response payload
+            //Returns SMS delivery status and response payload
             }
             BBSideOperation.EMAIL -> {
-                //Returns email delivery status and response payload
+             //Returns email delivery status and response payload
             }
             BBSideOperation.INCIDENT_DETECTED -> {
                 Toast.makeText(this, "INCIDENT_DETECTED",Toast.LENGTH_LONG).show()
@@ -190,16 +190,16 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 //User canceled countdown countdown to get event here, this called only for if you configured standard theme.
             }
             BBSideOperation.INCIDENT_ALERT_SENT ->{
-                //Return the alert sent (returns alert details (i.e. time, location, recipient, success/failure))
+            //Return the alert sent (returns alert details (i.e. time, location, recipient, success/failure))
             }
             BBSideOperation.RESUME_SIDE_ENGINE ->{
-                //
+            //
             }
             BBSideOperation.TIMER_STARTED -> {
-                //Countdown timer started after breach delay, this called only if you configured standard theme.
+            //Countdown timer started after breach delay, this called only if you configured standard theme.
             }
             BBSideOperation.TIMER_FINISHED -> {
-                //Countdown timer finished and jump to the incident summary page, this called only if you configured standard theme.
+            //Countdown timer finished and jump to the incident summary page, this called only if you configured standard theme.
             }
             else -> {
                 Log.e("No Events Find",":")

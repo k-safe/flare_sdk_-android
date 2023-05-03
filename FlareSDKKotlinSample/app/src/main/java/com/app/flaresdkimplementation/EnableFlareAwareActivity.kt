@@ -20,6 +20,7 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
     }
     private lateinit var bbSideEngine: BBSideEngine
     private var checkConfiguration = false
+    private var isStartFlareAware = false
     private var mode: String? = ENVIRONMENT_PRODUCTION
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,12 +33,11 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
         var lic = if (ENVIRONMENT_PRODUCTION.equals(mode))
             "Your production license key here" else "Your sandbox license key here"
 
-        lic  = "a6628abe-aa88-47fc-b3a8-6bbb702c44c5";
-
         bbSideEngine = BBSideEngine.getInstance(this)
         bbSideEngine.showLogs(true)
         bbSideEngine.setBBSideEngineListener(this)
         bbSideEngine.enableActivityTelemetry(true)
+        bbSideEngine.setHighFrequencyModeEnabled(true) //It is recommended to activate the high frequency mode when the SOS function is engaged in order to enhance the quality of the live tracking experience.
 
         BBSideEngine.configure(this,
             lic,
@@ -55,6 +55,11 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
         viewBinding.btnStartFlareAware.setOnClickListener {
             if (checkConfiguration) {
                 // code here
+                if(isStartFlareAware){
+                    bbSideEngine.stopFlareAware()
+                }else{
+                    bbSideEngine.startFlareAware()
+                }
             }
         }
 
@@ -117,9 +122,32 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
             Constants.BBSideOperation.SOS_DEACTIVATE ->{
                // sos deactivate
             }
+            Constants.BBSideOperation.START_FLARE_AWARE ->{
+               // Start flare aware
+                if(response !== null){
+                    try {
+                        var error = response.getString("Error")
+                    }catch (e: Exception){
+                        Log.e("Error: ", e.stackTraceToString())
+                    }
+                }else{
+                    isStartFlareAware = true
+                    viewBinding.btnStartFlareAware.text = getString (R.string.stop_flare_aware)
+                }
+
+            }
+            Constants.BBSideOperation.STOP_FLARE_AWARE ->{
+               // Stop flare aware
+                isStartFlareAware = false
+                viewBinding.btnStartFlareAware.text = getString (R.string.start_flare_aware)
+            }
             else -> {
                 Log.e("No Events Find",":")
             }
         }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        bbSideEngine.stopFlareAware()
     }
 }

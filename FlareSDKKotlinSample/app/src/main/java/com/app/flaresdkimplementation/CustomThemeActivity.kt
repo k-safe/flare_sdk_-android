@@ -1,5 +1,6 @@
 package com.app.flaresdkimplementation
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -15,6 +16,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.app.flaresdkimplementation.databinding.ActivityThemeBinding
+import com.app.flaresdkimplementation.CustomUiActivity
 import com.sos.busbysideengine.BBSideEngine
 import com.sos.busbysideengine.Constants.BBSideOperation
 import com.sos.busbysideengine.Constants.BBTheme
@@ -56,11 +58,11 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
         bbSideEngine = BBSideEngine.getInstance(this)
         bbSideEngine.showLogs(true)
         bbSideEngine.setBBSideEngineListener(this)
-        bbSideEngine.setEnableVRUUpdates(true) //enableVRUUpdates is a safety for cyclist to send notification for near by fleet users
+        bbSideEngine.setEnableFlareAwareNetwork(true) //enableFlareAwareNetwork is a safety for cyclist to send notification for near by fleet users
         bbSideEngine.setDistanceFilterMeters(20) //You can switch distance filter to publish location in the live tracking url, this should be send location every 20 meters when timer intervals is reached.
         bbSideEngine.setLowFrequencyIntervalsSeconds(15) //Default is 15 sec, you can update this for your requirements, this will be used only when "high_frequency_mode_enabled" = false
         bbSideEngine.setHighFrequencyIntervalsSeconds(3) //Default is 3 seconds, you can update this for your requirements, this will be used only when "high_frequency_mode_enabled" = true
-        bbSideEngine.setHighFrequencyModeEnabled(false) //Recommendation to enable high frequency mode when SOS is active, this will help us to batter live tracking experience.
+        bbSideEngine.setHighFrequencyModeEnabled(true) //Recommendation to enable high frequency mode when SOS is active, this will help us to batter live tracking experience.
 
         bbSideEngine.enableActivityTelemetry(true)
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
@@ -242,35 +244,35 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
         val intent = Intent(this, CustomThemeActivity::class.java)
         var builder: Notification.Builder? = null
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel =
-                NotificationChannel(channelId, "Incident Detected", NotificationManager.IMPORTANCE_HIGH)
-            notificationChannel.lightColor = Color.BLUE
-            notificationChannel.enableVibration(true)
-            notificationManager.createNotificationChannel(notificationChannel)
-            builder = Notification
-                .Builder(this, channelId)
-                .setContentTitle(this.getString(R.string.app_name))
-                .setContentText("Incident Detect")
-                .setSmallIcon(R.mipmap.ic_launcher_round)
-                .setLargeIcon(BitmapFactory.decodeResource(this.resources, R.mipmap.ic_launcher_round))
-                .setContentIntent(pendingIntent)
+       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+           val notificationChannel =
+               NotificationChannel(channelId, "Incident Detected", NotificationManager.IMPORTANCE_HIGH)
+           notificationChannel.lightColor = Color.BLUE
+           notificationChannel.enableVibration(true)
+           notificationManager.createNotificationChannel(notificationChannel)
+           builder = Notification
+               .Builder(this, channelId)
+               .setContentTitle(this.getString(R.string.app_name))
+               .setContentText("Incident Detect")
+               .setSmallIcon(R.mipmap.ic_launcher_round)
+               .setLargeIcon(BitmapFactory.decodeResource(this.resources, R.mipmap.ic_launcher_round))
+               .setContentIntent(pendingIntent)
 
-            notificationManager.notify(randomNumber.toInt(), builder.build())
-        } else {
-            val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-            val builderLower: NotificationCompat.Builder = NotificationCompat.Builder(this,channelId)
-                .setContentTitle(this.getString(R.string.app_name))
-                .setContentText("Incident Detect")
-                .setAutoCancel(true)
-                .setSound(defaultSoundUri)
-                .setSmallIcon(com.sos.busbysideengine.R.drawable.ic_notification)
-                .setContentIntent(pendingIntent)
-                .setStyle(
-                    NotificationCompat.BigTextStyle().setBigContentTitle(this.getString(R.string.app_name)).bigText("Incident Detect")
-                )
-            notificationManager.notify(randomNumber.toInt(), builderLower.build())
-        }
+               notificationManager.notify(randomNumber.toInt(), builder.build())
+       } else {
+           val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+           val builderLower: NotificationCompat.Builder = NotificationCompat.Builder(this,channelId)
+               .setContentTitle(this.getString(R.string.app_name))
+               .setContentText("Incident Detect")
+               .setAutoCancel(true)
+               .setSound(defaultSoundUri)
+               .setSmallIcon(com.sos.busbysideengine.R.drawable.ic_notification)
+               .setContentIntent(pendingIntent)
+               .setStyle(
+                   NotificationCompat.BigTextStyle().setBigContentTitle(this.getString(R.string.app_name)).bigText("Incident Detect")
+               )
+               notificationManager.notify(randomNumber.toInt(), builderLower.build())
+       }
     }
 
     override fun onDestroy() {

@@ -26,6 +26,7 @@
     <string name="enable_flare_aware">Enable Flare Aware</string>
     <string name="flare_aware_demo">Flare Aware Demo</string>
     <string name="start_flare_aware">START Flare Aware</string>
+    <string name="stop_flare_aware">STOP Flare Aware</string>
     <string name="production_mode">Production mode</string>
     <string name="sandbox_mode">Sandbox mode</string>
 </resources>

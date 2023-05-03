@@ -23,10 +23,14 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
     private lateinit var bbSideEngine: BBSideEngine
     private var checkConfiguration = false
     private var sosLiveTrackingUrl: String = ""
+    private var mode: String? = ENVIRONMENT_PRODUCTION
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
+        mode = intent.getStringExtra("mode")
+
+        val lic = "Your production license key here"
 
         bbSideEngine = BBSideEngine.getInstance(this)
         bbSideEngine.showLogs(true)
@@ -34,7 +38,7 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
         bbSideEngine.enableActivityTelemetry(true)
 
         BBSideEngine.configure(this,
-            "a6628abe-aa88-47fc-b3a8-6bbb702c44c5",
+            lic,
             ENVIRONMENT_PRODUCTION,
             Constants.BBTheme.STANDARD
         )
@@ -140,3 +144,5 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
         }
     }
 }
+
+

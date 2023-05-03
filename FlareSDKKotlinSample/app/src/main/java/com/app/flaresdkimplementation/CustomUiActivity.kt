@@ -11,7 +11,6 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.app.flaresdkimplementation.R
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
@@ -151,7 +150,7 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
             //inactive function
             if (!isSurvey ||
                 (BBSideEngine.getInstance(null).surveyVideoURL() == null ||
-                        BBSideEngine.getInstance(null).surveyVideoURL() == "")) {
+                BBSideEngine.getInstance(null).surveyVideoURL() == "")) {
                 BBSideEngine.getInstance(null).resumeSideEngine();
                 finish()
             }else{
