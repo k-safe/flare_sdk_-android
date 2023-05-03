@@ -1,18 +1,11 @@
 package com.app.flaresdkimplementation
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.os.PowerManager
-import android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.widget.AppCompatButton
-import androidx.appcompat.widget.SwitchCompat
-import androidx.core.view.get
 import com.app.flaresdkimplementation.databinding.ActivityMainBinding
-import com.app.flaresdkimplementation.StandardThemeActivity
 import com.sos.busbysideengine.Constants
 
 class MainActivity : AppCompatActivity() {

@@ -1,6 +1,5 @@
 package com.app.flaresdkimplementation
 
-import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -16,7 +15,6 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.app.flaresdkimplementation.databinding.ActivityThemeBinding
-import com.app.flaresdkimplementation.CustomUiActivity
 import com.sos.busbysideengine.BBSideEngine
 import com.sos.busbysideengine.Constants.BBSideOperation
 import com.sos.busbysideengine.Constants.BBTheme
