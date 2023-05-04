@@ -21,8 +21,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setListener() {
-        viewBinding.btnSOS.visibility = View.GONE
-        viewBinding.btnEnableFlareAware.visibility = View.GONE
+        viewBinding.btnSOS.visibility = View.VISIBLE
+        viewBinding.btnEnableFlareAware.visibility = View.VISIBLE
         viewBinding.btnStandard.setOnClickListener {
             var mode = Constants.ENVIRONMENT_SANDBOX
             if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
@@ -61,8 +61,8 @@ class MainActivity : AppCompatActivity() {
             } else {
                 // The switch isn't checked.
                 viewBinding.rbSandBox.text = getString(R.string.sandbox_mode)
-                viewBinding.btnSOS.visibility = View.GONE
-                viewBinding.btnEnableFlareAware.visibility = View.GONE
+                viewBinding.btnSOS.visibility = View.VISIBLE
+                viewBinding.btnEnableFlareAware.visibility = View.VISIBLE
             }
         }
 
