@@ -24,11 +24,10 @@ class MainActivity : AppCompatActivity() {
         viewBinding.btnSOS.visibility = View.VISIBLE
         viewBinding.btnEnableFlareAware.visibility = View.VISIBLE
         viewBinding.btnStandard.setOnClickListener {
-            var mode = Constants.ENVIRONMENT_SANDBOX
-            if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
-                mode = Constants.ENVIRONMENT_SANDBOX
+            val mode: String? = if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
+                Constants.ENVIRONMENT_SANDBOX
             } else {
-                mode = Constants.ENVIRONMENT_PRODUCTION
+                Constants.ENVIRONMENT_PRODUCTION
             }
             val intent = Intent(this, StandardThemeActivity::class.java)
             intent.putExtra("mode",mode)
@@ -36,23 +35,22 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewBinding.btnCustom.setOnClickListener {
-            var mode = Constants.ENVIRONMENT_SANDBOX
-            if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
-                mode = Constants.ENVIRONMENT_SANDBOX
+            val mode: String? = if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
+                Constants.ENVIRONMENT_SANDBOX
             } else {
-                mode = Constants.ENVIRONMENT_PRODUCTION
+                Constants.ENVIRONMENT_PRODUCTION
             }
             val intent = Intent(this, CustomThemeActivity::class.java)
             intent.putExtra("mode",mode)
             startActivity(intent)
         }
+
         viewBinding.btnSOS.setOnClickListener {
             val intent = Intent(this, EmergencySOSActivity::class.java)
             startActivity(intent)
         }
 
-
-        viewBinding.rgEnvironment.setOnCheckedChangeListener { group, checkedId ->
+        viewBinding.rgEnvironment.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == R.id.rbProduction) {
                 // The switch is checked.
                 viewBinding.rbProduction.text = getString(R.string.production_mode)

@@ -34,11 +34,11 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
     var email: String? = ""
     private var word: String? = ""
     private var mapUri: String? = ""
-    var btnTestClicked = false
+    private var btnTestClicked = false
     private var ivCUIClose: ImageView? = null
 
-    private var isIncidentCanceled = true;
-    private var isSurvey = false;
+    private var isIncidentCanceled = true
+    private var isSurvey = false
 
     var rlCUIAlertView: RelativeLayout? = null
     var rlCUIIncidentView:RelativeLayout? = null
@@ -47,7 +47,7 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
     private var vibrator: Vibrator? = null
     var preferencesHelper: PreferencesHelper? = null
 
-    var common: Common? = null
+    private var common: Common? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.custom_ui)
@@ -92,8 +92,8 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
 
     private fun setListener() {
         startVibrate()
-        val time = common?.timerInterval;
-        countDownTimer = object : CountDownTimer((time?.times(1000))?.toLong()!!, 1000) {
+        val time = common?.timerInterval
+        countDownTimer = object : CountDownTimer((time?.times(1000))!!, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 tvCUISeconds!!.text = "" + millisUntilFinished / 1000
                 //here you can have your logic to set text to edittext
@@ -121,9 +121,9 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
                 //TODO: notify to partner
                 BBSideEngine.getInstance(null).notifyPartner()
 
-                if(Common.getInstance().isAppInBackground()) {
-                    BBSideEngine.getInstance(null).resumeSensorIfAppInBackground();
-                    finish();
+                if(Common.getInstance().isAppInBackground) {
+                    BBSideEngine.getInstance(null).resumeSensorIfAppInBackground()
+                    finish()
                 }
                 isSurvey = true
                 rlCUIAlertView!!.visibility = View.VISIBLE
@@ -142,7 +142,7 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
             }
         }.start()
 
-        ivCUIClose?.setOnClickListener { v ->
+        ivCUIClose?.setOnClickListener {
             if (countDownTimer != null) {
                 countDownTimer!!.cancel()
             }
@@ -151,7 +151,7 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
             if (!isSurvey ||
                 (BBSideEngine.getInstance(null).surveyVideoURL() == null ||
                 BBSideEngine.getInstance(null).surveyVideoURL() == "")) {
-                BBSideEngine.getInstance(null).resumeSideEngine();
+                BBSideEngine.getInstance(null).resumeSideEngine()
                 finish()
             }else{
                 BBSideEngine.getInstance(null).startSurveyVideoActivity()

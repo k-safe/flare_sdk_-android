@@ -27,7 +27,7 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
     private var btnTestClicked = false
     private var checkConfiguration = false
     private var mConfidence : String? = null
-    private var sosLiveTrackingUrl: String = ""
+
     companion object {
         fun getRandomNumberString (): String {
             val rnd = Random()
@@ -78,12 +78,12 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
 //        bbSideEngine.setIncidentPageHeaderColor("#ff0000") //Only for standard theme
 //        bbSideEngine.setIncidentPageBackgroundColor("#ff00ff") //Only for standard theme
 //        bbSideEngine.setIncidentPageHeaderMessageColor("#ffffff") //Only for standard theme
-//        bbSideEngine.setSwipeButtonBgColor(R.color.white) //Default "ffffff" //Only for standard theme
+//        bbSideEngine.setSwipeButtonBgColor(R.color.white) //Default "#ffffff" //Only for standard theme
 //        bbSideEngine.setSwipeButtonTextSize(18) // Default 16 //Only for standard theme
 //        bbSideEngine.setSwipeButtonText("Swipe to Cancel") //Only for standard theme
-//        bbSideEngine.setImpactBody("Detected a potential fall or impact involving") //This message show in the SMS, email, webook and slack body with rider name passed in this method (bbSideEngine.setRiderName("App user name here");) parameter
+//        bbSideEngine.setImpactBody("Detected a potential fall or impact involving") //This message show in the SMS, email, webhook and slack body with rider name passed in this method (bbSideEngine.setRiderName("App user name here");) parameter
 
-        //enableFlareAwareNetwork is a safety for cyclist to send notifcation for near by fleet users
+        //enableFlareAwareNetwork is a safety for cyclist to send notification for near by fleet users
 
         setListener()
     }

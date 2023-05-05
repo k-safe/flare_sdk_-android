@@ -7,13 +7,10 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.media.RingtoneManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationCompat
 import com.app.flaresdkimplementation.databinding.ActivityThemeBinding
 import com.sos.busbysideengine.BBSideEngine
 import com.sos.busbysideengine.Constants.BBSideOperation
@@ -168,7 +165,7 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
                             viewBinding.mConfidence.visibility = View.VISIBLE
                             try {
                                 viewBinding.mConfidence.text = "Confidence: + $mConfidence"
-                            } catch (e: Exception) {
+                            } catch (ignored: Exception) {
                             }
                         }
                         Log.e("", mCustomTheme.toString() + "")
@@ -240,37 +237,22 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
         val randomNumber = calendar.timeInMillis
         val channelId = "12345"
         val intent = Intent(this, CustomThemeActivity::class.java)
-        var builder: Notification.Builder? = null
+        val builder: Notification.Builder?
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE)
-       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-           val notificationChannel =
-               NotificationChannel(channelId, "Incident Detected", NotificationManager.IMPORTANCE_HIGH)
-           notificationChannel.lightColor = Color.BLUE
-           notificationChannel.enableVibration(true)
-           notificationManager.createNotificationChannel(notificationChannel)
-           builder = Notification
-               .Builder(this, channelId)
-               .setContentTitle(this.getString(R.string.app_name))
-               .setContentText("Incident Detect")
-               .setSmallIcon(R.mipmap.ic_launcher_round)
-               .setLargeIcon(BitmapFactory.decodeResource(this.resources, R.mipmap.ic_launcher_round))
-               .setContentIntent(pendingIntent)
+        val notificationChannel =
+            NotificationChannel(channelId, "Incident Detected", NotificationManager.IMPORTANCE_HIGH)
+        notificationChannel.lightColor = Color.BLUE
+        notificationChannel.enableVibration(true)
+        notificationManager.createNotificationChannel(notificationChannel)
+        builder = Notification
+            .Builder(this, channelId)
+            .setContentTitle(this.getString(R.string.app_name))
+            .setContentText("Incident Detect")
+            .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setLargeIcon(BitmapFactory.decodeResource(this.resources, R.mipmap.ic_launcher_round))
+            .setContentIntent(pendingIntent)
 
-               notificationManager.notify(randomNumber.toInt(), builder.build())
-       } else {
-           val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-           val builderLower: NotificationCompat.Builder = NotificationCompat.Builder(this,channelId)
-               .setContentTitle(this.getString(R.string.app_name))
-               .setContentText("Incident Detect")
-               .setAutoCancel(true)
-               .setSound(defaultSoundUri)
-               .setSmallIcon(com.sos.busbysideengine.R.drawable.ic_notification)
-               .setContentIntent(pendingIntent)
-               .setStyle(
-                   NotificationCompat.BigTextStyle().setBigContentTitle(this.getString(R.string.app_name)).bigText("Incident Detect")
-               )
-               notificationManager.notify(randomNumber.toInt(), builderLower.build())
-       }
+        notificationManager.notify(randomNumber.toInt(), builder.build())
     }
 
     override fun onDestroy() {
