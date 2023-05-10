@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "87796261714",
+    "project_id": "sdk-sample-app-8e22d",
+    "storage_bucket": "sdk-sample-app-8e22d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:87796261714:android:77a1d8333ff8238467108b",
+        "android_client_info": {
+          "package_name": "com.flare.sdk.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "87796261714-10r9jqapdt04av5smojtluf5h9b43sa7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVDtRcVH4wrzuIJsdAXeE-qpNsOPOo8Sk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "87796261714-10r9jqapdt04av5smojtluf5h9b43sa7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "87796261714-e8ec5ff23ignpjpdiguhi2qegs87ka6m.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.flare.sdk-ios"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

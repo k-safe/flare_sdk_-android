@@ -3,6 +3,14 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
+        maven {
+            name = "SideEngineSDK"
+            url = uri("https://maven.pkg.github.com/k-safe/busbysdk_android")
+            credentials {
+                username = gitUserName
+                password = gitToken
+            }
+        }
     }
 }
 dependencyResolutionManagement {

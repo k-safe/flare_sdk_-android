@@ -19,6 +19,7 @@ import com.sos.busbysideengine.BBSideEngine
 import com.sos.busbysideengine.location.PreferencesHelper
 import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineUIListener
 import com.sos.busbysideengine.utils.Common
+import com.sos.busbysideengine.utils.ContactClass
 import org.json.JSONObject
 import java.util.*
 
@@ -30,15 +31,17 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
     private var tvCUIWord: TextView? = null
     private var countDownTimer: CountDownTimer? = null
     private var rlCUIMainBg: RelativeLayout? = null
-    var userName: String? = ""
-    var email: String? = ""
+    private var userName: String? = ""
+    private var email: String? = ""
+    private var mobileNo: String? = ""
+    private var countryCode: String? = ""
     private var word: String? = ""
     private var mapUri: String? = ""
-    private var btnTestClicked = false
+    var btnTestClicked = false
     private var ivCUIClose: ImageView? = null
 
-    private var isIncidentCanceled = true
-    private var isSurvey = false
+    private var isIncidentCanceled = true;
+    private var isSurvey = false;
 
     var rlCUIAlertView: RelativeLayout? = null
     var rlCUIIncidentView:RelativeLayout? = null
@@ -47,7 +50,7 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
     private var vibrator: Vibrator? = null
     var preferencesHelper: PreferencesHelper? = null
 
-    private var common: Common? = null
+    var common: Common? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.custom_ui)
@@ -63,6 +66,8 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
         val intent = intent
         userName = intent.getStringExtra("userName")
         email = intent.getStringExtra("email")
+        mobileNo = intent.getStringExtra("mobileNo")
+        countryCode = intent.getStringExtra("countryCode")
         btnTestClicked = intent.getBooleanExtra("btnTestClicked", false)
         rlCUIAlertView = findViewById(R.id.rlCUIAlertView)
         rlCUIIncidentView = findViewById(R.id.rlCUIIncidentView)
@@ -90,10 +95,32 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
         return String.format("%06d", number)
     }
 
+    private fun sendEmail() {
+        if (email == "") {
+            return
+        }
+        BBSideEngine.getInstance(null).sendEmail(email)
+    }
+
+    private fun sendSMS() {
+        if (countryCode == "" ||
+            userName == "" ||
+            mobileNo == "") {
+            return
+        }
+
+        val contact = ContactClass()
+        contact.countryCode = countryCode
+        contact.phoneNumber = mobileNo
+        contact.userName = userName
+        BBSideEngine.getInstance(null).sendSMS(contact)
+    }
+
+
     private fun setListener() {
         startVibrate()
-        val time = common?.timerInterval
-        countDownTimer = object : CountDownTimer((time?.times(1000))!!, 1000) {
+        val time = common?.timerInterval;
+        countDownTimer = object : CountDownTimer((time?.times(1000))?.toLong()!!, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 tvCUISeconds!!.text = "" + millisUntilFinished / 1000
                 //here you can have your logic to set text to edittext
@@ -113,17 +140,16 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
                 //TODO: call method for fetching W3W Location data
                 BBSideEngine.getInstance(null).fetchWhat3WordLocation(this@CustomUiActivity)
 
-                //TODO: Send Email
-                if(email !== null && !email.equals("")){
-                    BBSideEngine.getInstance(null).sendEmail(email,false) // Replace your emergency email address
-                }
+                //TODO: Send Email and SMS
+                sendEmail()
+                sendSMS()
 
                 //TODO: notify to partner
                 BBSideEngine.getInstance(null).notifyPartner()
 
-                if(Common.getInstance().isAppInBackground) {
-                    BBSideEngine.getInstance(null).resumeSensorIfAppInBackground()
-                    finish()
+                if(Common.getInstance().isAppInBackground()) {
+                    BBSideEngine.getInstance(null).resumeSensorIfAppInBackground();
+                    finish();
                 }
                 isSurvey = true
                 rlCUIAlertView!!.visibility = View.VISIBLE
@@ -142,7 +168,7 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
             }
         }.start()
 
-        ivCUIClose?.setOnClickListener {
+        ivCUIClose?.setOnClickListener { v ->
             if (countDownTimer != null) {
                 countDownTimer!!.cancel()
             }
@@ -150,8 +176,8 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
             //inactive function
             if (!isSurvey ||
                 (BBSideEngine.getInstance(null).surveyVideoURL() == null ||
-                BBSideEngine.getInstance(null).surveyVideoURL() == "")) {
-                BBSideEngine.getInstance(null).resumeSideEngine()
+                        BBSideEngine.getInstance(null).surveyVideoURL() == "")) {
+                BBSideEngine.getInstance(null).resumeSideEngine();
                 finish()
             }else{
                 BBSideEngine.getInstance(null).startSurveyVideoActivity()

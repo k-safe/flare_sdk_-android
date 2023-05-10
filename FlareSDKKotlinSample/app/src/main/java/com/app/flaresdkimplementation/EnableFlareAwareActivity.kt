@@ -1,11 +1,16 @@
 package com.app.flaresdkimplementation
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.app.flaresdkimplementation.databinding.ActivityFlareawareBinding
 import com.sos.busbysideengine.BBSideEngine
 import com.sos.busbysideengine.Constants
@@ -30,14 +35,18 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
         val intent = intent
         mode = intent.getStringExtra("mode")
 
-        val lic = if (ENVIRONMENT_PRODUCTION.equals(mode))
+        var lic = if (ENVIRONMENT_PRODUCTION.equals(mode))
             "Your production license key here" else "Your sandbox license key here"
 
         bbSideEngine = BBSideEngine.getInstance(this)
         bbSideEngine.showLogs(true)
         bbSideEngine.setBBSideEngineListener(this)
         bbSideEngine.enableActivityTelemetry(true)
+        bbSideEngine.setEnableFlareAwareNetwork(true)
         bbSideEngine.setHighFrequencyModeEnabled(true) //It is recommended to activate the high frequency mode when the SOS function is engaged in order to enhance the quality of the live tracking experience.
+        bbSideEngine.setDistanceFilterMeters(20) //It is possible to activate the distance filter in order to transmit location data in the live tracking URL. This will ensure that location updates are transmitted every 20 meters, once the timer interval has been reached.
+        bbSideEngine.setLowFrequencyIntervalsSeconds(15) //The default value is 15 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(false) is invoked.
+        bbSideEngine.setHighFrequencyIntervalsSeconds(3) //The default value is 3 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(true) is invoked.
 
         BBSideEngine.configure(this,
             lic,
@@ -49,16 +58,32 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
 
     @SuppressLint("HardwareIds")
     private fun setListener() {
-        viewBinding.ivCloseMain.setOnClickListener{
+        viewBinding.ivCloseMain.setOnClickListener {
             finish()
         }
         viewBinding.btnStartFlareAware.setOnClickListener {
             if (checkConfiguration) {
                 // code here
-                if(isStartFlareAware){
-                    bbSideEngine.stopFlareAware()
-                }else{
-                    bbSideEngine.startFlareAware()
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                    || ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                        0
+                    )
+                } else {
+                    if (isStartFlareAware) {
+                        bbSideEngine.stopFlareAware()
+                    } else {
+                        bbSideEngine.startFlareAware()
+                    }
                 }
             }
         }
@@ -74,6 +99,13 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
         if (!checkConfiguration) {
             return
         }
+        if (requestCode == 0) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                bbSideEngine.startFlareAware()
+            },2000)
+        } else if (requestCode == 1) {
+//            viewBinding.btnStart.text = getString(R.string.start)
+        }
     }
 
     override fun onSideEngineCallback(
@@ -85,67 +117,82 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
             Constants.BBSideOperation.CONFIGURE -> {
                 // if status = true Now you can ready to start Side engine process
                 checkConfiguration = status
-                Log.e("Configured",status.toString())
+                Log.e("Configured", status.toString())
                 viewBinding.progressBar.visibility = View.GONE
             }
+
             Constants.BBSideOperation.START -> {
-            //Update your UI here (e.g. update START button color or text here when SIDE engine started)
+                //Update your UI here (e.g. update START button color or text here when SIDE engine started)
             }
+
             Constants.BBSideOperation.STOP -> {
-            //Update your UI here (e.g. update STOP button color or text here when SIDE engine started)
+                //Update your UI here (e.g. update STOP button color or text here when SIDE engine started)
             }
+
             Constants.BBSideOperation.SMS -> {
-            //Returns SMS delivery status and response payload
+                //Returns SMS delivery status and response payload
             }
+
             Constants.BBSideOperation.EMAIL -> {
-             //Returns email delivery status and response payload
+                //Returns email delivery status and response payload
             }
+
             Constants.BBSideOperation.INCIDENT_DETECTED -> {
-                Toast.makeText(this, "INCIDENT_DETECTED",Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "INCIDENT_DETECTED", Toast.LENGTH_LONG).show()
                 //Threshold reached and you will redirect to countdown page
             }
+
             Constants.BBSideOperation.INCIDENT_CANCEL -> {
                 //User canceled countdown countdown to get event here, this called only for if you configured standard theme.
             }
-            Constants.BBSideOperation.INCIDENT_ALERT_SENT ->{
-            //Return the alert sent (returns alert details (i.e. time, location, recipient, success/failure))
+
+            Constants.BBSideOperation.INCIDENT_ALERT_SENT -> {
+                //Return the alert sent (returns alert details (i.e. time, location, recipient, success/failure))
             }
+
             Constants.BBSideOperation.TIMER_STARTED -> {
-            //Countdown timer started after breach delay, this called only if you configured standard theme.
+                //Countdown timer started after breach delay, this called only if you configured standard theme.
             }
+
             Constants.BBSideOperation.TIMER_FINISHED -> {
-            //Countdown timer finished and jump to the incident summary page, this called only if you configured standard theme.
+                //Countdown timer finished and jump to the incident summary page, this called only if you configured standard theme.
             }
-            Constants.BBSideOperation.SOS_ACTIVATE ->{
-               // sos activate
+
+            Constants.BBSideOperation.SOS_ACTIVATE -> {
+                // sos activate
             }
-            Constants.BBSideOperation.SOS_DEACTIVATE ->{
-               // sos deactivate
+
+            Constants.BBSideOperation.SOS_DEACTIVATE -> {
+                // sos deactivate
             }
-            Constants.BBSideOperation.START_FLARE_AWARE ->{
-               // Start flare aware
-                if(response !== null){
+
+            Constants.BBSideOperation.START_FLARE_AWARE -> {
+                // Start flare aware
+                if (response != null) {
                     try {
                         var error = response.getString("Error")
-                    }catch (e: Exception){
+                    } catch (e: Exception) {
                         Log.e("Error: ", e.stackTraceToString())
                     }
-                }else{
+                } else {
                     isStartFlareAware = true
-                    viewBinding.btnStartFlareAware.text = getString (R.string.stop_flare_aware)
+                    viewBinding.btnStartFlareAware.text = getString(R.string.stop_flare_aware)
                 }
 
             }
-            Constants.BBSideOperation.STOP_FLARE_AWARE ->{
-               // Stop flare aware
+
+            Constants.BBSideOperation.STOP_FLARE_AWARE -> {
+                // Stop flare aware
                 isStartFlareAware = false
-                viewBinding.btnStartFlareAware.text = getString (R.string.start_flare_aware)
+                viewBinding.btnStartFlareAware.text = getString(R.string.start_flare_aware)
             }
+
             else -> {
-                Log.e("No Events Find",":")
+                Log.e("No Events Find", ":")
             }
         }
     }
+
     override fun onDestroy() {
         super.onDestroy()
         bbSideEngine.stopFlareAware()

@@ -11,6 +11,7 @@ import com.sos.busbysideengine.Constants.BBSideOperation
 import com.sos.busbysideengine.Constants.BBTheme
 import com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION
 import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener
+import com.sos.busbysideengine.utils.ContactClass
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
@@ -27,7 +28,7 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
     private var btnTestClicked = false
     private var checkConfiguration = false
     private var mConfidence : String? = null
-
+    private var sosLiveTrackingUrl: String = ""
     companion object {
         fun getRandomNumberString (): String {
             val rnd = Random()
@@ -51,11 +52,10 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
         bbSideEngine.setDistanceFilterMeters(20) //It is possible to activate the distance filter in order to transmit location data in the live tracking URL. This will ensure that location updates are transmitted every 20 meters, once the timer interval has been reached.
         bbSideEngine.setLowFrequencyIntervalsSeconds(15) //The default value is 15 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(false) is invoked.
         bbSideEngine.setHighFrequencyIntervalsSeconds(3) //The default value is 3 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(true) is invoked.
-        bbSideEngine.setHighFrequencyModeEnabled(true) //It is recommended to activate the high frequency mode when the SOS function is engaged in order to enhance the quality of the live tracking experience.
-
+        bbSideEngine.setHighFrequencyModeEnabled(false) //It is recommended to activate the high frequency mode when the SOS function is engaged in order to enhance the quality of the live tracking experience.
         bbSideEngine.enableActivityTelemetry(true)
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
-        bbSideEngine.setStickyEnable(true)
+        bbSideEngine.setStickyEnable(false)
 
         val lic = if (ENVIRONMENT_PRODUCTION.equals(mode))
             "Your production license key here" else "Your sandbox license key here"
@@ -78,12 +78,12 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
 //        bbSideEngine.setIncidentPageHeaderColor("#ff0000") //Only for standard theme
 //        bbSideEngine.setIncidentPageBackgroundColor("#ff00ff") //Only for standard theme
 //        bbSideEngine.setIncidentPageHeaderMessageColor("#ffffff") //Only for standard theme
-//        bbSideEngine.setSwipeButtonBgColor(R.color.white) //Default "#ffffff" //Only for standard theme
+//        bbSideEngine.setSwipeButtonBgColor(R.color.white) //Default "ffffff" //Only for standard theme
 //        bbSideEngine.setSwipeButtonTextSize(18) // Default 16 //Only for standard theme
 //        bbSideEngine.setSwipeButtonText("Swipe to Cancel") //Only for standard theme
-//        bbSideEngine.setImpactBody("Detected a potential fall or impact involving") //This message show in the SMS, email, webhook and slack body with rider name passed in this method (bbSideEngine.setRiderName("App user name here");) parameter
+//        bbSideEngine.setImpactBody("Detected a potential fall or impact involving") //This message show in the SMS, email, webook and slack body with rider name passed in this method (bbSideEngine.setRiderName("App user name here");) parameter
 
-        //enableFlareAwareNetwork is a safety for cyclist to send notification for near by fleet users
+        //enableFlareAwareNetwork is a safety for cyclist to send notifcation for near by fleet users
 
         setListener()
     }
@@ -98,6 +98,8 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
 
             bbSideEngine.setUserEmail(viewBinding.etvUserEmail.text.toString().trim())
             bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
+            bbSideEngine.setUserCountryCode(viewBinding.etvCountryCode.text.toString().trim())
+            bbSideEngine.setUserMobile(viewBinding.etvMobileNumber.text.toString().trim())
 
             btnTestClicked = false
             if (bbSideEngine.isEngineStarted) {
@@ -114,6 +116,33 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 viewBinding.btnStart.text =getString(R.string.start)
             }
         }
+
+//        viewBinding.etvUserEmail.text = Editable.Factory.getInstance().newEditable("bhavintnm@gmail.com")
+//        viewBinding.etvCountryCode.text = Editable.Factory.getInstance().newEditable("91")
+//        viewBinding.etvMobileNumber.text = Editable.Factory.getInstance().newEditable("9725162024")
+//        viewBinding.etvUserName.text = Editable.Factory.getInstance().newEditable("Bhavin")
+
+    }
+
+    private fun sendEmail() {
+        if (viewBinding.etvUserEmail.text.toString() == "") {
+            return
+        }
+        bbSideEngine.sendEmail(viewBinding.etvUserEmail.text.toString())
+    }
+
+    private fun sendSMS() {
+        if (viewBinding.etvCountryCode.text.toString() == "" ||
+            viewBinding.etvUserName.text.toString() == "" ||
+            viewBinding.etvMobileNumber.text.toString() == "") {
+            return
+        }
+
+        val contact = ContactClass()
+        contact.countryCode = viewBinding.etvCountryCode.text.toString()
+        contact.phoneNumber = viewBinding.etvMobileNumber.text.toString()
+        contact.userName = viewBinding.etvUserName.text.toString()
+        bbSideEngine.sendSMS(contact)
     }
 
     override fun onRequestPermissionsResult(
@@ -151,16 +180,16 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 viewBinding.progressBar.visibility = View.GONE
             }
             BBSideOperation.START -> {
-            //Update your UI here (e.g. update START button color or text here when SIDE engine started)
+                //Update your UI here (e.g. update START button color or text here when SIDE engine started)
             }
             BBSideOperation.STOP -> {
-            //Update your UI here (e.g. update STOP button color or text here when SIDE engine started)
+                //Update your UI here (e.g. update STOP button color or text here when SIDE engine started)
             }
             BBSideOperation.SMS -> {
-            //Returns SMS delivery status and response payload
+                //Returns SMS delivery status and response payload
             }
             BBSideOperation.EMAIL -> {
-             //Returns email delivery status and response payload
+                //Returns email delivery status and response payload
             }
             BBSideOperation.INCIDENT_DETECTED -> {
                 Toast.makeText(this, "INCIDENT_DETECTED",Toast.LENGTH_LONG).show()
@@ -169,6 +198,7 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 bbSideEngine.setUserId(getRandomNumberString())
                 //TODO: Set rider name
                 bbSideEngine.setRiderName(viewBinding.etvUserName.text.toString().trim())
+
                 if (status) {
                     try {
                         //Return incident status and confidence level, you can fetch confidence using the below code:
@@ -190,16 +220,18 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 //User canceled countdown countdown to get event here, this called only for if you configured standard theme.
             }
             BBSideOperation.INCIDENT_ALERT_SENT ->{
-            //Return the alert sent (returns alert details (i.e. time, location, recipient, success/failure))
+                //Return the alert sent (returns alert details (i.e. time, location, recipient, success/failure))
             }
             BBSideOperation.RESUME_SIDE_ENGINE ->{
-            //
+                //
             }
             BBSideOperation.TIMER_STARTED -> {
-            //Countdown timer started after breach delay, this called only if you configured standard theme.
+                //Countdown timer started after breach delay, this called only if you configured standard theme.
             }
             BBSideOperation.TIMER_FINISHED -> {
-            //Countdown timer finished and jump to the incident summary page, this called only if you configured standard theme.
+                sendSMS()
+                sendEmail()
+                //Countdown timer finished and jump to the incident summary page, this called only if you configured standard theme.
             }
             else -> {
                 Log.e("No Events Find",":")

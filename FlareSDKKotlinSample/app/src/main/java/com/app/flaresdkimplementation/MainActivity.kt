@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         viewBinding.btnSOS.visibility = View.VISIBLE
         viewBinding.btnEnableFlareAware.visibility = View.VISIBLE
         viewBinding.btnStandard.setOnClickListener {
-            val mode: String? = if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
+            val mode = if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
                 Constants.ENVIRONMENT_SANDBOX
             } else {
                 Constants.ENVIRONMENT_PRODUCTION
@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewBinding.btnCustom.setOnClickListener {
-            val mode: String? = if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
+            val mode = if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
                 Constants.ENVIRONMENT_SANDBOX
             } else {
                 Constants.ENVIRONMENT_PRODUCTION
@@ -44,11 +44,11 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("mode",mode)
             startActivity(intent)
         }
-
         viewBinding.btnSOS.setOnClickListener {
             val intent = Intent(this, EmergencySOSActivity::class.java)
             startActivity(intent)
         }
+
 
         viewBinding.rgEnvironment.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == R.id.rbProduction) {
