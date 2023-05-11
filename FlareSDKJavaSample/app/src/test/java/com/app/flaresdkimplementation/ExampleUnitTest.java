@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.flare.sdk.android;
 
 import org.junit.Test;
 

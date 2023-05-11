@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.flare.sdk.android;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +24,8 @@ import com.sos.busbysideengine.BBSideEngine;
 import com.sos.busbysideengine.location.LocationData;
 import com.sos.busbysideengine.location.PreferencesHelper;
 import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineUIListener;
+import com.sos.busbysideengine.utils.Common;
+import com.sos.busbysideengine.utils.ContactClass;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,7 +39,7 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
 
     CountDownTimer countDownTimer;
     RelativeLayout rlCUIMainBg;
-    String userName = "", email = "", word = "", mapUri = "";
+    String userName = "", email = "", word = "", mapUri = "", mobileNo= "", countryCode= "";
     boolean btnTestClicked = false;
     boolean isSurvey = false;
     ImageView ivCUIClose;
@@ -48,12 +50,18 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
     Vibrator vibrator;
 
     PreferencesHelper preferencesHelper = null;
+    private Common common;
+
+    boolean isIncidentCanceled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.custom_ui);
+
+        common = Common.getInstance();
         preferencesHelper = PreferencesHelper.getPreferencesHelper();
+
         init();
         setListener();
         setClick();
@@ -61,10 +69,15 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
 
     public void init() {
         BBSideEngine.getInstance(null).setBBSideEngineListenerInLib(this);
+
         Intent intent = getIntent();
         userName = intent.getStringExtra("userName");
         email = intent.getStringExtra("email");
+        mobileNo = intent.getStringExtra("mobileNo");
+        countryCode = intent.getStringExtra("countryCode");
         btnTestClicked = intent.getBooleanExtra("btnTestClicked", false);
+
+        // Ui
         rlCUIAlertView = findViewById(R.id.rlCUIAlertView);
         rlCUIIncidentView = findViewById(R.id.rlCUIIncidentView);
         tvCUIlatlong = findViewById(R.id.tvCUIlatlong);
@@ -77,14 +90,11 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
     }
 
     public void setClick() {
-        tvCUIWord.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!mapUri.equals("")) {
-                    Intent i = new Intent(Intent.ACTION_VIEW);
-                    i.setData(Uri.parse(mapUri));
-                    startActivity(i);
-                }
+        tvCUIWord.setOnClickListener(v -> {
+            if (!mapUri.equals("")) {
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(mapUri));
+                startActivity(i);
             }
         });
     }
@@ -99,12 +109,31 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
         return String.format("%06d", number);
     }
 
+    private void sendEmail() {
+        if (email.equals("")) {
+            return;
+        }
+        BBSideEngine.getInstance(null).sendEmail(email);
+    }
+
+    private void sendSMS() {
+        if (countryCode.equals("") ||
+                userName.equals("") ||
+                mobileNo.equals("")) {
+            return;
+        }
+
+        ContactClass contact = new ContactClass();
+        contact.setCountryCode(countryCode);
+        contact.setPhoneNumber(mobileNo);
+        contact.setUserName(userName);
+        BBSideEngine.getInstance(null).sendSMS(contact);
+    }
+
     public void setListener() {
         startVibrate();
-        int time = 30;
-        if(btnTestClicked){
-            time = 5;
-        }
+        long time = common.getTimerInterval();
+
         countDownTimer = new CountDownTimer((time * 1000), 1000) {
 
             public void onTick(long millisUntilFinished) {
@@ -113,19 +142,30 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
             }
 
             public void onFinish() {
+                isIncidentCanceled = false;
                 stopVibrate();
+
                 //TODO: Set user id
                 BBSideEngine.getInstance(null).setUserId(getRandomNumberString());
+
                 //TODO: Set rider name
                 BBSideEngine.getInstance(null).setRiderName(userName);
+
                 //TODO: call method for fetching W3W Location data
                 BBSideEngine.getInstance(null).fetchWhat3WordLocation(CustomUiActivity.this);
-                //TODO: Send Email
-                BBSideEngine.getInstance(null).sendEmail(email, btnTestClicked);// Replace your emergency email address
-                if(!btnTestClicked){
-                    //TODO: notify to partner
-                    BBSideEngine.getInstance(null).notifyPartner();
+
+                //TODO: Send Email and SMS
+                sendEmail();
+                sendSMS();
+
+                //TODO: notify to partner
+                BBSideEngine.getInstance(null).notifyPartner();
+
+                if(common.isAppInBackground()) {
+                    BBSideEngine.getInstance(null).resumeSensorIfAppInBackground();
+                    finish();
                 }
+
                 isSurvey = true;
                 rlCUIAlertView.setVisibility(View.VISIBLE);
                 rlCUIIncidentView.setVisibility(View.GONE);
@@ -233,22 +273,24 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
     @Override
     public void onIncidentAlertCallback(boolean status, JSONObject response) {
         try {
-            JSONObject mJSONObjectResult = response.getJSONObject("result");
-            if(mJSONObjectResult.has("words")){
-                word = mJSONObjectResult.getString("words");
+            if (response!= null) {
+                JSONObject mJSONObjectResult = response.getJSONObject("result");
+                if (mJSONObjectResult.has("words")) {
+                    word = mJSONObjectResult.getString("words");
+                }
+                if (mJSONObjectResult.has("map")) {
+                    mapUri = mJSONObjectResult.getString("map");
+                }
+                tvCUIWord.setText("//" + word);
+                if (mJSONObjectResult.has("latitude")) {
+                    latitude = mJSONObjectResult.getDouble("latitude");
+                }
+                if (mJSONObjectResult.has("longitude")) {
+                    longitude = mJSONObjectResult.getDouble("longitude");
+                }
+                setMap();
+                tvCUIlatlong.setText("Latitude: " + latitude + ' ' + "Longitude: " + longitude);
             }
-            if(mJSONObjectResult.has("map")){
-                mapUri = mJSONObjectResult.getString("map");
-            }
-            tvCUIWord.setText("//" + word);
-            if(mJSONObjectResult.has("latitude")){
-                latitude = mJSONObjectResult.getDouble("latitude");
-            }
-            if(mJSONObjectResult.has("longitude")){
-                longitude = mJSONObjectResult.getDouble("longitude");
-            }
-            setMap();
-            tvCUIlatlong.setText("Latitude: " + latitude + ' ' + "Longitude: " + longitude);
 
         } catch (JSONException e) {
             e.printStackTrace();

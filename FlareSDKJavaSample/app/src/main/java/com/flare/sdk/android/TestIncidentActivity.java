@@ -1,16 +1,11 @@
-package com.example.myapplication;
+package com.flare.sdk.android;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
+
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.sos.busbysideengine.BBSideEngine;
-import com.sos.busbysideengine.Constants;
-import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener;
-
-import org.json.JSONObject;
 
 public class TestIncidentActivity extends AppCompatActivity {
 
