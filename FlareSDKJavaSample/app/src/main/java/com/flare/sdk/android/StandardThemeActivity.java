@@ -41,7 +41,7 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
     boolean btnTestClicked = false;
     boolean checkConfiguration = false;
     String mConfidence = "";
-
+    Intent intent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +53,7 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
 
     public void init() {
 
-        Intent intent = getIntent();
+        intent = getIntent();
         mode = intent.getStringExtra("mode");
 
         tvThemeName = findViewById(R.id.tvThemeName);
@@ -89,14 +89,8 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
         bbSideEngine.setStickyEnable(false);
 
-        String lic;
-        if (ENVIRONMENT_PRODUCTION.equals(mode)) {
-            lic = "Your production license key here";
-        } else {
-            lic = "Your sandbox license key here";
-        }
-
-
+        //"Your production license key here" or "Your sandbox license key here"
+        String lic = intent.getStringExtra("lic");
         BBSideEngine.configure(this,
                 lic,
                 mode,

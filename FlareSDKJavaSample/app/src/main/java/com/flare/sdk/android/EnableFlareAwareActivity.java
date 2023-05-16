@@ -50,14 +50,8 @@ public class EnableFlareAwareActivity extends AppCompatActivity implements BBSid
         progressBar = findViewById(R.id.progressBar);
 
         Intent intent = getIntent();
-        String mode = intent.getStringExtra("mode");
-
-        String lic;
-        if (ENVIRONMENT_PRODUCTION.equals(mode)) {
-            lic = "Your production license key here";
-        } else {
-            lic = "Your sandbox license key here";
-        }
+        //"Your production license key here"
+        String lic = intent.getStringExtra("lic");
 
         bbSideEngine = BBSideEngine.getInstance(this);
         bbSideEngine.showLogs(true);

@@ -35,7 +35,6 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
     private BBSideEngine bbSideEngine;
     private boolean checkConfiguration = false;
     private String sosLiveTrackingUrl = "";
-    private String mode = ENVIRONMENT_PRODUCTION;
 
     ImageView ivCloseMain;
     AppCompatButton btnSos, btnSOSLinkShare;
@@ -60,9 +59,8 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
         etvUserName = findViewById(R.id.etvUserName);
         progressBar = findViewById(R.id.progressBar);
 
-
-        mode = getIntent().getStringExtra("mode");
-        String lic = "Your production license key here";
+        //"Your production license key here"
+        String lic = getIntent().getStringExtra("lic");
 
         bbSideEngine = BBSideEngine.getInstance(this);
         bbSideEngine.showLogs(true);

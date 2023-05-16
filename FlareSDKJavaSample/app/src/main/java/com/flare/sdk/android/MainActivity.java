@@ -6,18 +6,19 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.sos.busbysideengine.Constants;
 
 public class MainActivity extends AppCompatActivity {
-
     Button btnStandard, btnCustom, btnSOS, btnEnableFlareAware;
     RadioGroup rgEnvironment;
-
     RadioButton rbProduction, rbSandBox;
-
+    String productionLicense = "5b8c28a8-3434-40db-ab59-38af7255f7c8";
+    String sandboxLicense = "59679df4-6d5c-4f16-8e23-15dee7d3c678";
+    String mode = Constants.ENVIRONMENT_SANDBOX;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,58 +50,43 @@ public class MainActivity extends AppCompatActivity {
             if (checkedId == R.id.rbProduction) {
                 // The switch is checked.
                 rbProduction.setText(getString(R.string.production_mode));
-                btnSOS.setVisibility(View.VISIBLE);
-                btnEnableFlareAware.setVisibility(View.VISIBLE);
+                mode =  Constants.ENVIRONMENT_PRODUCTION;
             } else {
                 // The switch isn't checked.
                 rbSandBox.setText(getString(R.string.sandbox_mode));
-                btnSOS.setVisibility(View.VISIBLE);
-                btnEnableFlareAware.setVisibility(View.VISIBLE);
+                mode = Constants.ENVIRONMENT_SANDBOX;
             }
+            btnSOS.setVisibility(View.VISIBLE);
+            btnEnableFlareAware.setVisibility(View.VISIBLE);
         });
 
         btnStandard.setOnClickListener(v -> {
-            String mode;
-            if(rgEnvironment.getCheckedRadioButtonId() == R.id.rbSandBox){
-                mode = Constants.ENVIRONMENT_SANDBOX;
-            } else {
-                mode =  Constants.ENVIRONMENT_PRODUCTION;
-            }
-
             Intent intent = new Intent(MainActivity.this, StandardThemeActivity.class);
             intent.putExtra("mode",mode);
+            intent.putExtra("lic",
+                    (mode.equals(Constants.ENVIRONMENT_PRODUCTION)) ?
+                            productionLicense : sandboxLicense);
             startActivity(intent);
         });
 
         btnCustom.setOnClickListener(v -> {
-            String mode;
-            if(rgEnvironment.getCheckedRadioButtonId() == R.id.rbSandBox){
-                mode = Constants.ENVIRONMENT_SANDBOX;
-            } else {
-                mode =  Constants.ENVIRONMENT_PRODUCTION;
-            }
-
             Intent intent = new Intent(MainActivity.this, CustomThemeActivity.class);
             intent.putExtra("mode",mode);
+            intent.putExtra("lic",
+                    (mode.equals(Constants.ENVIRONMENT_PRODUCTION)) ?
+                            productionLicense : sandboxLicense);
             startActivity(intent);
         });
 
         btnSOS.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, EmergencySOSActivity.class);
+            intent.putExtra("lic",productionLicense);
             startActivity(intent);
         });
 
         btnEnableFlareAware.setOnClickListener(v -> {
-
-            String mode;
-            if(rgEnvironment.getCheckedRadioButtonId() == R.id.rbSandBox){
-                mode = Constants.ENVIRONMENT_SANDBOX;
-            } else {
-                mode =  Constants.ENVIRONMENT_PRODUCTION;
-            }
-
             Intent intent = new Intent(MainActivity.this, EnableFlareAwareActivity.class);
-            intent.putExtra("mode",mode);
+            intent.putExtra("lic",productionLicense);
             startActivity(intent);
         });
     }

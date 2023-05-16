@@ -55,19 +55,16 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
 
     private String mode = ENVIRONMENT_PRODUCTION;
 
-
+    Intent intent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_theme);
-
         init();
-
     }
 
     public void init() {
-
-        Intent intent = getIntent();
+        intent = getIntent();
         mode = intent.getStringExtra("mode");
 
         tvThemeName = findViewById(R.id.tvThemeName);
@@ -98,12 +95,8 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
 
     public void setupEngine() {
 
-        String lic;
-        if (ENVIRONMENT_PRODUCTION.equals(mode)) {
-            lic = "Your production license key here";
-        } else {
-            lic = "Your sandbox license key here";
-        }
+        //"Your production license key here" or "Your sandbox license key here"
+        String lic = intent.getStringExtra("lic");
 
         BBSideEngine.configure(this,
                 lic,
