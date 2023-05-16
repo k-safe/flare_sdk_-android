@@ -9,6 +9,9 @@ import com.app.flaresdkimplementation.databinding.ActivityMainBinding
 import com.sos.busbysideengine.Constants
 
 class MainActivity : AppCompatActivity() {
+    var productionLicense = "Your production license key here"
+    var sandboxLicense = "Your sandbox license key here"
+    private var mode = Constants.ENVIRONMENT_PRODUCTION
     private val viewBinding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
@@ -24,28 +27,33 @@ class MainActivity : AppCompatActivity() {
         viewBinding.btnSOS.visibility = View.VISIBLE
         viewBinding.btnEnableFlareAware.visibility = View.VISIBLE
         viewBinding.btnStandard.setOnClickListener {
-            val mode = if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
+            mode = if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
                 Constants.ENVIRONMENT_SANDBOX
             } else {
                 Constants.ENVIRONMENT_PRODUCTION
             }
             val intent = Intent(this, StandardThemeActivity::class.java)
-            intent.putExtra("mode",mode)
+            intent.putExtra("mode", mode)
+            intent.putExtra("lic",
+                if(Constants.ENVIRONMENT_PRODUCTION.equals(mode)) productionLicense else sandboxLicense)
             startActivity(intent)
         }
 
         viewBinding.btnCustom.setOnClickListener {
-            val mode = if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
+            mode = if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
                 Constants.ENVIRONMENT_SANDBOX
             } else {
                 Constants.ENVIRONMENT_PRODUCTION
             }
             val intent = Intent(this, CustomThemeActivity::class.java)
-            intent.putExtra("mode",mode)
+            intent.putExtra("mode", mode)
+            intent.putExtra("lic",
+                if(Constants.ENVIRONMENT_PRODUCTION.equals(mode)) productionLicense else sandboxLicense)
             startActivity(intent)
         }
         viewBinding.btnSOS.setOnClickListener {
             val intent = Intent(this, EmergencySOSActivity::class.java)
+            intent.putExtra("lic", productionLicense)
             startActivity(intent)
         }
 
@@ -65,15 +73,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewBinding.btnEnableFlareAware.setOnClickListener {
-
-            val mode =
-                if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
-                    Constants.ENVIRONMENT_SANDBOX
-                } else {
-                    Constants.ENVIRONMENT_PRODUCTION
-                }
+            mode = if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
+                Constants.ENVIRONMENT_SANDBOX
+            } else {
+                Constants.ENVIRONMENT_PRODUCTION
+            }
             val intent = Intent(this, EnableFlareAwareActivity::class.java)
-            intent.putExtra("mode",mode)
+            intent.putExtra("mode", mode)
+            intent.putExtra("lic", productionLicense)
             startActivity(intent)
 
         }

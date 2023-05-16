@@ -35,8 +35,8 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
         val intent = intent
         mode = intent.getStringExtra("mode")
 
-        var lic = if (ENVIRONMENT_PRODUCTION.equals(mode))
-            "Your production license key here" else "Your sandbox license key here"
+        //"Your production license key here"
+        val lic = intent.getStringExtra("lic")
 
         bbSideEngine = BBSideEngine.getInstance(this)
         bbSideEngine.showLogs(true)

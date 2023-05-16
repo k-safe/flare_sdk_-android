@@ -33,8 +33,8 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
         setContentView(viewBinding.root)
         mode = intent.getStringExtra("mode")
 
-
-        val lic = "Your production license key here"
+        //"Your production license key here"
+        val lic = intent.getStringExtra("lic")
 
         bbSideEngine = BBSideEngine.getInstance(this)
         bbSideEngine.showLogs(true)

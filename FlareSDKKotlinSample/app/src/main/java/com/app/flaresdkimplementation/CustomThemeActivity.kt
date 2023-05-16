@@ -68,8 +68,8 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
         bbSideEngine.setStickyEnable(false)
 
-        val lic = if (ENVIRONMENT_PRODUCTION.equals(mode))
-            "Your production license key here" else "Your sandbox license key here"
+        //"Your production license key here" or "Your sandbox license key here"
+        val lic = intent.getStringExtra("lic")
 
         BBSideEngine.configure(this, lic, mode,
             BBTheme.CUSTOM
