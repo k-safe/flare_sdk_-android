@@ -1,10 +1,8 @@
 import 'dart:collection';
-import 'package:flutersideml/src/TestIncident.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
 
 late TextEditingController cCode = TextEditingController();
 late TextEditingController cMobile = TextEditingController();
@@ -16,14 +14,34 @@ class StandardThemeActivity extends StatefulWidget {
   State<StandardThemeActivity> createState() => _StandardThemeActivity();
 }
 
-class _StandardThemeActivity extends State<StandardThemeActivity> {
+class _StandardThemeActivity extends State<StandardThemeActivity> with WidgetsBindingObserver  {
   static const channel = MethodChannel("com.sideml.flutersideml");
   bool pressStart = true;
   String isConfigure = "";
+  String mode = '';
+  String lic = '';
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    retrieveArguments();
+  }
+
+  void retrieveArguments() {
+    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    mode = args['mode'];
+    lic = args['lic'];
+    callConfigure();
+  }
   @override
   void initState() {
-    callConfigure();
     super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+  }
+  @override
+  void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
+    super.dispose();
   }
 
   @override
@@ -51,7 +69,7 @@ class _StandardThemeActivity extends State<StandardThemeActivity> {
               Container(
                   margin: const EdgeInsets.only(top: 20),
                   alignment: Alignment.center,
-                  child:const Text("Standard theme",style: TextStyle(fontSize: 20,color: Colors.black),)
+                  child:const Text("Standard Theme Demo",style: TextStyle(fontSize: 20,color: Colors.black),)
               ),
               Center(
                 child:
@@ -73,7 +91,7 @@ class _StandardThemeActivity extends State<StandardThemeActivity> {
                           },
                           decoration: const InputDecoration(
                               border: OutlineInputBorder(),
-                              hintText: 'Country Code',
+                              hintText: 'Country Calling Code',
                               contentPadding: EdgeInsets.all(20.0)),
                         ),
                       ),
@@ -88,7 +106,7 @@ class _StandardThemeActivity extends State<StandardThemeActivity> {
                           },
                           decoration: const InputDecoration(
                               border: OutlineInputBorder(),
-                              hintText: 'Mobile',
+                              hintText: 'Emergency Contact Number',
                               contentPadding: EdgeInsets.all(20.0)),
                         ),
                       ),
@@ -103,7 +121,7 @@ class _StandardThemeActivity extends State<StandardThemeActivity> {
                           },
                           decoration: const InputDecoration(
                               border: OutlineInputBorder(),
-                              hintText: 'UserName',
+                              hintText: 'Rider Name',
                               contentPadding: EdgeInsets.all(20.0)),
                         ),
                       ),
@@ -118,7 +136,7 @@ class _StandardThemeActivity extends State<StandardThemeActivity> {
                           },
                           decoration: const InputDecoration(
                               border: OutlineInputBorder(),
-                              hintText: 'Email',
+                              hintText: 'Emergency Email',
                               contentPadding: EdgeInsets.all(20.0)),
                         ),
                       ),
@@ -127,8 +145,9 @@ class _StandardThemeActivity extends State<StandardThemeActivity> {
                           transformAlignment: Alignment.center,
                           margin: const EdgeInsets.only(left: 20,right: 10),
 
-                          child: const Text('Press start to activate Incident detection in live mode',
-                              style: TextStyle(fontSize: 13,color: Colors.black))
+                          child: const Text('Press button below to activate SIDE engine, then shake your phone repeatedly until an incident triggers',
+                              style: TextStyle(fontSize: 13,color: Colors.black),
+                              textAlign: TextAlign.center)
                       ),
                       Padding(
                           padding: const EdgeInsets.all(10),
@@ -147,51 +166,10 @@ class _StandardThemeActivity extends State<StandardThemeActivity> {
                                 foregroundColor: Colors.black,
                               ),
                               onPressed: () {
-                                callStartML(cUserName.text,cEmail.text, false);
+                                callStartML(cUserName.text,cEmail.text);
                               },
                               child:pressStart? const Text('Start') : const Text('Stop'),
                             ),
-                          )
-                      ),
-                       const Text('Press button below to activate test mode, then shake your phone repeatedly until a test incident triggers',
-                              style: TextStyle(fontSize: 13,color: Colors.black) ,textAlign: TextAlign.center),
-                      Padding(
-                          padding: const EdgeInsets.all(10),
-                          child:SizedBox(
-                              width: 200.0,
-                              height: 50.0,
-                              child:
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  primary: Colors.white, //background color of button
-                                  side: const BorderSide(width:2, color:Colors.redAccent), //border width and color
-                                  elevation: 3, //elevation of button
-                                  shape: RoundedRectangleBorder( //to set border radius to button
-                                      borderRadius: BorderRadius.circular(30)
-                                  ),
-                                  padding: const EdgeInsets.fromLTRB(50,18,50,18), //content padding inside button
-                                  foregroundColor: Colors.black,
-                                ),
-                                onPressed: () {
-                                  if(isConfigure.isEmpty){
-                                    _showToast(context, "Please wait...");
-                                  }else if(isConfigure == "true"){
-                                    if(!pressStart){
-                                      callStartML(cUserName.text, cEmail.text, false);
-                                    }
-                                    Navigator.pushNamed(
-                                        context,
-                                        '/TestIncident',
-                                        arguments: TestIncidentScreenArguments(
-                                            true,
-                                            cUserName.text,
-                                            cEmail.text
-                                        ));
-                                  }else if(isConfigure == "false"){
-                                    _showToast(context, "Please enter valid license key");
-                                  }
-                                }, child: const Text('Test Incident'),
-                              )
                           )
                       )
                     ],
@@ -212,29 +190,23 @@ class _StandardThemeActivity extends State<StandardThemeActivity> {
     cEmail.clear();
   }
 
-  Future<void> callStartML(String userName,String email, bool isTestMode) async {
+  Future<void> callStartML(String userName,String email) async {
     final LinkedHashMap<Object?,Object?> result = await channel.invokeMethod("startSideML",<String,Object>{
       "userName": userName,
       "email": email,
-      "isTestMode": isTestMode,
     });
     if (kDebugMode) {
       print(result.entries.first.value);
     }
     if(result.entries.first.value != null &&
         result.entries.first.value == true){
-      if(!isTestMode){
-        setState(() {
-          pressStart = false;
-        });
-      }
-
+      setState(() {
+        pressStart = false;
+      });
     }else{
-      if(!isTestMode) {
-        setState(() {
-          pressStart = true;
-        });
-      }
+      setState(() {
+        pressStart = true;
+      });
     }
   }
 
@@ -242,6 +214,8 @@ class _StandardThemeActivity extends State<StandardThemeActivity> {
     final LinkedHashMap<Object?,Object?> result =
     await channel.invokeMethod("configure",<String,Object>{
       "isCustom": false,
+      "mode": mode,
+      "lic": lic
     });
     if (kDebugMode) {
       print(result.entries.first.value);

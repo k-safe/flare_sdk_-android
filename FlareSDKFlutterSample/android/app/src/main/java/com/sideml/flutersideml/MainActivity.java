@@ -1,14 +1,10 @@
 package com.sideml.flutersideml;
 
-import android.accessibilityservice.AccessibilityService;
 import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,18 +29,22 @@ import io.flutter.plugin.common.MethodChannel;
 import static com.sos.busbysideengine.Constants.BBSideOperation.CONFIGURE;
 import static com.sos.busbysideengine.Constants.BBSideOperation.INCIDENT_ALERT_SENT;
 import static com.sos.busbysideengine.Constants.BBSideOperation.INCIDENT_DETECTED;
+import static com.sos.busbysideengine.Constants.BBSideOperation.SOS_ACTIVATE;
+import static com.sos.busbysideengine.Constants.BBSideOperation.SOS_DEACTIVATE;
+import static com.sos.busbysideengine.Constants.BBSideOperation.START_FLARE_AWARE;
+import static com.sos.busbysideengine.Constants.BBSideOperation.STOP_FLARE_AWARE;
 import static com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION;
 
 import static com.sos.busbysideengine.Constants.BBTheme.CUSTOM;
 import static com.sos.busbysideengine.Constants.BBTheme.STANDARD;
-import static com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION;
-import static com.sos.busbysideengine.Constants.ENVIRONMENT_SANDBOX;
 
 public class MainActivity extends FlutterActivity implements BBSideEngineListener {
     private static final String CHANNEL = "com.sideml.flutersideml";
     private MethodChannel methodChannel;
     private MethodChannel.Result methodChannelResultConfig;
     private MethodChannel.Result methodChannelResultIncident;
+    private MethodChannel.Result methodChannelResultSOS;
+    private MethodChannel.Result methodChannelResultFlareAware;
     private MethodChannel.Result methodChannelResultIncidentAlerts;
     private  Map<String,Object> callbackObject = new HashMap<>();
     BBSideEngine bbSideEngine;
@@ -113,6 +113,85 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
             }catch (Exception e){
                 Log.e("INCIDENT_ALERT_SENT Error:", e.getMessage());
             }
+        }else if (type == SOS_ACTIVATE) {
+            if (response.has("sosLiveTrackingUrl")) {
+                try {
+                    Map<String,Object> objects = new HashMap<>();
+                    objects.put("response",String.valueOf(response));
+                    objects.put("type",String.valueOf(type));
+                    try {
+                        if(methodChannelResultSOS == null){
+                            methodChannel.invokeMethod("startSOSML", null, new MethodChannel.Result() {
+                                @Override
+                                public void success(Object result) {
+//                                    methodChannelResultSOS = result
+                                    Map<String,Object> objects = new HashMap<>();
+                                    objects.put("response",String.valueOf(result));
+                                    objects.put("type",String.valueOf(type));
+                                    methodChannelResultSOS.success(result);
+                                    // Handle the success case
+                                    // Use the result object here
+                                    // ...
+                                }
+
+                                @Override
+                                public void error(String errorCode, String errorMessage, Object errorDetails) {
+                                    // Handle the error case
+                                    // ...
+                                    Log.e("SOS_ACTIVATE Error:", errorCode);
+                                }
+
+                                @Override
+                                public void notImplemented() {
+                                    // Handle the case when the method is not implemented on the platform side
+                                    // ...
+                                    Log.e("SOS_ACTIVATE notImplemented:","notImplemented");
+                                }
+                            });
+                        }else{
+                            methodChannelResultSOS.success(objects);
+                        }
+
+                    }catch (Exception e){
+                        Log.e("SOS_ACTIVATE Error:", e.getMessage());
+
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            } else if (response.has("Error")) {
+                //
+            }
+        }else if (type == SOS_DEACTIVATE) {
+            try {
+                Map<String,Object> objects = new HashMap<>();
+                objects.put("response",String.valueOf(response));
+                objects.put("type",String.valueOf(type));
+                try {
+                    methodChannelResultSOS.success(objects);
+                    methodChannelResultSOS.notImplemented();
+                }catch (Exception e){
+                    Log.e("SOS_DEACTIVATE Error:", e.getMessage());
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }else if (type == START_FLARE_AWARE) {
+            try {
+                Map<String,Object> objects = new HashMap<>();
+                objects.put("isActive",true);
+                methodChannelResultFlareAware.success(objects);
+            } catch (Exception e) {
+                Log.e("Error: ", e.toString());
+            }
+        }else if (type == STOP_FLARE_AWARE) {
+            try {
+                Map<String,Object> objects = new HashMap<>();
+                objects.put("isActive",false);
+                methodChannelResultFlareAware.success(objects);
+            } catch (Exception e) {
+                Log.e("Error: ", e.toString());
+            }
         }
     }
 
@@ -131,7 +210,6 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                             result.success("Please enter valid license key");
                             return;
                         }
-
                         //Do this
                         Map<String,Object> objects = new HashMap<>();
                         if (bbSideEngine.isEngineStarted()) {
@@ -142,16 +220,12 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                             Map<String,Object> param = call.arguments();
 
                             String userName = null;
-                            if (param != null) {
+                            if (param != null && param.containsKey("userName")) {
                                 userName = Objects.requireNonNull(param.get("userName")).toString();
                             }
                             String email = null;
-                            if (param != null) {
+                            if (param != null && param.containsKey("email")) {
                                 email = Objects.requireNonNull(param.get("email")).toString();
-                            }
-                            boolean isTestMode = false;
-                            if (param != null) {
-                                isTestMode = Boolean.TRUE.equals(param.get("isTestMode"));
                             }
                             if (param != null) {
                                 Log.e("param: ",param.toString());
@@ -167,7 +241,7 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                                     getContentResolver(), Settings.Secure.ANDROID_ID);
                             bbSideEngine.setUserId(deviceId);
                             objects.put("isServiceStart",true);
-                            bbSideEngine.startSideEngine(MainActivity.this,isTestMode);
+                            bbSideEngine.startSideEngine(MainActivity.this);
 
                             result.success(objects);
                         }
@@ -183,10 +257,6 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                             userName = Objects.requireNonNull(param.get("userName")).toString();
                             email = Objects.requireNonNull(param.get("email")).toString();
                         }
-                        boolean isTestMode = false;
-                        if (param != null) {
-                            isTestMode = Boolean.TRUE.equals(param.get("isTestMode"));
-                        }
                         String deviceId = Settings.Secure.getString(bbSideEngine.context.getContentResolver(), Settings.Secure.ANDROID_ID);
                         //TODO: Set user id
                         BBSideEngine.getInstance(null).setUserId(deviceId);
@@ -195,11 +265,10 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                         //TODO: call method for fetching W3W Location data
                         BBSideEngine.getInstance(null).fetchWhat3WordLocation(this);
                         //TODO: Send Email
-                        BBSideEngine.getInstance(null).sendEmail(email, isTestMode);// Replace your emergency email address
-                        if(!isTestMode){
-                            //TODO: notify to partner
-                            BBSideEngine.getInstance(null).notifyPartner();
-                        }
+                        BBSideEngine.getInstance(null).sendEmail(email);// Replace your emergency email address
+                        //TODO: notify to partner
+                        BBSideEngine.getInstance(null).notifyPartner();
+
                     }else if(call.method.equals("customPartnerNotify")){
 //                        methodChannelResultIncidentAlerts = result;
                         Map<String,Object> param = call.arguments();
@@ -210,10 +279,6 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                             userName = Objects.requireNonNull(param.get("userName")).toString();
                             email = Objects.requireNonNull(param.get("email")).toString();
                         }
-                        boolean isTestMode = false;
-                        if (param != null) {
-                            isTestMode = Boolean.TRUE.equals(param.get("isTestMode"));
-                        }
                         String deviceId = Settings.Secure.getString(bbSideEngine.context.getContentResolver(), Settings.Secure.ANDROID_ID);
                         //TODO: Set user id
                         BBSideEngine.getInstance(null).setUserId(deviceId);
@@ -222,11 +287,10 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                         //TODO: call method for fetching W3W Location data
                         BBSideEngine.getInstance(null).fetchWhat3WordLocation(this);
                         //TODO: Send Email
-                        BBSideEngine.getInstance(null).sendEmail(email, isTestMode);// Replace your emergency email address
-                        if(!isTestMode){
-                            //TODO: notify to partner
-                            BBSideEngine.getInstance(null).notifyPartner();
-                        }
+                        BBSideEngine.getInstance(null).sendEmail(email);// Replace your emergency email address
+                        //TODO: notify to partner
+                        BBSideEngine.getInstance(null).notifyPartner();
+
                     }else if(call.method.equals("resumeSideEngine")){
                         BBSideEngine.getInstance(null).resumeSideEngine();
                     }else if(call.method.equals("openSurveyUrl")){
@@ -244,18 +308,62 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                         methodChannelResultConfig = result;
                         Map<String,Object> param = call.arguments();
                         boolean isCustom = false;
+                        String mode = "";
+                        String lic = "";
                         if (param != null) {
                             isCustom = Boolean.TRUE.equals(param.get("isCustom"));
+                            mode = String.valueOf(param.get("mode"));
+                            lic = String.valueOf(param.get("lic"));
                         }
                         Constants.BBTheme theme = STANDARD;
                         if(isCustom){
                             theme = CUSTOM;
                         }
-                        Log.e("call.method isCustom: ", String.valueOf(isCustom));
                         BBSideEngine.configure(MainActivity.this,
-                                "Your license key here",
-                                ENVIRONMENT_PRODUCTION, theme);//CUSTOM
-                    } else {
+                                lic, mode, theme);
+                    }else if(call.method.equals("startSOSML")){
+                        methodChannelResultSOS = result;
+                        Map<String,Object> param = call.arguments();
+                        String deviceId = Settings.Secure.getString(bbSideEngine.context.getContentResolver(), Settings.Secure.ANDROID_ID);
+
+                        String userName = null;
+                        if (param != null && param.containsKey("userName")) {
+                            userName = Objects.requireNonNull(param.get("userName")).toString();
+                        }
+                        String email = null;
+                        if (param != null && param.containsKey("email")) {
+                            email = Objects.requireNonNull(param.get("email")).toString();
+                        }
+                        boolean isActive = false;
+                        if (param != null && param.containsKey("isActive")) {
+                            isActive = Boolean.TRUE.equals(param.get("isActive"));
+                        }
+                        bbSideEngine.setUserId(deviceId);
+                        if(email != null){
+                            bbSideEngine.setUserEmail(email);
+                        }
+                        if(userName != null){
+                            bbSideEngine.setUserName(userName);
+                        }
+                        if(isActive){
+                            bbSideEngine.activeSOS();
+                        }else{
+                            bbSideEngine.deActiveSOS();
+                        }
+                    }else if(call.method.equals("startFlareAwareML")){
+                        methodChannelResultFlareAware = result;
+                        Map<String,Object> param = call.arguments();
+
+                        boolean isActive = false;
+                        if (param != null && param.containsKey("isActive")) {
+                            isActive = Boolean.TRUE.equals(param.get("isActive"));
+                        }
+                        if(isActive) {
+                            bbSideEngine.startFlareAware();
+                        }else{
+                            bbSideEngine.stopFlareAware();
+                        }
+                    }else {
                         result.notImplemented();
                     }
                 }
