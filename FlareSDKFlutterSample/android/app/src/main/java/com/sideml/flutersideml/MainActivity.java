@@ -119,35 +119,10 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                     Map<String,Object> objects = new HashMap<>();
                     objects.put("response",String.valueOf(response));
                     objects.put("type",String.valueOf(type));
+                    objects.put("sosActive",true);
                     try {
                         if(methodChannelResultSOS == null){
-                            methodChannel.invokeMethod("startSOSML", null, new MethodChannel.Result() {
-                                @Override
-                                public void success(Object result) {
-//                                    methodChannelResultSOS = result
-                                    Map<String,Object> objects = new HashMap<>();
-                                    objects.put("response",String.valueOf(result));
-                                    objects.put("type",String.valueOf(type));
-                                    methodChannelResultSOS.success(result);
-                                    // Handle the success case
-                                    // Use the result object here
-                                    // ...
-                                }
-
-                                @Override
-                                public void error(String errorCode, String errorMessage, Object errorDetails) {
-                                    // Handle the error case
-                                    // ...
-                                    Log.e("SOS_ACTIVATE Error:", errorCode);
-                                }
-
-                                @Override
-                                public void notImplemented() {
-                                    // Handle the case when the method is not implemented on the platform side
-                                    // ...
-                                    Log.e("SOS_ACTIVATE notImplemented:","notImplemented");
-                                }
-                            });
+                            methodChannelResultConfig.success(objects);
                         }else{
                             methodChannelResultSOS.success(objects);
                         }
@@ -167,9 +142,10 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                 Map<String,Object> objects = new HashMap<>();
                 objects.put("response",String.valueOf(response));
                 objects.put("type",String.valueOf(type));
+                objects.put("sosActive",false);
                 try {
                     methodChannelResultSOS.success(objects);
-                    methodChannelResultSOS.notImplemented();
+                    //methodChannelResultSOS.notImplemented();
                 }catch (Exception e){
                     Log.e("SOS_DEACTIVATE Error:", e.getMessage());
                 }

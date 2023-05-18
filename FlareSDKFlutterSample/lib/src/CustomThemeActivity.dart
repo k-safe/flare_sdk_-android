@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 late TextEditingController cCode = TextEditingController();
 late TextEditingController cMobile = TextEditingController();
@@ -227,6 +228,7 @@ class _CustomThemeActivity extends State<CustomThemeActivity> with WidgetsBindin
     }
     if (result.entries.first.value != null &&
         result.entries.first.value == true) {
+      permission();
       setState(() {
         isConfigure = "true";
       });
@@ -271,7 +273,19 @@ class _CustomThemeActivity extends State<CustomThemeActivity> with WidgetsBindin
       }
     }
   }
+  Future<void> permission() async {
+    PermissionStatus status = await Permission.location.request();
 
+    if (status.isGranted) {
+      // Permission granted, proceed with location-related operations
+    } else if (status.isDenied) {
+      // Permission denied
+    } else if (status.isPermanentlyDenied) {
+      // Permission permanently denied, navigate to app settings
+    } else if (status.isRestricted) {
+      // Permission is restricted on this device
+    }
+  }
   void _showToast(BuildContext context, String text) {
     Fluttertoast.showToast(
       msg: text,

@@ -1,17 +1,13 @@
 import 'dart:collection';
 import 'dart:convert';
-import 'dart:developer';
-
-import 'package:flutersideml/src/IncidentTimer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:share/share.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-late TextEditingController cCode = TextEditingController();
-late TextEditingController cMobile = TextEditingController();
 late TextEditingController cUserName = TextEditingController();
-late TextEditingController cEmail = TextEditingController();
 
 class EmergencySOSActivity extends StatefulWidget {
   const EmergencySOSActivity({Key? key}) : super(key: key);
@@ -64,11 +60,10 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
                     child: IconButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        cCode.clear();
-                        cMobile.clear();
                         cUserName.clear();
-                        cEmail.clear();
-
+                        if(pressStart == false){
+                          callSOSML(cUserName.text, true);
+                        }
                       },
                       icon: const Icon(Icons.close, color: Colors.black),
                     )),
@@ -121,10 +116,7 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
                                   if (isConfigure.isEmpty) {
                                     _showToast(context, "Please wait...");
                                   } else if (isConfigure == "true") {
-                                    if (kDebugMode) {
-                                      print(cEmail.text);
-                                    }
-                                    callSOSML(cUserName.text, cEmail.text);
+                                    callSOSML(cUserName.text, false);
                                     // Navigator.pushNamed(context, '/IncidentTimer');
                                   } else if (isConfigure == "false") {
                                     _showToast(
@@ -160,7 +152,7 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
                                   foregroundColor: Colors.black,
                                 ),
                                 onPressed: () {
-
+                                  Share.share(sosLiveTrackingUrl);
                                 },
                                 child: const Text('Share sos link'),
                               ),
@@ -173,7 +165,7 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
               ])));
   }
 
-  Future<void> callSOSML(String userName,String email) async {
+  Future<void> callSOSML(String userName, bool isClose) async {
     final LinkedHashMap<Object?, Object?> result =
     await channel.invokeMethod("startSOSML", <String, Object>{
       "userName": userName,
@@ -182,8 +174,12 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
     if (kDebugMode) {
       print(result.entries);
     }
+    if(isClose){
+      return;
+    }
     List keys = result.keys.toList();
-    // print(keys);
+    bool? sosActive = result["sosActive"] as bool?;
+    print("ERROR⚠️|️" + "SOS: " + ": " + 'sosActive: $sosActive');
     print("ERROR⚠️|️" + "SOS: " + ": " + 'keys: $keys');
     if (keys.indexOf("response") >= 0) {
       var last = keys[keys.indexOf("response")];
@@ -195,23 +191,19 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
       List keyRes = responseValue.keys.toList();
       if (keyRes.indexOf("sosLiveTrackingUrl") >= 0) {
         sosLiveTrackingUrl = valueRes[keyRes.indexOf("sosLiveTrackingUrl")];
+      }
+    }
+    if (keys.indexOf("sosActive") >= 0) {
+      if (sosActive == false) {
+        setState(() {
+          pressStart = true;
+        });
+      } else {
         setState(() {
           pressStart = false;
         });
       }
     }
-    // if (result.entries.first.value != null &&
-    //     result.entries.first.value == true) {
-    //
-    //   // callSideEngineCallback();
-    //   setState(() {
-    //     pressStart = false;
-    //   });
-    // } else {
-    //   setState(() {
-    //     pressStart = true;
-    //   });
-    // }
   }
 
   Future<void> callConfigure() async {
@@ -224,8 +216,39 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
     if (kDebugMode) {
       print(result.entries.first.value);
     }
-    if (result.entries.first.value != null &&
+
+    List keys = result.keys.toList();
+    if (keys.indexOf("sosActive") >= 0) {
+      permission();
+      setState(() {
+        isConfigure = "true";
+      });
+      bool? sosActive = result["sosActive"] as bool?;
+      print("ERROR⚠️|️" + "SOS: " + ": " + 'sosActive: $sosActive');
+      if (keys.indexOf("response") >= 0) {
+        var last = keys[keys.indexOf("response")];
+        var encodedString = jsonEncode(result[last]);
+        print("ERROR⚠️|️" + "SOS: " + ": " + 'encodedString: $encodedString');
+        Map<String, dynamic> responseValue =
+        json.decode(json.decode(encodedString));
+        List valueRes = responseValue.values.toList();
+        List keyRes = responseValue.keys.toList();
+        if (keyRes.indexOf("sosLiveTrackingUrl") >= 0) {
+          sosLiveTrackingUrl = valueRes[keyRes.indexOf("sosLiveTrackingUrl")];
+        }
+      }
+      if(sosActive == false){
+        setState(() {
+          pressStart = true;
+        });
+      }else{
+        setState(() {
+          pressStart = false;
+        });
+      }
+    }else if (result.entries.first.value != null &&
         result.entries.first.value == true) {
+      permission();
       setState(() {
         isConfigure = "true";
       });
@@ -236,41 +259,19 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
     }
   }
 
-  Future<void> callSideEngineCallback() async {
-    final LinkedHashMap<Object?, Object?> result =
-    await channel.invokeMethod("incidentDetected");
-    List keys = result.keys.toList();
-    // List values = result.values.toList();
-    if (keys.indexOf("response") >= 0) {
-      var last = keys[keys.indexOf("response")];
-      var encodedString = jsonEncode(result[last]);
-      Map<String, dynamic> responseValue =
-      json.decode(json.decode(encodedString));
-      var customTheme = responseValue.entries.first.value;
-      // developer.log('log me', name: '${result}');
-      List valueRes = responseValue.values.toList();
-      List keyRes = responseValue.keys.toList();
-      if (customTheme != null && customTheme == true) {
-        if(keyRes.indexOf("isAppInBackground") >= 0) {
-          var isAppInBackground = valueRes[keyRes.indexOf("isAppInBackground")];
-          if(isAppInBackground){
-            await channel.invokeMethod("customPartnerNotify", <String, Object>{
-              "userName": cUserName.text,
-              "email": cEmail.text
-            });
-          }else{
-            Navigator.pushNamed(context,
-                "/IncidentTimer", arguments: IncidentTimerScreenArguments(false, cUserName.text,cEmail.text));
-          }
-        }else{
-          Navigator.pushNamed(context,
-              "/IncidentTimer", arguments: IncidentTimerScreenArguments(false, cUserName.text,cEmail.text));
-        }
-        callSideEngineCallback();
-      }
+  Future<void> permission() async {
+    PermissionStatus status = await Permission.location.request();
+
+    if (status.isGranted) {
+      // Permission granted, proceed with location-related operations
+    } else if (status.isDenied) {
+      // Permission denied
+    } else if (status.isPermanentlyDenied) {
+      // Permission permanently denied, navigate to app settings
+    } else if (status.isRestricted) {
+      // Permission is restricted on this device
     }
   }
-
   void _showToast(BuildContext context, String text) {
     Fluttertoast.showToast(
       msg: text,

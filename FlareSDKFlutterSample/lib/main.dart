@@ -4,7 +4,6 @@ import 'package:flutersideml/src/TestIncident.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'src/StandardThemeActivity.dart';
 import 'src/CustomThemeActivity.dart';
 import 'src/CustoMapScreen.dart';
