@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:io' show Platform;
 
 import 'package:flutersideml/src/IncidentTimer.dart';
 import 'package:flutter/foundation.dart';
@@ -62,6 +63,9 @@ class _CustomThemeActivity extends State<CustomThemeActivity> with WidgetsBindin
                     alignment: Alignment.topLeft,
                     child: IconButton(
                       onPressed: () {
+                        if(!pressStart) {
+                          stopSideEngine();
+                        }
                         Navigator.pop(context);
                         cCode.clear();
                         cMobile.clear();
@@ -198,13 +202,18 @@ class _CustomThemeActivity extends State<CustomThemeActivity> with WidgetsBindin
     final LinkedHashMap<Object?, Object?> result =
     await channel.invokeMethod("startSideML", <String, Object>{
       "userName": userName,
-      "email": email
+      "email": email,
+      "isStarted": pressStart
     });
     if (kDebugMode) {
       print(result.entries.first.value);
     }
-    if (result.entries.first.value != null &&
-        result.entries.first.value == true) {
+    String key = "success";
+    if (Platform.isAndroid) {
+      key = "isServiceStart";
+    }
+    if (result[key] != null &&
+        result[key] == true && pressStart) {
       callSideEngineCallback();
       setState(() {
         pressStart = false;
@@ -226,8 +235,12 @@ class _CustomThemeActivity extends State<CustomThemeActivity> with WidgetsBindin
     if (kDebugMode) {
       print(result.entries.first.value);
     }
-    if (result.entries.first.value != null &&
-        result.entries.first.value == true) {
+    String key = "success";
+    if (Platform.isAndroid) {
+      key = "isConfigure";
+    }
+    if (result[key] != null &&
+        result[key] == true) {
       permission();
       setState(() {
         isConfigure = "true";
@@ -239,37 +252,62 @@ class _CustomThemeActivity extends State<CustomThemeActivity> with WidgetsBindin
     }
   }
 
+  Future<void> stopSideEngine() async {
+    final LinkedHashMap<Object?, Object?> result =
+    await channel.invokeMethod("stopSideML", <String, Object>{
+      "userName": "",
+      "email": "",
+      "isStarted": pressStart
+    });
+    if (kDebugMode) {
+      print('stopEngine: ${result["type"]}');
+    }
+  }
+
   Future<void> callSideEngineCallback() async {
     final LinkedHashMap<Object?, Object?> result =
     await channel.invokeMethod("incidentDetected");
-    List keys = result.keys.toList();
-    // List values = result.values.toList();
-    if (keys.indexOf("response") >= 0) {
-      var last = keys[keys.indexOf("response")];
-      var encodedString = jsonEncode(result[last]);
-      Map<String, dynamic> responseValue =
-      json.decode(json.decode(encodedString));
-      var customTheme = responseValue.entries.first.value;
-      // developer.log('log me', name: '${result}');
-      List valueRes = responseValue.values.toList();
-      List keyRes = responseValue.keys.toList();
-      if (customTheme != null && customTheme == true) {
-        if(keyRes.indexOf("isAppInBackground") >= 0) {
-          var isAppInBackground = valueRes[keyRes.indexOf("isAppInBackground")];
-          if(isAppInBackground){
-            await channel.invokeMethod("customPartnerNotify", <String, Object>{
-              "userName": cUserName.text,
-              "email": cEmail.text
-            });
-          }else{
+    if (Platform.isAndroid) {
+      List keys = result.keys.toList();
+      // List values = result.values.toList();
+      if (keys.indexOf("response") >= 0) {
+        var last = keys[keys.indexOf("response")];
+        var encodedString = jsonEncode(result[last]);
+        Map<String, dynamic> responseValue =
+        json.decode(json.decode(encodedString));
+        var customTheme = responseValue.entries.first.value;
+        // developer.log('log me', name: '${result}');
+        List valueRes = responseValue.values.toList();
+        List keyRes = responseValue.keys.toList();
+        if (customTheme != null && customTheme == true) {
+          if (keyRes.indexOf("isAppInBackground") >= 0) {
+            var isAppInBackground = valueRes[keyRes.indexOf(
+                "isAppInBackground")];
+            if (isAppInBackground) {
+              await channel.invokeMethod(
+                  "customPartnerNotify", <String, Object>{
+                "userName": cUserName.text,
+                "email": cEmail.text
+              });
+            } else {
+              Navigator.pushNamed(context,
+                  "/IncidentTimer", arguments: IncidentTimerScreenArguments(
+                      false, cUserName.text, cEmail.text));
+            }
+          } else {
             Navigator.pushNamed(context,
-                "/IncidentTimer", arguments: IncidentTimerScreenArguments(false, cUserName.text,cEmail.text));
+                "/IncidentTimer", arguments: IncidentTimerScreenArguments(
+                    false, cUserName.text, cEmail.text));
           }
-        }else{
-          Navigator.pushNamed(context,
-              "/IncidentTimer", arguments: IncidentTimerScreenArguments(false, cUserName.text,cEmail.text));
+          callSideEngineCallback();
         }
-        callSideEngineCallback();
+      }
+    }else{
+      if (result["success"] != null &&
+          result["success"] == true) {
+        Navigator.pushNamed(context,
+            "/IncidentTimer", arguments: IncidentTimerScreenArguments(
+                false, cUserName.text, cEmail.text));
       }
     }
   }

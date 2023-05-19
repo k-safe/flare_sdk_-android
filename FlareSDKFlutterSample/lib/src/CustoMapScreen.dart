@@ -1,6 +1,8 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutersideml/src/SurveyVideoScreen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,9 +16,11 @@ class CustomMapScreen extends StatefulWidget {
   State<CustomMapScreen> createState() => _CustomMapScreen();
 }
 
+
 class _CustomMapScreen extends State<CustomMapScreen> {
   static const channel = MethodChannel("com.sideml.flutersideml");
   late GoogleMapController googleMapController;
+
 
   static const CameraPosition initialCameraPosition =
       CameraPosition(target: LatLng(23.012249, 72.514431), zoom: 10);
@@ -146,27 +150,40 @@ class _CustomMapScreen extends State<CustomMapScreen> {
     final LinkedHashMap<Object?, Object?> result =
     await channel.invokeMethod("resumeSideEngine");
     if (kDebugMode) {
-      print(result.entries.first.value);
+      print("resume sideengine ${result["success"]}");
     }
   }
   Future<void> callForOpenSurveyUrl() async {
     final LinkedHashMap<Object?, Object?> result =
     await channel.invokeMethod("openSurveyUrl");
     if (kDebugMode) {
-      print(result.entries.first.value);
+      print("callForOpenSurveyUrl $result");
+    }
+
+    if (result["success"] != null &&
+        result["success"] == true) {
+
+      var payload = result["payload"] as Map<Object?, Object?>;
+      var surveyVideoURL = payload["surveyVideoURL"] as String;
+
+      Navigator.pushReplacementNamed(context,
+          "/SurveyVideoScreen", arguments: SurveyVideoScreenArguments(
+          surveyVideoURL));
+
+    } else {
+      Navigator.pop(context);
     }
   }
   Future<void> callForCheckSurveyUrl(context) async {
     final LinkedHashMap<Object?, Object?> result =
     await channel.invokeMethod("checkSurveyUrl");
     if (kDebugMode) {
-      print(result.entries.first.value);
+      print(result["success"]);
     }
-    if (result.entries.first.value != null &&
-        result.entries.first.value == true) {
+    if (result["success"] != null &&
+        result["success"] == true) {
       callForOpenSurveyUrl();
-      Navigator.pop(context);
-    }else{
+    } else {
       callForResumeSideEngine();
       Navigator.pop(context);
     }
@@ -179,32 +196,40 @@ class _CustomMapScreen extends State<CustomMapScreen> {
       "isTestMode": isTestMode,
     });
     if (kDebugMode) {
-      print(result.entries.first.value);
+      print(result);
     }
     List keys = result.keys.toList();
     // List values = result.values.toList();
     if(keys.indexOf("response") >= 0) {
       var last = keys[keys.indexOf("response")];
       var encodedString = jsonEncode(result[last]);
-      Map<String, dynamic> responseValue = json.decode(
-          json.decode(encodedString));
+      Map<String, dynamic> responseValue = json.decode(encodedString);
       List keyRes = responseValue.keys.toList();
       List valueRes = responseValue.values.toList();
-      if(valueRes.indexOf("W3W") >= 0) {
-        var resW3W = valueRes[keyRes.indexOf("result")];
+      if(Platform.isAndroid) {
+        if (valueRes.indexOf("W3W") >= 0) {
+          var resW3W = valueRes[keyRes.indexOf("result")];
+          List keyW3W = resW3W.keys.toList();
+          List valueW3W = resW3W.values.toList();
+          map = valueW3W[keyW3W.indexOf("map")];
+          words = "//" + valueW3W[keyW3W.indexOf("words")];
+          latitude = valueW3W[keyW3W.indexOf("latitude")];
+          longitude = valueW3W[keyW3W.indexOf("longitude")];
+          setState(() {});
+        }
+      } else {
+        var resW3W = valueRes[keyRes.indexOf("coordinates")];
         List keyW3W = resW3W.keys.toList();
         List valueW3W = resW3W.values.toList();
-        map = valueW3W[keyW3W.indexOf("map")];
-        words = "//"+valueW3W[keyW3W.indexOf("words")];
-        latitude = valueW3W[keyW3W.indexOf("latitude")];
-        longitude = valueW3W[keyW3W.indexOf("longitude")];
-        setState(() {
-        });
+        map = valueRes[keyRes.indexOf("map")];
+        words = "//" + valueRes[keyRes.indexOf("words")];
+        latitude = valueW3W[keyW3W.indexOf("lat")];
+        longitude = valueW3W[keyW3W.indexOf("lng")];
+        setState(() {});
       }
     }
   }
 }
-
 
 class CustomMapScreenArguments {
   bool isTestMode;

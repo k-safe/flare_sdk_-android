@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -59,6 +60,9 @@ class _StandardThemeActivity extends State<StandardThemeActivity> with WidgetsBi
                   alignment: Alignment.topLeft,
                   child: IconButton(
                     onPressed: () {
+                      if(!pressStart) {
+                        stopSideEngine();
+                      }
                       Navigator.pop(context);
                       cCode.clear();
                       cMobile.clear();
@@ -167,7 +171,14 @@ class _StandardThemeActivity extends State<StandardThemeActivity> with WidgetsBi
                                 foregroundColor: Colors.black,
                               ),
                               onPressed: () {
-                                callStartML(cUserName.text,cEmail.text);
+                                if (isConfigure.isEmpty) {
+                                  _showToast(context, "Please wait...");
+                                } else if (isConfigure == "true") {
+                                  callStartML(cUserName.text,cEmail.text);
+                                } else if (isConfigure == "false") {
+                                  _showToast(context,
+                                      "Please enter valid license key");
+                                }
                               },
                               child:pressStart? const Text('Start') : const Text('Stop'),
                             ),
@@ -195,12 +206,17 @@ class _StandardThemeActivity extends State<StandardThemeActivity> with WidgetsBi
     final LinkedHashMap<Object?,Object?> result = await channel.invokeMethod("startSideML",<String,Object>{
       "userName": userName,
       "email": email,
+      "isStarted": pressStart
     });
     if (kDebugMode) {
       print(result.entries.first.value);
     }
-    if(result.entries.first.value != null &&
-        result.entries.first.value == true){
+    String key = "success";
+    if (Platform.isAndroid) {
+      key = "isServiceStart";
+    }
+    if (result[key] != null &&
+        result[key] == true && pressStart) {
       setState(() {
         pressStart = false;
       });
@@ -208,6 +224,18 @@ class _StandardThemeActivity extends State<StandardThemeActivity> with WidgetsBi
       setState(() {
         pressStart = true;
       });
+    }
+  }
+
+  Future<void> stopSideEngine() async {
+    final LinkedHashMap<Object?, Object?> result =
+    await channel.invokeMethod("stopSideML", <String, Object>{
+      "userName": "",
+      "email": "",
+      "isStarted": pressStart
+    });
+    if (kDebugMode) {
+      print('stopEngine: ${result["type"]}');
     }
   }
 
@@ -219,10 +247,15 @@ class _StandardThemeActivity extends State<StandardThemeActivity> with WidgetsBi
       "lic": lic
     });
     if (kDebugMode) {
-      print(result.entries.first.value);
+      print(result);
     }
-    if(result.entries.first.value != null &&
-        result.entries.first.value == true){
+//isConfigure
+    String key = "success";
+    if (Platform.isAndroid) {
+      key = "isConfigure";
+    }
+    if (result[key] != null &&
+        result[key] == true) {
       permission();
       setState(() {
         isConfigure = "true";

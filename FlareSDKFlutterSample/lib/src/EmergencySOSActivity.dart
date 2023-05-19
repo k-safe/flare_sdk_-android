@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -216,6 +217,10 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
     if (kDebugMode) {
       print(result.entries.first.value);
     }
+    String key = "success";
+    if (Platform.isAndroid) {
+      key = "isConfigure";
+    }
 
     List keys = result.keys.toList();
     if (keys.indexOf("sosActive") >= 0) {
@@ -246,8 +251,8 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
           pressStart = false;
         });
       }
-    }else if (result.entries.first.value != null &&
-        result.entries.first.value == true) {
+    }else if (result[key] != null &&
+        result[key] == true) {
       permission();
       setState(() {
         isConfigure = "true";

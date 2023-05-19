@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutersideml/src/IncidentTimer.dart';
 import 'package:flutter/foundation.dart';
@@ -158,8 +159,13 @@ class _FlareAwareActivity extends State<FlareAwareActivity> with WidgetsBindingO
     if (kDebugMode) {
       print(result.entries.first.value);
     }
-    if (result.entries.first.value != null &&
-        result.entries.first.value == true) {
+    String key = "success";
+    if (Platform.isAndroid) {
+      key = "isConfigure";
+    }
+
+    if (result[key] != null &&
+        result[key] == true) {
       permission();
       setState(() {
         isConfigure = "true";

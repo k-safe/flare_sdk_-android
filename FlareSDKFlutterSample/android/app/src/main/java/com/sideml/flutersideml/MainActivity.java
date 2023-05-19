@@ -96,8 +96,9 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
             objects.put("response",String.valueOf(response));
             objects.put("type",String.valueOf(type));
             try {
-
-                methodChannelResultIncident.success(objects);
+                if(methodChannelResultIncident != null) {
+                    methodChannelResultIncident.success(objects);
+                }
             }catch (Exception e){
                 Log.e("INCIDENT_DETECTED Error:", ""+e.getMessage());
             }
@@ -109,7 +110,9 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
             objects.put("response",String.valueOf(response));
             objects.put("type",String.valueOf(type));
             try {
-                methodChannelResultIncidentAlerts.success(objects);
+                if(methodChannelResultIncidentAlerts != null){
+                    methodChannelResultIncidentAlerts.success(objects);
+                }
             }catch (Exception e){
                 Log.e("INCIDENT_ALERT_SENT Error:", e.getMessage());
             }

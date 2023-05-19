@@ -78,7 +78,7 @@ class HomePage extends StatelessWidget {
                   child:
 
                   SizedBox(
-                    width: 200, // Set the desired fixed width
+                    width: 230, // Set the desired fixed width
                     child:
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -106,7 +106,7 @@ class HomePage extends StatelessWidget {
                     padding: const EdgeInsets.all(10),
                     child:
                     SizedBox(
-                        width: 200, // Set the desired fixed width
+                        width: 230, // Set the desired fixed width
                         child:
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
@@ -135,7 +135,7 @@ class HomePage extends StatelessWidget {
                     padding: const EdgeInsets.all(10),
                     child:
                     SizedBox(
-                        width: 200, // Set the desired fixed width
+                        width: 230, // Set the desired fixed width
                         child:
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
@@ -162,7 +162,7 @@ class HomePage extends StatelessWidget {
                     padding: const EdgeInsets.all(10),
                     child:
                     SizedBox(
-                        width: 200, // Set the desired fixed width
+                        width: 230, // Set the desired fixed width
                         child:
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
