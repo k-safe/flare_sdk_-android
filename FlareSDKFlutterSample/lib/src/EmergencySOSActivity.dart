@@ -179,30 +179,40 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
       return;
     }
     List keys = result.keys.toList();
-    bool? sosActive = result["sosActive"] as bool?;
-    print("ERROR⚠️|️" + "SOS: " + ": " + 'sosActive: $sosActive');
     print("ERROR⚠️|️" + "SOS: " + ": " + 'keys: $keys');
-    if (keys.indexOf("response") >= 0) {
-      var last = keys[keys.indexOf("response")];
-      var encodedString = jsonEncode(result[last]);
-      print("ERROR⚠️|️" + "SOS: " + ": " + 'encodedString: $encodedString');
-      Map<String, dynamic> responseValue =
-      json.decode(json.decode(encodedString));
-      List valueRes = responseValue.values.toList();
-      List keyRes = responseValue.keys.toList();
-      if (keyRes.indexOf("sosLiveTrackingUrl") >= 0) {
-        sosLiveTrackingUrl = valueRes[keyRes.indexOf("sosLiveTrackingUrl")];
+    if (Platform.isAndroid) {
+      bool? sosActive = result["sosActive"] as bool?;
+      print("ERROR⚠️|️" + "SOS: " + ": " + 'sosActive: $sosActive');
+      if (keys.indexOf("response") >= 0) {
+        var last = keys[keys.indexOf("response")];
+        var encodedString = jsonEncode(result[last]);
+        print("ERROR⚠️|️" + "SOS: " + ": " + 'encodedString: $encodedString');
+        Map<String, dynamic> responseValue =
+        json.decode(json.decode(encodedString));
+        List valueRes = responseValue.values.toList();
+        List keyRes = responseValue.keys.toList();
+        if (keyRes.indexOf("sosLiveTrackingUrl") >= 0) {
+          sosLiveTrackingUrl = valueRes[keyRes.indexOf("sosLiveTrackingUrl")];
+        }
       }
-    }
-    if (keys.indexOf("sosActive") >= 0) {
-      if (sosActive == false) {
-        setState(() {
-          pressStart = true;
-        });
-      } else {
-        setState(() {
-          pressStart = false;
-        });
+      if (keys.indexOf("sosActive") >= 0) {
+        if (sosActive == false) {
+          setState(() {
+            pressStart = true;
+          });
+        } else {
+          setState(() {
+            pressStart = false;
+          });
+        }
+      }
+    }else{
+      if (result["success"] != null &&
+          result["success"] == true) {
+        print("ERROR⚠️|️" + "SOS: " + ": " + 'result["type"]: $result["type"]');
+        var payload = result["payload"] as Map<Object?, Object?>;
+        sosLiveTrackingUrl = payload["surveyVideoURL"] as String;
+        print("ERROR⚠️|️" + "SOS: " + ": " + 'surveyVideoURL: $sosLiveTrackingUrl');
       }
     }
   }
@@ -223,23 +233,36 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
     }
 
     List keys = result.keys.toList();
+
     if (keys.indexOf("sosActive") >= 0) {
       permission();
       setState(() {
         isConfigure = "true";
       });
-      bool? sosActive = result["sosActive"] as bool?;
-      print("ERROR⚠️|️" + "SOS: " + ": " + 'sosActive: $sosActive');
-      if (keys.indexOf("response") >= 0) {
-        var last = keys[keys.indexOf("response")];
-        var encodedString = jsonEncode(result[last]);
-        print("ERROR⚠️|️" + "SOS: " + ": " + 'encodedString: $encodedString');
-        Map<String, dynamic> responseValue =
-        json.decode(json.decode(encodedString));
-        List valueRes = responseValue.values.toList();
-        List keyRes = responseValue.keys.toList();
-        if (keyRes.indexOf("sosLiveTrackingUrl") >= 0) {
-          sosLiveTrackingUrl = valueRes[keyRes.indexOf("sosLiveTrackingUrl")];
+      bool? sosActive;
+      if (Platform.isAndroid) {
+        sosActive = result["sosActive"] as bool?;
+        print("ERROR⚠️|️" + "SOS: " + ": " + 'sosActive: $sosActive');
+        if (keys.indexOf("response") >= 0) {
+          var last = keys[keys.indexOf("response")];
+          var encodedString = jsonEncode(result[last]);
+          print("ERROR⚠️|️" + "SOS: " + ": " + 'encodedString: $encodedString');
+          Map<String, dynamic> responseValue =
+          json.decode(json.decode(encodedString));
+          List valueRes = responseValue.values.toList();
+          List keyRes = responseValue.keys.toList();
+          if (keyRes.indexOf("sosLiveTrackingUrl") >= 0) {
+            sosLiveTrackingUrl = valueRes[keyRes.indexOf("sosLiveTrackingUrl")];
+          }
+        }
+      }else{
+        if (result["success"] != null &&
+            result["success"] == true) {
+          print("ERROR⚠️|️" + "SOS: " + ": " + 'result["type"]: $result["type"]');
+          var payload = result["payload"] as Map<Object?, Object?>;
+          sosLiveTrackingUrl = payload["surveyVideoURL"] as String;
+          sosActive = payload["sosActive"] as bool;
+          print("ERROR⚠️|️" + "SOS: " + ": " + 'surveyVideoURL: $sosLiveTrackingUrl');
         }
       }
       if(sosActive == false){

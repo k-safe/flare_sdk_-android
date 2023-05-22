@@ -172,7 +172,7 @@ let shared = BBSideEngineManager.shared
                         if let value = args["email"] as? String {
                             shared.riderEmail = value
                         }
-                        if let value = args["isActive"] as? String {
+                        if let value = args["isActive"] as? Bool {
                             shared.activeSOS()
                         }else{
                             shared.deActiveSOS()
@@ -208,7 +208,7 @@ let shared = BBSideEngineManager.shared
     }
 
     private func configureSideEngine(mode: String, lic :String,  theme: BBTheme) {
-        if(mode === "production"){
+        if(mode == "production"){
             shared.configure(accessKey: lic, mode: .production, theme: theme)
         }else{
             shared.configure(accessKey: lic, mode: .sandbox, theme: theme)
@@ -298,6 +298,21 @@ let shared = BBSideEngineManager.shared
                 } else if response.type == .location {
                     print("SIDE engine response is: \(response.type)")
 
+                    //Returns collecation object
+                } else if response.type == .sosActive {
+                    print("SIDE engine response is: \(response.type)")
+                    let checkoutResult = CheckoutResult(success: response.success, type: response.type.rawValue, payload: ["sosActive": true, "surveyVideoURL":response.payload?["sosLiveTrackingUrl"]])
+                    if let tempResult = self.globResult {
+                        tempResult(checkoutResult.dictionaryRepresentation)
+                    }
+
+                    //Returns collecation object
+                }else if response.type == .sosDeActive {
+                    print("SIDE engine response is: \(response.type)")
+                    let checkoutResult = CheckoutResult(success: response.success,type: response.type.rawValue, payload: ["sosActive": false])
+                    if let tempResult = self.globResult {
+                        tempResult(checkoutResult.dictionaryRepresentation)
+                    }
                     //Returns collecation object
                 }
             }

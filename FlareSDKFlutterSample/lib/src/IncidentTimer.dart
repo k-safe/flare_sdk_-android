@@ -4,7 +4,7 @@ import 'package:flutersideml/src/CustoMapScreen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'package:vibration/vibration.dart';
+import 'package:vibration/vibration.dart';
 
 class IncidentTimer extends StatefulWidget {
   const IncidentTimer({Key? key}) : super(key: key);
@@ -14,7 +14,7 @@ class IncidentTimer extends StatefulWidget {
 }
 
 class _IncidentTimer extends State<IncidentTimer> {
-  static const channel = MethodChannel("batteryChannel/battery");
+  static const channel = MethodChannel("com.sideml.flutersideml");
   // Step 2
   Timer? countdownTimer;
   String email = '';
@@ -26,12 +26,12 @@ class _IncidentTimer extends State<IncidentTimer> {
   void initState() {
     super.initState();
 
-    /* Vibration.vibrate(
+    Vibration.vibrate(
       pattern: [10, 2000, 500, 2000, 500, 2000, 500, 2000, 500, 2000, 500,
         2000, 500, 2000, 500, 2000, 500, 2000, 500, 2000, 500,
         2000, 500, 2000, 500, 2000, 500, 2000, 500, 2000, 500],
       // intensities: [10, 128, 0, 255, 0, 64, 0, 255],
-    );*/
+    );
 
     Future.delayed(const Duration(seconds: 1), () {
       final arg = ModalRoute.of(mContext)!.settings.arguments as IncidentTimerScreenArguments;
@@ -64,7 +64,7 @@ class _IncidentTimer extends State<IncidentTimer> {
     var sec = seconds - 1;
     if (sec <= 0) {
       countdownTimer!.cancel();
-      //   Vibration.cancel();
+        Vibration.cancel();
       Navigator.pop(context);
       Navigator.pushNamed(mContext,
           "/CustomMapScreen", arguments: CustomMapScreenArguments(
@@ -97,7 +97,7 @@ class _IncidentTimer extends State<IncidentTimer> {
                         countdownTimer!.cancel();
                       }
                       callForResumeSideEngine();
-                      //     Vibration.cancel();
+                          Vibration.cancel();
                       Navigator.pop(context);
                     },
                     icon: const Icon(Icons.close, color: Colors.black),
@@ -158,6 +158,7 @@ class _IncidentTimer extends State<IncidentTimer> {
 
 
   Future<void> callForResumeSideEngine() async {
+    print("ERROR⚠️|️" + "callForResumeSideEngine: " + ": ");
     final LinkedHashMap<Object?, Object?> result =
     await channel.invokeMethod("resumeSideEngine");
     if (kDebugMode) {

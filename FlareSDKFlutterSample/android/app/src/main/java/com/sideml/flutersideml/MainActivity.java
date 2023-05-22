@@ -14,6 +14,7 @@ import com.sos.busbysideengine.BBSideEngine;
 import com.sos.busbysideengine.Constants;
 import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener;
 import com.sos.busbysideengine.utils.Common;
+import com.sos.busbysideengine.utils.ContactClass;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,6 +34,7 @@ import static com.sos.busbysideengine.Constants.BBSideOperation.SOS_ACTIVATE;
 import static com.sos.busbysideengine.Constants.BBSideOperation.SOS_DEACTIVATE;
 import static com.sos.busbysideengine.Constants.BBSideOperation.START_FLARE_AWARE;
 import static com.sos.busbysideengine.Constants.BBSideOperation.STOP_FLARE_AWARE;
+import static com.sos.busbysideengine.Constants.BBSideOperation.TIMER_FINISHED;
 import static com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION;
 
 import static com.sos.busbysideengine.Constants.BBTheme.CUSTOM;
@@ -48,6 +50,8 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
     private MethodChannel.Result methodChannelResultIncidentAlerts;
     private  Map<String,Object> callbackObject = new HashMap<>();
     BBSideEngine bbSideEngine;
+    String email = null;
+    String userName = null;
     boolean flagToast = false;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,7 +60,7 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
         bbSideEngine.showLogs(true);
         bbSideEngine.setBBSideEngineListener(MainActivity.this);
         bbSideEngine.enableActivityTelemetry(true);
-
+        email = null;
         //Custom Notification
 //        bbSideEngine.setLocationNotificationTitle("Protection is active");
 //        bbSideEngine.setNotificationMainBackgroundColor(R.color.white);
@@ -104,7 +108,25 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
             }
             Log.e("mConfidence", mConfidence + "");
             Toast.makeText(MainActivity.this, "Incident detected with Confidence: "+mConfidence, Toast.LENGTH_SHORT).show();
-        }else if (type == INCIDENT_ALERT_SENT) {
+        }else if (type == TIMER_FINISHED) {
+            if(bbSideEngine != null){
+                if(userName != null){
+                    bbSideEngine.setUserName(userName);
+                    bbSideEngine.setRiderName(userName);
+                }
+                if(email != null){
+                    bbSideEngine.setUserEmail(email.trim());
+                    bbSideEngine.sendEmail(email);
+                }
+
+//                ContactClass contact = new ContactClass();
+//                contact.setCountryCode(countryCode);
+//                contact.setPhoneNumber(mobileNumber);
+//                contact.setUserName(userName);
+//                bbSideEngine.sendSMS(contact);
+            }
+
+        } else if (type == INCIDENT_ALERT_SENT) {
             Log.e("type: ",type+" "+status+"");
             Map<String,Object> objects = new HashMap<>();
             objects.put("response",String.valueOf(response));
@@ -198,11 +220,11 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                         } else {
                             Map<String,Object> param = call.arguments();
 
-                            String userName = null;
+                            userName = null;
                             if (param != null && param.containsKey("userName")) {
                                 userName = Objects.requireNonNull(param.get("userName")).toString();
                             }
-                            String email = null;
+                            email = null;
                             if (param != null && param.containsKey("email")) {
                                 email = Objects.requireNonNull(param.get("email")).toString();
                             }
@@ -229,8 +251,8 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                     }else if(call.method.equals("timerFinish")){
                         methodChannelResultIncidentAlerts = result;
                         Map<String,Object> param = call.arguments();
-                        String userName = null;
-                        String email = null;
+                        userName = null;
+                        email = null;
 
                         if (param != null) {
                             userName = Objects.requireNonNull(param.get("userName")).toString();
@@ -251,8 +273,8 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                     }else if(call.method.equals("customPartnerNotify")){
 //                        methodChannelResultIncidentAlerts = result;
                         Map<String,Object> param = call.arguments();
-                        String userName = null;
-                        String email = null;
+                        userName = null;
+                        email = null;
 
                         if (param != null) {
                             userName = Objects.requireNonNull(param.get("userName")).toString();
@@ -284,6 +306,8 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                         }
                         result.success(objects);
                     }else if(call.method.equals("configure")){
+                        email = null;
+                        userName = null;
                         methodChannelResultConfig = result;
                         Map<String,Object> param = call.arguments();
                         boolean isCustom = false;
@@ -305,11 +329,11 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                         Map<String,Object> param = call.arguments();
                         String deviceId = Settings.Secure.getString(bbSideEngine.context.getContentResolver(), Settings.Secure.ANDROID_ID);
 
-                        String userName = null;
+                        userName = null;
                         if (param != null && param.containsKey("userName")) {
                             userName = Objects.requireNonNull(param.get("userName")).toString();
                         }
-                        String email = null;
+                        email = null;
                         if (param != null && param.containsKey("email")) {
                             email = Objects.requireNonNull(param.get("email")).toString();
                         }

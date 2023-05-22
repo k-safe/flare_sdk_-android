@@ -103,7 +103,7 @@ class _CustomMapScreen extends State<CustomMapScreen> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.only(bottom: 10,top: 20,left: 10),
+            padding: const EdgeInsets.only(bottom: 10,top: 20,left: 20),
             alignment: Alignment.topLeft,
             child: const Text(
               'Your Location :',
@@ -115,14 +115,14 @@ class _CustomMapScreen extends State<CustomMapScreen> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.only(bottom: 10,top: 10,left: 10),
+            padding: const EdgeInsets.only(bottom: 10,top: 10,left: 20,right: 10),
             alignment: Alignment.topLeft,
             child: const Text(
               'This location of your incident is displayed here for your reference',style: TextStyle(fontSize: 14,color: Colors.black)
               ),
             ),
           Container(
-            padding: const EdgeInsets.only(bottom: 10,top: 10,left: 10),
+            padding: const EdgeInsets.only(bottom: 10,top: 10,left: 20),
             alignment: Alignment.topLeft,
             child: InkWell(
                 child: Text(words,style: const TextStyle(fontSize: 20,color: Colors.red)),
@@ -134,7 +134,7 @@ class _CustomMapScreen extends State<CustomMapScreen> {
                 }),
           ),
           Container(
-            padding: const EdgeInsets.only(bottom: 10,top: 10,left: 10),
+            padding: const EdgeInsets.only(bottom: 10,top: 10,left: 20),
             alignment: Alignment.topLeft,
             child: Text(
               'Latitude: $latitude Longitude: $longitude',style: const TextStyle(fontSize: 14,color: Colors.black),
@@ -198,23 +198,41 @@ class _CustomMapScreen extends State<CustomMapScreen> {
     if (kDebugMode) {
       print(result);
     }
+    // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'result: $result');
     List keys = result.keys.toList();
+    // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'keys: $keys');
     // List values = result.values.toList();
     if(keys.indexOf("response") >= 0) {
       var last = keys[keys.indexOf("response")];
-      var encodedString = jsonEncode(result[last]);
-      Map<String, dynamic> responseValue = json.decode(encodedString);
+      // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'last: $last');
+      // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'response cas: $result');
+
+      var encodedStringNm = jsonEncode(result[last]);
+      // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'encodedString: $encodedStringNm');
+
+      Map<String, dynamic> responseValue =
+      json.decode(json.decode(encodedStringNm));
+      // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'responseValue: $responseValue');
+
       List keyRes = responseValue.keys.toList();
+      // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'keyRes: $keyRes');
       List valueRes = responseValue.values.toList();
       if(Platform.isAndroid) {
+        // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'valueRes: $valueRes');
+
         if (valueRes.indexOf("W3W") >= 0) {
           var resW3W = valueRes[keyRes.indexOf("result")];
           List keyW3W = resW3W.keys.toList();
           List valueW3W = resW3W.values.toList();
+
           map = valueW3W[keyW3W.indexOf("map")];
           words = "//" + valueW3W[keyW3W.indexOf("words")];
           latitude = valueW3W[keyW3W.indexOf("latitude")];
           longitude = valueW3W[keyW3W.indexOf("longitude")];
+          // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'map: $map');
+          // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'words: $words');
+          // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'latitude: $latitude');
+          // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'longitude: $longitude');
           setState(() {});
         }
       } else {
