@@ -41,7 +41,7 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
         bbSideEngine = BBSideEngine.getInstance(this)
         bbSideEngine.showLogs(true)
         bbSideEngine.setBBSideEngineListener(this)
-        bbSideEngine.enableActivityTelemetry(true)
+//        bbSideEngine.enableActivityTelemetry(true)
         bbSideEngine.setEnableFlareAwareNetwork(true)
         bbSideEngine.setHighFrequencyModeEnabled(true) //It is recommended to activate the high frequency mode when the SOS function is engaged in order to enhance the quality of the live tracking experience.
         bbSideEngine.setDistanceFilterMeters(20) //It is possible to activate the distance filter in order to transmit location data in the live tracking URL. This will ensure that location updates are transmitted every 20 meters, once the timer interval has been reached.

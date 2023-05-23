@@ -135,17 +135,29 @@ class _FlareAwareActivity extends State<FlareAwareActivity> with WidgetsBindingO
     if (kDebugMode) {
       print(result.entries);
     }
-    bool? isActive = result["isActive"] as bool?;
-    print("ERROR⚠️|️" + "FlareAware: " + ": " + 'type: $isActive');
+    bool? isActive = null;
+    if (Platform.isAndroid) {
+      isActive = result["isActive"] as bool?;
+    }else{
+      if (result["success"] != null &&
+          result["success"] == true) {
+        var payload = result["payload"] as Map<Object?, Object?>;
+        if (payload["isActive"]  != null) {
+          isActive = payload["isActive"] as bool?;
+        }
+      }
+    }
 
-    if (isActive == true) {
-      setState(() {
-        pressStart = false;
-      });
-    } else {
-      setState(() {
-        pressStart = true;
-      });
+    if(isActive != null){
+      if (isActive == true) {
+        setState(() {
+          pressStart = false;
+        });
+      } else {
+        setState(() {
+          pressStart = true;
+        });
+      }
     }
   }
 

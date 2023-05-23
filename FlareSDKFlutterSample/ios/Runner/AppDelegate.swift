@@ -173,17 +173,21 @@ let shared = BBSideEngineManager.shared
                             shared.riderEmail = value
                         }
                         if let value = args["isActive"] as? Bool {
-                            shared.activeSOS()
-                        }else{
-                            shared.deActiveSOS()
+                            if(value){
+                                shared.activeSOS()
+                            }else{
+                                shared.deActiveSOS()
+                            }
                         }
                     }
                 }else if(call.method == "startFlareAwareML"){
                     if let args = call.arguments as? [String : Any]{
-                        if let value = args["isActive"] as? String {
-                            shared.startFlareAware()
-                        }else{
-                            shared.stopFlareAware()
+                        if let value = args["isActive"] as? Bool {
+                            if(value){
+                                shared.startFlareAware()
+                            }else{
+                                shared.stopFlareAware()
+                            }
                         }
                     }
                 } else {
@@ -303,6 +307,7 @@ let shared = BBSideEngineManager.shared
                     print("SIDE engine response is: \(response.type)")
                     let checkoutResult = CheckoutResult(success: response.success, type: response.type.rawValue, payload: ["sosActive": true, "surveyVideoURL":response.payload?["sosLiveTrackingUrl"]])
                     if let tempResult = self.globResult {
+                        print(tempResult)
                         tempResult(checkoutResult.dictionaryRepresentation)
                     }
 
@@ -310,6 +315,20 @@ let shared = BBSideEngineManager.shared
                 }else if response.type == .sosDeActive {
                     print("SIDE engine response is: \(response.type)")
                     let checkoutResult = CheckoutResult(success: response.success,type: response.type.rawValue, payload: ["sosActive": false])
+                    if let tempResult = self.globResult {
+                        tempResult(checkoutResult.dictionaryRepresentation)
+                    }
+                    //Returns collecation object
+                }else if response.type == .startFlareAware {
+                    print("SIDE engine response is: \(response.type)")
+                    let checkoutResult = CheckoutResult(success: response.success, type: response.type.rawValue, payload: ["isActive": true])
+                    if let tempResult = self.globResult {
+                        tempResult(checkoutResult.dictionaryRepresentation)
+                    }
+                    //Returns collecation object
+                }else if response.type == .stopFlareAware {
+                    print("SIDE engine response is: \(response.type)")
+                    let checkoutResult = CheckoutResult(success: response.success, type: response.type.rawValue, payload: ["isActive": false])
                     if let tempResult = self.globResult {
                         tempResult(checkoutResult.dictionaryRepresentation)
                     }

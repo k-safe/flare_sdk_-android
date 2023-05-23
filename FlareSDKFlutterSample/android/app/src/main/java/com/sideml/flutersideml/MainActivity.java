@@ -60,7 +60,9 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
         bbSideEngine.showLogs(true);
         bbSideEngine.setBBSideEngineListener(MainActivity.this);
         bbSideEngine.enableActivityTelemetry(true);
+        bbSideEngine.setStickyEnable(false);
         email = null;
+        userName = null;
         //Custom Notification
 //        bbSideEngine.setLocationNotificationTitle("Protection is active");
 //        bbSideEngine.setNotificationMainBackgroundColor(R.color.white);
@@ -306,6 +308,9 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                         }
                         result.success(objects);
                     }else if(call.method.equals("configure")){
+
+                        bbSideEngine.setEnableFlareAwareNetwork(true);
+
                         email = null;
                         userName = null;
                         methodChannelResultConfig = result;
@@ -362,6 +367,12 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                             isActive = Boolean.TRUE.equals(param.get("isActive"));
                         }
                         if(isActive) {
+                            bbSideEngine.setEnableFlareAwareNetwork(true);
+                            bbSideEngine.setHighFrequencyModeEnabled(true); //It is recommended to activate the high frequency mode when the SOS function is engaged in order to enhance the quality of the live tracking experience.
+                            bbSideEngine.setDistanceFilterMeters(20); //It is possible to activate the distance filter in order to transmit location data in the live tracking URL. This will ensure that location updates are transmitted every 20 meters, once the timer interval has been reached.
+                            bbSideEngine.setLowFrequencyIntervalsSeconds(15); //The default value is 15 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(false) is invoked.
+                            bbSideEngine.setHighFrequencyIntervalsSeconds(3); //The default value is 3 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(true) is invoked.
+
                             bbSideEngine.startFlareAware();
                         }else{
                             bbSideEngine.stopFlareAware();

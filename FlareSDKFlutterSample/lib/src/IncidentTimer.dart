@@ -158,7 +158,6 @@ class _IncidentTimer extends State<IncidentTimer> {
 
 
   Future<void> callForResumeSideEngine() async {
-    print("ERROR⚠️|️" + "callForResumeSideEngine: " + ": ");
     final LinkedHashMap<Object?, Object?> result =
     await channel.invokeMethod("resumeSideEngine");
     if (kDebugMode) {

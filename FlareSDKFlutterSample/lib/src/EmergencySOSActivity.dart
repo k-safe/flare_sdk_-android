@@ -179,14 +179,12 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
       return;
     }
     List keys = result.keys.toList();
-    print("ERROR⚠️|️" + "SOS: " + ": " + 'keys: $keys');
+    bool? sosActive = null;
     if (Platform.isAndroid) {
-      bool? sosActive = result["sosActive"] as bool?;
-      print("ERROR⚠️|️" + "SOS: " + ": " + 'sosActive: $sosActive');
+      sosActive = result["sosActive"] as bool?;
       if (keys.indexOf("response") >= 0) {
         var last = keys[keys.indexOf("response")];
         var encodedString = jsonEncode(result[last]);
-        print("ERROR⚠️|️" + "SOS: " + ": " + 'encodedString: $encodedString');
         Map<String, dynamic> responseValue =
         json.decode(json.decode(encodedString));
         List valueRes = responseValue.values.toList();
@@ -194,25 +192,29 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
         if (keyRes.indexOf("sosLiveTrackingUrl") >= 0) {
           sosLiveTrackingUrl = valueRes[keyRes.indexOf("sosLiveTrackingUrl")];
         }
-      }
-      if (keys.indexOf("sosActive") >= 0) {
-        if (sosActive == false) {
-          setState(() {
-            pressStart = true;
-          });
-        } else {
-          setState(() {
-            pressStart = false;
-          });
+        if (keyRes.indexOf("sosActive") >= 0) {
+          sosActive = valueRes[keyRes.indexOf("sosActive")];
         }
       }
     }else{
       if (result["success"] != null &&
           result["success"] == true) {
-        print("ERROR⚠️|️" + "SOS: " + ": " + 'result["type"]: $result["type"]');
         var payload = result["payload"] as Map<Object?, Object?>;
-        sosLiveTrackingUrl = payload["surveyVideoURL"] as String;
-        print("ERROR⚠️|️" + "SOS: " + ": " + 'surveyVideoURL: $sosLiveTrackingUrl');
+        if (payload["surveyVideoURL"]  != null) {
+          sosLiveTrackingUrl = payload["surveyVideoURL"] as String;
+        }
+        sosActive = payload["sosActive"] as bool;
+      }
+    }
+    if (sosActive != null) {
+      if (sosActive == false) {
+        setState(() {
+          pressStart = true;
+        });
+      } else {
+        setState(() {
+          pressStart = false;
+        });
       }
     }
   }
@@ -225,7 +227,7 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
       "lic": lic
     });
     if (kDebugMode) {
-      print(result.entries.first.value);
+      print("ERROR⚠️|️" + "callConfigure: " + ": $result" );
     }
     String key = "success";
     if (Platform.isAndroid) {
@@ -242,11 +244,9 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
       bool? sosActive;
       if (Platform.isAndroid) {
         sosActive = result["sosActive"] as bool?;
-        print("ERROR⚠️|️" + "SOS: " + ": " + 'sosActive: $sosActive');
         if (keys.indexOf("response") >= 0) {
           var last = keys[keys.indexOf("response")];
           var encodedString = jsonEncode(result[last]);
-          print("ERROR⚠️|️" + "SOS: " + ": " + 'encodedString: $encodedString');
           Map<String, dynamic> responseValue =
           json.decode(json.decode(encodedString));
           List valueRes = responseValue.values.toList();
@@ -258,13 +258,12 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
       }else{
         if (result["success"] != null &&
             result["success"] == true) {
-          print("ERROR⚠️|️" + "SOS: " + ": " + 'result["type"]: $result["type"]');
           var payload = result["payload"] as Map<Object?, Object?>;
           sosLiveTrackingUrl = payload["surveyVideoURL"] as String;
           sosActive = payload["sosActive"] as bool;
-          print("ERROR⚠️|️" + "SOS: " + ": " + 'surveyVideoURL: $sosLiveTrackingUrl');
         }
       }
+
       if(sosActive == false){
         setState(() {
           pressStart = true;

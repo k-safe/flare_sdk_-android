@@ -208,18 +208,12 @@ class _CustomMapScreen extends State<CustomMapScreen> {
       // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'response cas: $result');
 
       var encodedStringNm = jsonEncode(result[last]);
-      // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'encodedString: $encodedStringNm');
 
       Map<String, dynamic> responseValue =
       json.decode(json.decode(encodedStringNm));
-      // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'responseValue: $responseValue');
-
       List keyRes = responseValue.keys.toList();
-      // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'keyRes: $keyRes');
       List valueRes = responseValue.values.toList();
       if(Platform.isAndroid) {
-        // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'valueRes: $valueRes');
-
         if (valueRes.indexOf("W3W") >= 0) {
           var resW3W = valueRes[keyRes.indexOf("result")];
           List keyW3W = resW3W.keys.toList();
@@ -229,10 +223,6 @@ class _CustomMapScreen extends State<CustomMapScreen> {
           words = "//" + valueW3W[keyW3W.indexOf("words")];
           latitude = valueW3W[keyW3W.indexOf("latitude")];
           longitude = valueW3W[keyW3W.indexOf("longitude")];
-          // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'map: $map');
-          // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'words: $words');
-          // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'latitude: $latitude');
-          // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'longitude: $longitude');
           setState(() {});
         }
       } else {
