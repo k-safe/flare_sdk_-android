@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:io';
 import 'package:flutersideml/src/CustoMapScreen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -25,13 +26,14 @@ class _IncidentTimer extends State<IncidentTimer> {
   @override
   void initState() {
     super.initState();
-
-    Vibration.vibrate(
-      pattern: [10, 2000, 500, 2000, 500, 2000, 500, 2000, 500, 2000, 500,
-        2000, 500, 2000, 500, 2000, 500, 2000, 500, 2000, 500,
-        2000, 500, 2000, 500, 2000, 500, 2000, 500, 2000, 500],
-      // intensities: [10, 128, 0, 255, 0, 64, 0, 255],
-    );
+    if(Platform.isAndroid){
+      Vibration.vibrate(
+        pattern: [10, 2000, 500, 2000, 500, 2000, 500, 2000, 500, 2000, 500,
+          2000, 500, 2000, 500, 2000, 500, 2000, 500, 2000, 500,
+          2000, 500, 2000, 500, 2000, 500, 2000, 500, 2000, 500],
+        // intensities: [10, 128, 0, 255, 0, 64, 0, 255],
+      );
+    }
 
     Future.delayed(const Duration(seconds: 1), () {
       final arg = ModalRoute.of(mContext)!.settings.arguments as IncidentTimerScreenArguments;
@@ -64,7 +66,9 @@ class _IncidentTimer extends State<IncidentTimer> {
     var sec = seconds - 1;
     if (sec <= 0) {
       countdownTimer!.cancel();
+      if(Platform.isAndroid) {
         Vibration.cancel();
+      }
       Navigator.pop(context);
       Navigator.pushNamed(mContext,
           "/CustomMapScreen", arguments: CustomMapScreenArguments(
@@ -97,7 +101,9 @@ class _IncidentTimer extends State<IncidentTimer> {
                         countdownTimer!.cancel();
                       }
                       callForResumeSideEngine();
-                          Vibration.cancel();
+                      if(Platform.isAndroid) {
+                        Vibration.cancel();
+                      }
                       Navigator.pop(context);
                     },
                     icon: const Icon(Icons.close, color: Colors.black),

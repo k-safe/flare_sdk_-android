@@ -1,5 +1,6 @@
 import 'package:flutersideml/src/EmergencySOSActivity.dart';
 import 'package:flutersideml/src/FlareAwareActivity.dart';
+import 'package:flutersideml/src/SurveyVideoScreen.dart';
 import 'package:flutersideml/src/TestIncident.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
         '/FlareAwareActivity': (context) => const FlareAwareActivity(),
         '/TestIncident':(context)=> const TestIncident(),
         '/IncidentTimer':(context)=> const IncidentTimer(),
+        '/SurveyVideoScreen':(context)=> const SurveyVideoScreen(),
       },
       home: const HomePage(),
     );

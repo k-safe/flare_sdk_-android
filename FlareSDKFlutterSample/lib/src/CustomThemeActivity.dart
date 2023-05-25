@@ -267,6 +267,9 @@ class _CustomThemeActivity extends State<CustomThemeActivity> with WidgetsBindin
   Future<void> callSideEngineCallback() async {
     final LinkedHashMap<Object?, Object?> result =
     await channel.invokeMethod("incidentDetected");
+    if (kDebugMode) {
+      print("ERROR⚠️|️" + "callSideEngineCallback : " + ": $result" );
+    }
     if (Platform.isAndroid) {
       List keys = result.keys.toList();
       // List values = result.values.toList();
@@ -279,10 +282,14 @@ class _CustomThemeActivity extends State<CustomThemeActivity> with WidgetsBindin
         // developer.log('log me', name: '${result}');
         List valueRes = responseValue.values.toList();
         List keyRes = responseValue.keys.toList();
+
+        print("ERROR⚠️|️" + "callSideEngineCallback customTheme: " + ": $customTheme" );
         if (customTheme != null && customTheme == true) {
           if (keyRes.indexOf("isAppInBackground") >= 0) {
             var isAppInBackground = valueRes[keyRes.indexOf(
                 "isAppInBackground")];
+            print("ERROR⚠️|️" + "callSideEngineCallback isAppInBackground: " + ": $isAppInBackground" );
+
             if (isAppInBackground) {
               await channel.invokeMethod(
                   "customPartnerNotify", <String, Object>{

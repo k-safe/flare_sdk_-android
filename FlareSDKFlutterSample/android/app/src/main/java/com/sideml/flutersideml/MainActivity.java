@@ -22,10 +22,13 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugins.GeneratedPluginRegistrant;
+
 
 import static com.sos.busbysideengine.Constants.BBSideOperation.CONFIGURE;
 import static com.sos.busbysideengine.Constants.BBSideOperation.INCIDENT_ALERT_SENT;
@@ -42,7 +45,6 @@ import static com.sos.busbysideengine.Constants.BBTheme.STANDARD;
 
 public class MainActivity extends FlutterActivity implements BBSideEngineListener {
     private static final String CHANNEL = "com.sideml.flutersideml";
-    private MethodChannel methodChannel;
     private MethodChannel.Result methodChannelResultConfig;
     private MethodChannel.Result methodChannelResultIncident;
     private MethodChannel.Result methodChannelResultSOS;
@@ -53,6 +55,9 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
     String email = null;
     String userName = null;
     boolean flagToast = false;
+
+    private CompletableFuture<MethodChannel.Result> futureResult;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,14 +107,13 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
             objects.put("response",String.valueOf(response));
             objects.put("type",String.valueOf(type));
             try {
-                if(methodChannelResultIncident != null) {
+                if(methodChannelResultIncident != null && mConfidence != null) {
                     methodChannelResultIncident.success(objects);
+                    Toast.makeText(MainActivity.this, "Incident detected", Toast.LENGTH_SHORT).show();
                 }
             }catch (Exception e){
                 Log.e("INCIDENT_DETECTED Error:", ""+e.getMessage());
             }
-            Log.e("mConfidence", mConfidence + "");
-            Toast.makeText(MainActivity.this, "Incident detected with Confidence: "+mConfidence, Toast.LENGTH_SHORT).show();
         }else if (type == TIMER_FINISHED) {
             if(bbSideEngine != null){
                 if(userName != null){
@@ -200,15 +204,12 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
 
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
-        super.configureFlutterEngine(flutterEngine);
-        methodChannel = new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL);
-        methodChannel.setMethodCallHandler(
+        GeneratedPluginRegistrant.registerWith(flutterEngine);
+//        super.configureFlutterEngine(flutterEngine);
+        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL)
+                .setMethodCallHandler(
                 (call, result) -> {
-                    // Note: this method is invoked on the main thread.
-                    // TODO
-                    Log.e("call.method: ",call.method);
-
-                    if (call.method.equals("startSideML")) {
+                    if (call.method.contentEquals("startSideML")) {
                         if(flagToast){
                             result.success("Please enter valid license key");
                             return;
@@ -248,9 +249,9 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
 
                             result.success(objects);
                         }
-                    }else if(call.method.equals("incidentDetected")){
+                    }else if(call.method.contentEquals("incidentDetected")){
                         methodChannelResultIncident = result;
-                    }else if(call.method.equals("timerFinish")){
+                    }else if(call.method.contentEquals("timerFinish")){
                         methodChannelResultIncidentAlerts = result;
                         Map<String,Object> param = call.arguments();
                         userName = null;
@@ -272,7 +273,7 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                         //TODO: notify to partner
                         BBSideEngine.getInstance(null).notifyPartner();
 
-                    }else if(call.method.equals("customPartnerNotify")){
+                    }else if(call.method.contentEquals("customPartnerNotify")){
 //                        methodChannelResultIncidentAlerts = result;
                         Map<String,Object> param = call.arguments();
                         userName = null;
@@ -294,11 +295,11 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                         //TODO: notify to partner
                         BBSideEngine.getInstance(null).notifyPartner();
 
-                    }else if(call.method.equals("resumeSideEngine")){
+                    }else if(call.method.contentEquals("resumeSideEngine")){
                         BBSideEngine.getInstance(null).resumeSideEngine();
-                    }else if(call.method.equals("openSurveyUrl")){
+                    }else if(call.method.contentEquals("openSurveyUrl")){
                         BBSideEngine.getInstance(null).startSurveyVideoActivity();
-                    }else if(call.method.equals("checkSurveyUrl")){
+                    }else if(call.method.contentEquals("checkSurveyUrl")){
                         Map<String,Object> objects = new HashMap<>();
                         if((BBSideEngine.getInstance(null).surveyVideoURL() == null ||
                                 BBSideEngine.getInstance(null).surveyVideoURL() == "")){
@@ -307,9 +308,9 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                             objects.put("isSurveyUrl",true);
                         }
                         result.success(objects);
-                    }else if(call.method.equals("configure")){
+                    }else if(call.method.contentEquals("configure")){
 
-                        bbSideEngine.setEnableFlareAwareNetwork(true);
+                        bbSideEngine.setEnableFlareAwareNetwork(false);
 
                         email = null;
                         userName = null;
@@ -329,7 +330,7 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                         }
                         BBSideEngine.configure(MainActivity.this,
                                 lic, mode, theme);
-                    }else if(call.method.equals("startSOSML")){
+                    }else if(call.method.contentEquals("startSOSML")){
                         methodChannelResultSOS = result;
                         Map<String,Object> param = call.arguments();
                         String deviceId = Settings.Secure.getString(bbSideEngine.context.getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -358,7 +359,7 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                         }else{
                             bbSideEngine.deActiveSOS();
                         }
-                    }else if(call.method.equals("startFlareAwareML")){
+                    }else if(call.method.contentEquals("startFlareAwareML")){
                         methodChannelResultFlareAware = result;
                         Map<String,Object> param = call.arguments();
 
@@ -375,6 +376,7 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
 
                             bbSideEngine.startFlareAware();
                         }else{
+                            bbSideEngine.setEnableFlareAwareNetwork(false);
                             bbSideEngine.stopFlareAware();
                         }
                     }else {

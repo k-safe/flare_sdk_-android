@@ -178,14 +178,25 @@ class _CustomMapScreen extends State<CustomMapScreen> {
     final LinkedHashMap<Object?, Object?> result =
     await channel.invokeMethod("checkSurveyUrl");
     if (kDebugMode) {
-      print(result["success"]);
+      print("ERROR⚠️|️" + "callForCheckSurveyUrl: " + ": $result" );
     }
-    if (result["success"] != null &&
-        result["success"] == true) {
-      callForOpenSurveyUrl();
-    } else {
-      callForResumeSideEngine();
-      Navigator.pop(context);
+    if (Platform.isAndroid) {
+      bool? isSurveyUrl = result["isSurveyUrl"] as bool?;
+      if(isSurveyUrl == true){
+        callForOpenSurveyUrl();
+        Navigator.pop(context);
+      }else{
+        callForResumeSideEngine();
+        Navigator.pop(context);
+      }
+    }else{
+      if (result["success"] != null &&
+          result["success"] == true) {
+        callForOpenSurveyUrl();
+      } else {
+        callForResumeSideEngine();
+        Navigator.pop(context);
+      }
     }
   }
   Future<void> callForTimerFinishSideEngine(String userName, String email,bool isTestMode) async {

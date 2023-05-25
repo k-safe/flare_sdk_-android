@@ -285,11 +285,16 @@ let shared = BBSideEngineManager.shared
 
                     //Countdown timer completed and jump to the incident summary page, this is only called if you configured the standard theme.
                 } else if response.type == .incidentAlertSent {
-                    print("SIDE engine response is: \(response.type)")
+                    print("SIDE engine response is: \(response)")
                     //Return the alert sent (returns alert details (i.e. time, location, recipient, success/failure))
-                    let checkoutResult = CheckoutResult(success: response.success, type: response.type.rawValue, payload: response.payload)
-                    if let tempResult = self.globResult {
-                        tempResult(checkoutResult.dictionaryRepresentation)
+                    if let payload = response.payload {
+                        if let location = payload["location"] as? Any {
+                            let checkoutResult = CheckoutResult(success: response.success, type: response.type.rawValue, payload: ["location": location])
+                            
+                            if let tempResult = self.globResult {
+                                tempResult(checkoutResult.dictionaryRepresentation)
+                            }
+                        }
                     }
                 } else if response.type == .sms {
                     print("SIDE engine response is: \(response.type)")
