@@ -139,6 +139,7 @@ let shared = BBSideEngineManager.shared
 
                         if let value = args["email"] as? String {
                             shared.riderEmail = value
+                            shared.sendEmail(toEmail: shared.riderEmail)
                         }
                     }
 
@@ -156,12 +157,24 @@ let shared = BBSideEngineManager.shared
                         result(response)
 
                     }
+                    
 
                     shared.notifyPartner();
 
 
                 } else if(call.method == "customPartnerNotify"){
+                    if let args = call.arguments as? [String : Any]{
 
+                        if let value = args["userName"] as? String {
+                            shared.riderName = value
+                        }
+
+                        if let value = args["email"] as? String {
+                            shared.riderEmail = value
+                            shared.sendEmail(toEmail: shared.riderEmail)
+                        }
+                    }
+                    
                     // notify custom partner
                     shared.notifyPartner();
 
@@ -284,8 +297,9 @@ let shared = BBSideEngineManager.shared
 
                     //Countdown timer started after breach delay, this is called only if you configured the standard theme.
                 } else if response.type == .timerFinished {
-                    print("SIDE engine response is: \(response.type)")
-
+                    print("SIDE engine response is: \(response)")
+                    print("SIDE engine response type: \(response.type)")
+                    shared.sendEmail(toEmail: shared.riderEmail)
                     //Countdown timer completed and jump to the incident summary page, this is only called if you configured the standard theme.
                 } else if response.type == .incidentAlertSent {
                     print("SIDE engine response is: \(response)")
