@@ -53,7 +53,10 @@ let shared = BBSideEngineManager.shared
                             isCustom = value
                         }
                     }
-
+                    
+                    shared.riderEmail = ""
+                    shared.riderName = ""
+                    
                     var theme: BBTheme = isCustom ?  .custom : .standard
                     self.configureSideEngine(mode: mode, lic :lic, theme: theme)
 

@@ -328,6 +328,8 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                         if(isCustom){
                             theme = CUSTOM;
                         }
+                        bbSideEngine.setUserEmail("");
+                        bbSideEngine.setUserName("");
                         BBSideEngine.configure(MainActivity.this,
                                 lic, mode, theme);
                     }else if(call.method.contentEquals("startSOSML")){

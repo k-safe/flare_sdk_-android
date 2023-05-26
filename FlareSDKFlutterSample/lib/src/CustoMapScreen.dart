@@ -209,22 +209,20 @@ class _CustomMapScreen extends State<CustomMapScreen> {
     if (kDebugMode) {
       print(result);
     }
-    // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'result: $result');
+    print("ERROR⚠️|️" + "CustomMap: " + ": " + 'result: $result');
     List keys = result.keys.toList();
     // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'keys: $keys');
     // List values = result.values.toList();
     if(keys.indexOf("response") >= 0) {
       var last = keys[keys.indexOf("response")];
       // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'last: $last');
-      // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'response cas: $result');
-
-      var encodedStringNm = jsonEncode(result[last]);
-
-      Map<String, dynamic> responseValue =
-      json.decode(json.decode(encodedStringNm));
-      List keyRes = responseValue.keys.toList();
-      List valueRes = responseValue.values.toList();
+      print("ERROR⚠️|️" + "CustomMap: " + ": " + 'response cas: $result');
       if(Platform.isAndroid) {
+        var encodedStringNm = jsonEncode(result[last]);
+        Map<String, dynamic> responseValue =
+        json.decode(json.decode(encodedStringNm));
+        List keyRes = responseValue.keys.toList();
+        List valueRes = responseValue.values.toList();
         if (valueRes.indexOf("W3W") >= 0) {
           var resW3W = valueRes[keyRes.indexOf("result")];
           List keyW3W = resW3W.keys.toList();
@@ -237,14 +235,29 @@ class _CustomMapScreen extends State<CustomMapScreen> {
           setState(() {});
         }
       } else {
-        var resW3W = valueRes[keyRes.indexOf("coordinates")];
-        List keyW3W = resW3W.keys.toList();
-        List valueW3W = resW3W.values.toList();
-        map = valueRes[keyRes.indexOf("map")];
-        words = "//" + valueRes[keyRes.indexOf("words")];
-        latitude = valueW3W[keyW3W.indexOf("lat")];
-        longitude = valueW3W[keyW3W.indexOf("lng")];
-        setState(() {});
+        if (result["success"] != null &&
+            result["success"] == true) {
+          var response = result["response"] as Map<Object?, Object?>;
+          if (response["coordinates"]  != null) {
+            var coordinates = response["coordinates"] as Map<Object?, Object?>;
+            latitude = coordinates["lat"] as double?;
+            longitude = coordinates["lng"] as double?;
+          }
+          if (response["map"]  != null) {
+            map = response["map"] as String;
+          }
+          if (response["words"]  != null) {
+            var w = response["words"] as String;
+            words = "//" + w;
+          }
+
+          // List keyW3W = resW3W.keys.toList();
+          // List valueW3W = resW3W.values.toList();
+          // map = valueRes[keyRes.indexOf("map")];
+          // words = "//" + valueRes[keyRes.indexOf("words")];
+
+          setState(() {});
+        }
       }
     }
   }
