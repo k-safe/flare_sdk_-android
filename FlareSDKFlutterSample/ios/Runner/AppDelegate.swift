@@ -56,7 +56,8 @@ let shared = BBSideEngineManager.shared
                     
                     shared.riderEmail = ""
                     shared.riderName = ""
-                    
+                    shared.enable_flare_aware_network = false
+
                     var theme: BBTheme = isCustom ?  .custom : .standard
                     self.configureSideEngine(mode: mode, lic :lic, theme: theme)
 
@@ -200,8 +201,15 @@ let shared = BBSideEngineManager.shared
                     if let args = call.arguments as? [String : Any]{
                         if let value = args["isActive"] as? Bool {
                             if(value){
+                                shared.enable_flare_aware_network = true
+                                shared.distance_filter_meters = 0
+                                shared.low_frequency_intervals_seconds = 15
+                                shared.high_frequency_intervals_seconds = 3
+                                shared.high_frequency_mode_enabled = true
+                                
                                 shared.startFlareAware()
                             }else{
+                                shared.enable_flare_aware_network = false
                                 shared.stopFlareAware()
                             }
                         }
