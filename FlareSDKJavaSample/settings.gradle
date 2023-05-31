@@ -3,14 +3,6 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
-        maven {
-            name = "SideEngineSDK"
-            url = uri("https://maven.pkg.github.com/k-safe/busbysdk_android")
-            credentials {
-                username = gitUserName
-                password = gitToken
-            }
-        }
     }
 }
 dependencyResolutionManagement {
@@ -18,12 +10,14 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        def decodedBytes = Base64.getDecoder().decode(userToken)
+        def decryptedToken = new String(decodedBytes, "UTF-8")
         maven {
             name = "SideEngineSDK"
             url = uri("https://maven.pkg.github.com/k-safe/busbysdk_android")
             credentials {
-                username = gitUserName
-                password = gitToken
+                username = userName
+                password = decryptedToken
             }
         }
     }

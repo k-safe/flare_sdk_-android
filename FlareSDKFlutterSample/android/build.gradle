@@ -15,12 +15,14 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        def decodedBytes = Base64.getDecoder().decode(userToken)
+        def decryptedToken = new String(decodedBytes, "UTF-8")
         maven {
             name = "SideEngineSDK"
             url = uri("https://maven.pkg.github.com/k-safe/busbysdk_android")
             credentials {
-                username = gitUserName
-                password = gitToken
+                username = userName
+                password = decryptedToken
             }
         }
     }
@@ -34,6 +36,6 @@ subprojects {
     project.evaluationDependsOn(':app')
 }
 
-task clean(type: Delete) {
+tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
