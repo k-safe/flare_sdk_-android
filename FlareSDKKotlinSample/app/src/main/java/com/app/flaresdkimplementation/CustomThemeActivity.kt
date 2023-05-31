@@ -164,10 +164,10 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 viewBinding.progressBar.visibility = View.GONE
             }
             BBSideOperation.START -> {
-                //Please update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.
+                //Update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.
             }
             BBSideOperation.STOP -> {
-                //Please update the user interface (UI) in this section to reflect the cessation of the side engine (e.g., amend the colour or text of the STOP button accordingly).
+                //Update the user interface (UI) in this section to reflect the cessation of the side engine (e.g., amend the colour or text of the STOP button accordingly).
             }
             BBSideOperation.INCIDENT_DETECTED -> {
 

@@ -175,13 +175,13 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 viewBinding.progressBar.visibility = View.GONE
             }
             BBSideOperation.START -> {
-                //*Please update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.*//
+                //*Update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.*//
             }
             BBSideOperation.STOP -> {
-                //Please update the user interface (UI) in this section to reflect the cessation of the side engine (e.g., amend the colour or text of the STOP button accordingly).
+                //Update the user interface (UI) in this section to reflect the cessation of the side engine (e.g., amend the colour or text of the STOP button accordingly).
             }
             BBSideOperation.INCIDENT_DETECTED -> {
-                //The user has identified an incident, and if necessary, it may be appropriate to log the incident in either the analytics system or an external database. Please refrain from invoking any side engine methods at this juncture.
+                //The user has identified an incident, and if necessary, it may be appropriate to log the incident in either the analytics system or an external database. Refrain from invoking any side engine methods at this juncture.
                 Toast.makeText(this, "INCIDENT_DETECTED",Toast.LENGTH_LONG).show()
                 //Threshold reached and you will redirect to countdown page
                 //TODO: Set user id
@@ -219,7 +219,7 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 //A 30-second countdown timer has started, and the SIDE engine is waiting for a response from the user or an automatic cancellation event. If no events are received within the 30-second intervals of the timer, the SIDE engine will log the incident on the dashboard.
             }
             BBSideOperation.INCIDENT_AUTO_CANCEL -> {
-                //The incident has been automatically cancelled. If necessary, you may log the incident in the analytics system. Please refrain from invoking any side engine methods at this juncture.
+                //The incident has been automatically cancelled. If necessary, you may log the incident in the analytics system. Refrain from invoking any side engine methods at this juncture.
             }
             BBSideOperation.TIMER_FINISHED -> {
                 //After the 30-second timer ended, the SIDE engine began the process of registering the incident on the dashboard and sending notifications to emergency contacts.
