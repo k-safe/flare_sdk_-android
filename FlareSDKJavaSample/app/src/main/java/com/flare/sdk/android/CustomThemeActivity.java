@@ -3,11 +3,13 @@ package com.flare.sdk.android;
 import static com.sos.busbysideengine.Constants.BBTheme.CUSTOM;
 import static com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
@@ -24,6 +26,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.sos.busbysideengine.BBSideEngine;
@@ -113,24 +116,42 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
 //        bbSideEngine.setHighFrequencyIntervalsSeconds(3); //Default is 3 seconds, you can update this for your requirements, this will be used only when "high_frequency_mode_enabled" = true
 //        bbSideEngine.setHighFrequencyModeEnabled(false); //Recommendation to enable high frequency mode when SOS is active, this will help us to batter live tracking experience.
 
-        bbSideEngine.enableActivityTelemetry(true);
+        bbSideEngine.enableActivityTelemetry(false);
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
         bbSideEngine.setStickyEnable(false);
     }
 
     public void setListener() {
         btnStart.setOnClickListener(v -> {
-            bbSideEngine.setUserEmail(etvUserEmail.getText().toString().trim());
-            bbSideEngine.setUserName(etvUserName.getText().toString().trim());
-            if (bbSideEngine.isEngineStarted()) {
-                bbSideEngine.setUserName(etvUserName.getText().toString().trim());
-                bbSideEngine.stopSideEngine();
-            } else {
-                bbSideEngine.startSideEngine(CustomThemeActivity.this);
-            }
+            if (checkConfiguration) {
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+                        || ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    ActivityCompat.requestPermissions(
+                            this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            0
+                    );
+                } else {
+                    bbSideEngine.setUserEmail(etvUserEmail.getText().toString().trim());
+                    bbSideEngine.setUserName(etvUserName.getText().toString().trim());
+                    if (bbSideEngine.isEngineStarted()) {
+                        bbSideEngine.setUserName(etvUserName.getText().toString().trim());
+                        bbSideEngine.stopSideEngine();
+                    } else {
+                        bbSideEngine.startSideEngine(CustomThemeActivity.this);
+                    }
 
-            tvConfidence.setText("");
-            btnStart.setText(bbSideEngine.isEngineStarted() ? getString(R.string.stop) : getString(R.string.start));
+                    tvConfidence.setText("");
+                    btnStart.setText(bbSideEngine.isEngineStarted() ? getString(R.string.stop) : getString(R.string.start));
+                }
+            }
         });
 
         ivCloseMain.setOnClickListener(

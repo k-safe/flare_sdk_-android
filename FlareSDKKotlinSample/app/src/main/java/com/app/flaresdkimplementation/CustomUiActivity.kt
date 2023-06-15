@@ -62,7 +62,7 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
     }
 
     private fun init() {
-        BBSideEngine.getInstance(null).setBBSideEngineListenerInLib(this)
+        BBSideEngine.getInstance().setBBSideEngineListenerInLib(this)
         val intent = intent
         userName = intent.getStringExtra("userName")
         email = intent.getStringExtra("email")
@@ -99,7 +99,7 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
         if (email == "") {
             return
         }
-        BBSideEngine.getInstance(null).sendEmail(email)
+        BBSideEngine.getInstance().sendEmail(email)
     }
 
     private fun sendSMS() {
@@ -113,7 +113,7 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
         contact.countryCode = countryCode
         contact.phoneNumber = mobileNo
         contact.userName = userName
-        BBSideEngine.getInstance(null).sendSMS(contact)
+        BBSideEngine.getInstance().sendSMS(contact)
     }
 
 
@@ -132,23 +132,23 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
                 stopVibrate()
 
                 //TODO: Set user id
-                BBSideEngine.getInstance(null).setUserId(getRandomNumberString())
+                BBSideEngine.getInstance().setUserId(getRandomNumberString())
 
                 //TODO: Set rider name
-                BBSideEngine.getInstance(null).setRiderName(userName)
+                BBSideEngine.getInstance().setRiderName(userName)
 
                 //TODO: call method for fetching W3W Location data
-                BBSideEngine.getInstance(null).fetchWhat3WordLocation(this@CustomUiActivity)
+                BBSideEngine.getInstance().fetchWhat3WordLocation(this@CustomUiActivity)
 
                 //TODO: Send Email and SMS
                 sendEmail()
                 sendSMS()
 
                 //TODO: notify to partner
-                BBSideEngine.getInstance(null).notifyPartner()
+                BBSideEngine.getInstance().notifyPartner()
 
                 if(Common.getInstance().isAppInBackground()) {
-                    BBSideEngine.getInstance(null).resumeSensorIfAppInBackground();
+                    BBSideEngine.getInstance().resumeSensorIfAppInBackground();
                     finish();
                 }
                 isSurvey = true
@@ -175,12 +175,12 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
             stopVibrate()
             //inactive function
             if (!isSurvey ||
-                (BBSideEngine.getInstance(null).surveyVideoURL() == null ||
-                        BBSideEngine.getInstance(null).surveyVideoURL() == "")) {
-                BBSideEngine.getInstance(null).resumeSideEngine();
+                (BBSideEngine.getInstance().surveyVideoURL() == null ||
+                        BBSideEngine.getInstance().surveyVideoURL() == "")) {
+                BBSideEngine.getInstance().resumeSideEngine();
                 finish()
             }else{
-                BBSideEngine.getInstance(null).startSurveyVideoActivity()
+                BBSideEngine.getInstance().startSurveyVideoActivity()
             }
         }
     }
@@ -215,7 +215,7 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
     }
 
     override fun onCloseSurveyVideoActivityCallback() {
-        BBSideEngine.getInstance(null).resumeSideEngine()
+        BBSideEngine.getInstance().resumeSideEngine()
         finish()
     }
 
@@ -236,7 +236,7 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
             countDownTimer!!.cancel()
         }
         stopVibrate()
-        BBSideEngine.getInstance(null).resumeSideEngine()
+        BBSideEngine.getInstance().resumeSideEngine()
         finish()
     }
 

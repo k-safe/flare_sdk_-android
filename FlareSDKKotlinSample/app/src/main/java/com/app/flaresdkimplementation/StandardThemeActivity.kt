@@ -1,11 +1,14 @@
 package com.app.flaresdkimplementation
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.app.flaresdkimplementation.databinding.ActivityThemeBinding
 import com.sos.busbysideengine.BBSideEngine
 import com.sos.busbysideengine.Constants.BBSideOperation
@@ -95,25 +98,42 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
         }
 
         viewBinding.btnStart.setOnClickListener {
+            if (checkConfiguration) {
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                    || ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                        0
+                    )
+                } else {
+                    bbSideEngine.setUserEmail(viewBinding.etvUserEmail.text.toString().trim())
+                    bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
+                    bbSideEngine.setUserCountryCode(viewBinding.etvCountryCode.text.toString().trim())
+                    bbSideEngine.setUserMobile(viewBinding.etvMobileNumber.text.toString().trim())
 
-            bbSideEngine.setUserEmail(viewBinding.etvUserEmail.text.toString().trim())
-            bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
-            bbSideEngine.setUserCountryCode(viewBinding.etvCountryCode.text.toString().trim())
-            bbSideEngine.setUserMobile(viewBinding.etvMobileNumber.text.toString().trim())
-
-            btnTestClicked = false
-            if (bbSideEngine.isEngineStarted) {
-                bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
-                bbSideEngine.stopSideEngine()
-            } else {
-                bbSideEngine.startSideEngine(this)
+                    btnTestClicked = false
+                    if (bbSideEngine.isEngineStarted) {
+                        bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
+                        bbSideEngine.stopSideEngine()
+                    } else {
+                        bbSideEngine.startSideEngine(this)
 //                bbSideEngine.setUserId(getRandomNumberString())
-            }
-            viewBinding.mConfidence.text =""
-            if (bbSideEngine.isEngineStarted) {
-                viewBinding.btnStart.text = getString (R.string.stop)
-            } else {
-                viewBinding.btnStart.text =getString(R.string.start)
+                    }
+                    viewBinding.mConfidence.text =""
+                    if (bbSideEngine.isEngineStarted) {
+                        viewBinding.btnStart.text = getString (R.string.stop)
+                    } else {
+                        viewBinding.btnStart.text =getString(R.string.start)
+                    }
+                }
             }
         }
     }
@@ -243,6 +263,8 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        bbSideEngine.stopSideEngine()
+        if (bbSideEngine.isEngineStarted) {
+            bbSideEngine.stopSideEngine()
+        }
     }
 }

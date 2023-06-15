@@ -3,7 +3,9 @@ package com.flare.sdk.android;
 import static com.sos.busbysideengine.Constants.BBTheme.STANDARD;
 import static com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.sos.busbysideengine.BBSideEngine;
 import com.sos.busbysideengine.Constants;
@@ -127,24 +130,42 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
 
     public void setListener() {
         btnStart.setOnClickListener(v -> {
-            bbSideEngine.setUserEmail(etvUserEmail.getText().toString().trim());
-            bbSideEngine.setUserName(etvUserName.getText().toString().trim());
-            bbSideEngine.setUserCountryCode(etvCountryCode.getText().toString().trim());
-            bbSideEngine.setUserMobile(etvMobileNumber.getText().toString().trim());
+            if (checkConfiguration) {
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+                        || ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    ActivityCompat.requestPermissions(
+                            this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            0
+                    );
+                } else {
+                    bbSideEngine.setUserEmail(etvUserEmail.getText().toString().trim());
+                    bbSideEngine.setUserName(etvUserName.getText().toString().trim());
+                    bbSideEngine.setUserCountryCode(etvCountryCode.getText().toString().trim());
+                    bbSideEngine.setUserMobile(etvMobileNumber.getText().toString().trim());
 
-            btnTestClicked = false;
-            if (bbSideEngine.isEngineStarted()) {
-                bbSideEngine.setUserName(etvUserName.getText().toString().trim());
-                bbSideEngine.stopSideEngine();
-            } else {
-                bbSideEngine.startSideEngine(StandardThemeActivity.this);
+                    btnTestClicked = false;
+                    if (bbSideEngine.isEngineStarted()) {
+                        bbSideEngine.setUserName(etvUserName.getText().toString().trim());
+                        bbSideEngine.stopSideEngine();
+                    } else {
+                        bbSideEngine.startSideEngine(StandardThemeActivity.this);
 //                bbSideEngine.setUserId(getRandomNumberString())
-            }
-            tvConfidence.setText("");
-            if (bbSideEngine.isEngineStarted()) {
-                btnStart.setText(getString (R.string.stop));
-            } else {
-                btnStart.setText(getString(R.string.start));
+                    }
+                    tvConfidence.setText("");
+                    if (bbSideEngine.isEngineStarted()) {
+                        btnStart.setText(getString(R.string.stop));
+                    } else {
+                        btnStart.setText(getString(R.string.start));
+                    }
+                }
             }
         });
 
