@@ -97,17 +97,10 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
     }
 
     public void setupEngine() {
-
         //"Your production license key here" or "Your sandbox license key here"
         String lic = intent.getStringExtra("lic");
 
-        BBSideEngine.configure(this,
-                lic,
-                mode,
-                CUSTOM
-        );
-
-        bbSideEngine = BBSideEngine.getInstance(this);
+        bbSideEngine = BBSideEngine.getInstance();
         bbSideEngine.showLogs(true);
         bbSideEngine.setBBSideEngineListener(this);
 //        bbSideEngine.setEnableFlareAwareNetwork(true); //enableFlareAwareNetwork is a safety for cyclist to send notification for near by fleet users
@@ -118,7 +111,13 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
 
         bbSideEngine.enableActivityTelemetry(false);
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
-        bbSideEngine.setStickyEnable(false);
+        bbSideEngine.setStickyEnable(true);
+
+        bbSideEngine.configure(this,
+                lic,
+                mode,
+                CUSTOM
+        );
     }
 
     public void setListener() {
@@ -267,13 +266,13 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
                             if (Common.getInstance().isAppInBackground()) {
 
                                 //TODO: Set user id
-                                BBSideEngine.getInstance(null).setUserId(getRandomNumberString());
+                                bbSideEngine.setUserId(getRandomNumberString());
 
                                 //TODO: Set rider name
-                                BBSideEngine.getInstance(null).setRiderName(etvUserName.getText().toString().trim());
+                                bbSideEngine.setRiderName(etvUserName.getText().toString().trim());
 
                                 //TODO: call method for fetching W3W Location data
-                                BBSideEngine.getInstance(null).fetchWhat3WordLocation(this);
+                                bbSideEngine.fetchWhat3WordLocation(this);
 
                                 //TODO: Send Email and SMS
                                 sendSMS();
@@ -281,9 +280,9 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
 //                                BBSideEngine.getInstance(null).sendEmail(viewBinding.etvUserEmail.text.toString().trim()) // Replace your emergency email address
 
                                 //TODO: notify to partner
-                                BBSideEngine.getInstance(null).notifyPartner();
+                                bbSideEngine.notifyPartner();
 
-                                BBSideEngine.getInstance(null).resumeSensorIfAppInBackground();
+                                bbSideEngine.resumeSensorIfAppInBackground();
 
                             } else {
 

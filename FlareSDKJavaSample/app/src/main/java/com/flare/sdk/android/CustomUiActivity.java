@@ -68,7 +68,7 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
     }
 
     public void init() {
-        BBSideEngine.getInstance(null).setBBSideEngineListenerInLib(this);
+        BBSideEngine.getInstance().setBBSideEngineListenerInLib(this);
 
         Intent intent = getIntent();
         userName = intent.getStringExtra("userName");
@@ -113,7 +113,7 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
         if (email.equals("")) {
             return;
         }
-        BBSideEngine.getInstance(null).sendEmail(email);
+        BBSideEngine.getInstance().sendEmail(email);
     }
 
     private void sendSMS() {
@@ -127,7 +127,7 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
         contact.setCountryCode(countryCode);
         contact.setPhoneNumber(mobileNo);
         contact.setUserName(userName);
-        BBSideEngine.getInstance(null).sendSMS(contact);
+        BBSideEngine.getInstance().sendSMS(contact);
     }
 
     public void setListener() {
@@ -146,23 +146,23 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
                 stopVibrate();
 
                 //TODO: Set user id
-                BBSideEngine.getInstance(null).setUserId(getRandomNumberString());
+                BBSideEngine.getInstance().setUserId(getRandomNumberString());
 
                 //TODO: Set rider name
-                BBSideEngine.getInstance(null).setRiderName(userName);
+                BBSideEngine.getInstance().setRiderName(userName);
 
                 //TODO: call method for fetching W3W Location data
-                BBSideEngine.getInstance(null).fetchWhat3WordLocation(CustomUiActivity.this);
+                BBSideEngine.getInstance().fetchWhat3WordLocation(CustomUiActivity.this);
 
                 //TODO: Send Email and SMS
                 sendEmail();
                 sendSMS();
 
                 //TODO: notify to partner
-                BBSideEngine.getInstance(null).notifyPartner();
+                BBSideEngine.getInstance().notifyPartner();
 
                 if(common.isAppInBackground()) {
-                    BBSideEngine.getInstance(null).resumeSensorIfAppInBackground();
+                    BBSideEngine.getInstance().resumeSensorIfAppInBackground();
                     finish();
                 }
 
@@ -189,12 +189,12 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
             }
             stopVibrate();
             if(!isSurvey ||
-                    (BBSideEngine.getInstance(null).surveyVideoURL() == null ||
-                    BBSideEngine.getInstance(null).surveyVideoURL().equals(""))){
-                BBSideEngine.getInstance(null).resumeSideEngine();
+                    (BBSideEngine.getInstance().surveyVideoURL() == null ||
+                    BBSideEngine.getInstance().surveyVideoURL().equals(""))){
+                BBSideEngine.getInstance().resumeSideEngine();
                 finish();
             }else{
-                BBSideEngine.getInstance(null).startSurveyVideoActivity();
+                BBSideEngine.getInstance().startSurveyVideoActivity();
             }
             //inactive function
         });
@@ -237,7 +237,7 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
     }
     @Override
     public void onCloseSurveyVideoActivityCallback() {
-        BBSideEngine.getInstance(null).resumeSideEngine();
+        BBSideEngine.getInstance().resumeSideEngine();
         finish();
     }
     @Override
@@ -261,7 +261,7 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
             countDownTimer.cancel();
         }
         stopVibrate();
-        BBSideEngine.getInstance(null).resumeSideEngine();
+        BBSideEngine.getInstance().resumeSideEngine();
         finish();
     }
 

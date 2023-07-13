@@ -58,7 +58,7 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
         mode = intent.getStringExtra("mode")
         viewBinding.tvThemeName.text = getString(R.string.custom_theme)
 
-        bbSideEngine = BBSideEngine.getInstance(this)
+        bbSideEngine = BBSideEngine.getInstance()
         bbSideEngine.showLogs(true)
         bbSideEngine.setBBSideEngineListener(this)
 //        bbSideEngine.setEnableFlareAwareNetwork(true) //enableFlareAwareNetwork is a safety for cyclist to send notification for near by fleet users
@@ -69,12 +69,12 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
 
         bbSideEngine.enableActivityTelemetry(false)
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
-        bbSideEngine.setStickyEnable(false)
+        bbSideEngine.setStickyEnable(true)
 
         //"Your production license key here" or "Your sandbox license key here"
         val lic = intent.getStringExtra("lic")
 
-        BBSideEngine.configure(this, lic, mode,
+        bbSideEngine.configure(this, lic, mode,
             BBTheme.CUSTOM
         )
 

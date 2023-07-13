@@ -13,12 +13,12 @@ PODS:
   - GoogleMaps/Base (7.4.0)
   - GoogleMaps/Maps (7.4.0):
     - GoogleMaps/Base
-  - IQKeyboardManager (6.5.11)
+  - IQKeyboardManager (6.5.12)
   - permission_handler_apple (9.0.4):
     - Flutter
   - share (0.0.1):
     - Flutter
-  - SideEngine-iOS (4.0.3)
+  - SideEngine-iOS (4.2.1)
   - Toast (4.0.0)
   - url_launcher_ios (0.0.1):
     - Flutter
@@ -73,10 +73,10 @@ SPEC CHECKSUMS:
   geolocator_apple: cc556e6844d508c95df1e87e3ea6fa4e58c50401
   google_maps_flutter_ios: 66201f392bf62d500f07670a30488a247b9bb5b9
   GoogleMaps: 032f676450ba0779bd8ce16840690915f84e57ac
-  IQKeyboardManager: ef43ce1ba1e5aaf4adf222c0a46f39761f246879
+  IQKeyboardManager: b1fd66ccf7a79095bdcc4a2735231586f744216e
   permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
   share: 0b2c3e82132f5888bccca3351c504d0003b3b410
-  SideEngine-iOS: 05cdcda29059752dfdf148d7de09eab095627ca5
+  SideEngine-iOS: bc5e38be2da70ce8979c2b88fb9829402e30246e
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
   vibration: 7d883d141656a1c1a6d8d238616b2042a51a1241

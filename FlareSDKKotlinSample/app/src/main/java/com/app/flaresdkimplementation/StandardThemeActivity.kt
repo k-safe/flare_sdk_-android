@@ -48,7 +48,7 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
 
         viewBinding.tvThemeName.text = getString(R.string.standard_theme)
 
-        bbSideEngine = BBSideEngine.getInstance(this)
+        bbSideEngine = BBSideEngine.getInstance()
         bbSideEngine.showLogs(true)
         bbSideEngine.setBBSideEngineListener(this)
 //        bbSideEngine.setEnableFlareAwareNetwork(true) //The "enableFlareAwareNetwork" feature is a safety measure designed for cyclists, which allows them to send notifications to nearby fleet users.
@@ -58,13 +58,13 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
 //        bbSideEngine.setHighFrequencyModeEnabled(false) //It is recommended to activate the high frequency mode when the SOS function is engaged in order to enhance the quality of the live tracking experience.
         bbSideEngine.enableActivityTelemetry(true)
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
-        bbSideEngine.setStickyEnable(false)
+        bbSideEngine.setStickyEnable(true)
 
         //"Your production license key here" or "Your sandbox license key here"
         val lic = intent.getStringExtra("lic")
 
 
-        BBSideEngine.configure(this, lic, mode,
+        bbSideEngine.configure(this, lic, mode,
             BBTheme.STANDARD
         )
 

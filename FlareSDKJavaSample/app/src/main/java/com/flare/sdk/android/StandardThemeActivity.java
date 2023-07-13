@@ -78,7 +78,7 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
 
     public void setupEngine() {
 
-        bbSideEngine = BBSideEngine.getInstance(this);
+        bbSideEngine = BBSideEngine.getInstance();
         bbSideEngine.showLogs(true);
         bbSideEngine.setBBSideEngineListener(this);
         bbSideEngine.enableActivityTelemetry(true);
@@ -90,11 +90,11 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
 //        bbSideEngine.setHighFrequencyModeEnabled(false); //It is recommended to activate the high frequency mode when the SOS function is engaged in order to enhance the quality of the live tracking experience.
         bbSideEngine.enableActivityTelemetry(true);
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
-        bbSideEngine.setStickyEnable(false);
+        bbSideEngine.setStickyEnable(true);
 
         //"Your production license key here" or "Your sandbox license key here"
         String lic = intent.getStringExtra("lic");
-        BBSideEngine.configure(this,
+        bbSideEngine.configure(this,
                 lic,
                 mode,
                 STANDARD

@@ -80,7 +80,6 @@ let shared = BBSideEngineManager.shared
 
                     }
 
-                    shared.deviceId = self.uniqueId()
                     shared.riderId = self.uniqueId();
 
                     self.startStopSideEngine(isStarted: isStarted)
@@ -221,7 +220,7 @@ let shared = BBSideEngineManager.shared
          })
 
 
-      GeneratedPluginRegistrant.register(withRegistry: self)
+      GeneratedPluginRegistrant.register(with: self)
      return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
