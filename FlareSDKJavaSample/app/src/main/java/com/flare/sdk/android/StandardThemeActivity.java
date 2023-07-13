@@ -81,7 +81,6 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
         bbSideEngine = BBSideEngine.getInstance();
         bbSideEngine.showLogs(true);
         bbSideEngine.setBBSideEngineListener(this);
-        bbSideEngine.enableActivityTelemetry(true);
 
 //        bbSideEngine.setEnableFlareAwareNetwork(true); //The "enableFlareAwareNetwork" feature is a safety measure designed for cyclists, which allows them to send notifications to nearby fleet users.
 //        bbSideEngine.setDistanceFilterMeters(20); //It is possible to activate the distance filter in order to transmit location data in the live tracking URL. This will ensure that location updates are transmitted every 20 meters, once the timer interval has been reached.
