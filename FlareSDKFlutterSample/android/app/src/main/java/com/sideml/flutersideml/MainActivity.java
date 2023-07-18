@@ -30,6 +30,7 @@ import io.flutter.plugins.GeneratedPluginRegistrant;
 
 import static com.sos.busbysideengine.Constants.BBSideOperation.CONFIGURE;
 import static com.sos.busbysideengine.Constants.BBSideOperation.INCIDENT_ALERT_SENT;
+import static com.sos.busbysideengine.Constants.BBSideOperation.INCIDENT_AUTO_CANCEL;
 import static com.sos.busbysideengine.Constants.BBSideOperation.INCIDENT_DETECTED;
 import static com.sos.busbysideengine.Constants.BBSideOperation.SOS_ACTIVATE;
 import static com.sos.busbysideengine.Constants.BBSideOperation.SOS_DEACTIVATE;
@@ -46,6 +47,7 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
     private MethodChannel.Result methodChannelResultIncident;
     private MethodChannel.Result methodChannelResultSOS;
     private MethodChannel.Result methodChannelResultFlareAware;
+    private MethodChannel.Result methodChannelResultAutoCancel;
     private MethodChannel.Result methodChannelResultIncidentAlerts;
     BBSideEngine bbSideEngine;
     String email = null;
@@ -195,6 +197,16 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
             } catch (Exception e) {
                 Log.e("Error: ", e.toString());
             }
+        }else if (type == INCIDENT_AUTO_CANCEL) {
+            Map<String,Object> objects = new HashMap<>();
+            objects.put("isAutoCancel",true);
+            try {
+                if(methodChannelResultAutoCancel != null){
+                    methodChannelResultAutoCancel.success(objects);
+                }
+            } catch (Exception e) {
+                Log.e("Error: ", e.toString());
+            }
         }
     }
 
@@ -302,9 +314,9 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                     }else if(call.method.contentEquals("checkSurveyUrl")){
                         Map<String,Object> objects = new HashMap<>();
                         if((bbSideEngine.surveyVideoURL() == null ||
-                                bbSideEngine.surveyVideoURL() == "")){
+                                bbSideEngine.surveyVideoURL().equals(""))) {
                             objects.put("isSurveyUrl",false);
-                        }else{
+                        } else{
                             objects.put("isSurveyUrl",true);
                         }
                         result.success(objects);
@@ -335,7 +347,10 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                     }else if(call.method.contentEquals("startSOSML")){
                         methodChannelResultSOS = result;
                         Map<String,Object> param = call.arguments();
-                        String deviceId = Settings.Secure.getString(bbSideEngine.context.getContentResolver(), Settings.Secure.ANDROID_ID);
+                        @SuppressLint("HardwareIds")
+                        String deviceId = Settings.Secure.getString(
+                                bbSideEngine.context.getContentResolver(),
+                                Settings.Secure.ANDROID_ID);
 
                         userName = null;
                         if (param != null && param.containsKey("userName")) {
@@ -361,6 +376,8 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                         }else{
                             bbSideEngine.deActiveSOS();
                         }
+                    }else if(call.method.contentEquals("autoCancel")){
+                        methodChannelResultAutoCancel = result;
                     }else if(call.method.contentEquals("startFlareAwareML")){
                         methodChannelResultFlareAware = result;
                         Map<String,Object> param = call.arguments();

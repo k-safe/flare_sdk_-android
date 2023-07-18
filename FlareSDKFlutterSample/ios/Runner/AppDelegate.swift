@@ -296,8 +296,13 @@ let shared = BBSideEngineManager.shared
 
                     //User canceled countdown countdown to get event here, this is called only if you configured thenstandard theme.
                 } else if response.type == .incidentAutoCancel {
-                    print("SIDE engine response is: \(response.type)")
-
+                    if BBSideEngineManager.shared.applicationTheme == .custom{
+                        print("SIDE engine response is: \(response.type)")
+                        let checkoutResult = CheckoutResult(success: response.success, type: response.type.rawValue, payload: ["isAutoCancel": true])
+                        if let tempResult = self.globResult {
+                            tempResult(checkoutResult.dictionaryRepresentation)
+                        }
+                    }
                     //GPS reports that user is still moving at average speed or distance - assume speed bump or similar
                 } else if response.type == .timerStarted {
                     print("SIDE engine response is: \(response.type)")
