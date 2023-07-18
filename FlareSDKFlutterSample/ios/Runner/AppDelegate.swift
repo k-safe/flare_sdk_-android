@@ -206,7 +206,6 @@ let shared = BBSideEngineManager.shared
                                 shared.low_frequency_intervals_seconds = 15
                                 shared.high_frequency_intervals_seconds = 3
                                 shared.high_frequency_mode_enabled = true
-                                
                                 shared.startFlareAware()
                             }else{
                                 shared.enable_flare_aware_network = false
@@ -295,7 +294,7 @@ let shared = BBSideEngineManager.shared
                 } else if response.type == .incidentCancel {
                     print("SIDE engine response is: \(response.type)")
 
-                    //User canceled countdown countdown to get event here, this is called only if you configured thenstandard theme.
+                    //User canceled countdown countdown to get event here, this is called only if you configured then standard theme.
                 } else if response.type == .incidentAutoCancel {
                     print("SIDE engine response is: \(response.type)")
 
@@ -332,7 +331,7 @@ let shared = BBSideEngineManager.shared
                 } else if response.type == .location {
                     print("SIDE engine response is: \(response.type)")
 
-                    //Returns collecation object
+                    //Returns collection object
                 } else if response.type == .sosActive {
                     print("SIDE engine response is: \(response.type)")
                     let checkoutResult = CheckoutResult(success: response.success, type: response.type.rawValue, payload: ["sosActive": true, "surveyVideoURL":response.payload?["sosLiveTrackingUrl"]])
@@ -341,28 +340,28 @@ let shared = BBSideEngineManager.shared
                         tempResult(checkoutResult.dictionaryRepresentation)
                     }
 
-                    //Returns collecation object
+                    //Returns collection object
                 }else if response.type == .sosDeActive {
                     print("SIDE engine response is: \(response.type)")
                     let checkoutResult = CheckoutResult(success: response.success,type: response.type.rawValue, payload: ["sosActive": false])
                     if let tempResult = self.globResult {
                         tempResult(checkoutResult.dictionaryRepresentation)
                     }
-                    //Returns collecation object
+                    //Returns collection object
                 }else if response.type == .startFlareAware {
                     print("SIDE engine response is: \(response.type)")
                     let checkoutResult = CheckoutResult(success: response.success, type: response.type.rawValue, payload: ["isActive": true])
                     if let tempResult = self.globResult {
                         tempResult(checkoutResult.dictionaryRepresentation)
                     }
-                    //Returns collecation object
+                    //Returns collection object
                 }else if response.type == .stopFlareAware {
                     print("SIDE engine response is: \(response.type)")
                     let checkoutResult = CheckoutResult(success: response.success, type: response.type.rawValue, payload: ["isActive": false])
                     if let tempResult = self.globResult {
                         tempResult(checkoutResult.dictionaryRepresentation)
                     }
-                    //Returns collecation object
+                    //Returns collection object
                 }
             }
         }
