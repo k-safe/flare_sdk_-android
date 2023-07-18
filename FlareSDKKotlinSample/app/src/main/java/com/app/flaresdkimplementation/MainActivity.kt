@@ -38,7 +38,6 @@ class MainActivity : AppCompatActivity() {
                 if(Constants.ENVIRONMENT_PRODUCTION.equals(mode)) productionLicense else sandboxLicense)
             startActivity(intent)
         }
-
         viewBinding.btnCustom.setOnClickListener {
             mode = if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
                 Constants.ENVIRONMENT_SANDBOX
@@ -56,8 +55,6 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("lic", productionLicense)
             startActivity(intent)
         }
-
-
         viewBinding.rgEnvironment.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == R.id.rbProduction) {
                 // The switch is checked.
@@ -71,7 +68,6 @@ class MainActivity : AppCompatActivity() {
                 viewBinding.btnEnableFlareAware.visibility = View.VISIBLE
             }
         }
-
         viewBinding.btnEnableFlareAware.setOnClickListener {
             mode = if(viewBinding.rgEnvironment.checkedRadioButtonId == R.id.rbSandBox){
                 Constants.ENVIRONMENT_SANDBOX
@@ -82,8 +78,6 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("mode", mode)
             intent.putExtra("lic", productionLicense)
             startActivity(intent)
-
         }
-
     }
 }

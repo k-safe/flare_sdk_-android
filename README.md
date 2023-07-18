@@ -1,4 +1,4 @@
-**Looking for SDK Documentation?** [Click here](http://prod-developer.flaresafety.com.s3-website-eu-west-1.amazonaws.com/ "Click here")
+**Looking for SDK Documentation?** [Click here](https://developers.flaresafety.com/ "Click here")
 
 # Powerful Real-Time Incident Detection, Prevention and Alerting
 

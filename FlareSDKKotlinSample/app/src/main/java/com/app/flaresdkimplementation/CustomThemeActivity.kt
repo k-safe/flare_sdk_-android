@@ -1,11 +1,13 @@
 package com.app.flaresdkimplementation
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.media.RingtoneManager
@@ -14,6 +16,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.app.flaresdkimplementation.databinding.ActivityThemeBinding
 import com.sos.busbysideengine.BBSideEngine
@@ -55,7 +58,7 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
         mode = intent.getStringExtra("mode")
         viewBinding.tvThemeName.text = getString(R.string.custom_theme)
 
-        bbSideEngine = BBSideEngine.getInstance(this)
+        bbSideEngine = BBSideEngine.getInstance()
         bbSideEngine.showLogs(true)
         bbSideEngine.setBBSideEngineListener(this)
 //        bbSideEngine.setEnableFlareAwareNetwork(true) //enableFlareAwareNetwork is a safety for cyclist to send notification for near by fleet users
@@ -64,14 +67,14 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
 //        bbSideEngine.setHighFrequencyIntervalsSeconds(3) //Default is 3 seconds, you can update this for your requirements, this will be used only when "high_frequency_mode_enabled" = true
 //        bbSideEngine.setHighFrequencyModeEnabled(false) //Recommendation to enable high frequency mode when SOS is active, this will help us to batter live tracking experience.
 
-        bbSideEngine.enableActivityTelemetry(true)
+        bbSideEngine.enableActivityTelemetry(false)
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
-        bbSideEngine.setStickyEnable(false)
+        bbSideEngine.setStickyEnable(true)
 
         //"Your production license key here" or "Your sandbox license key here"
         val lic = intent.getStringExtra("lic")
 
-        BBSideEngine.configure(this, lic, mode,
+        bbSideEngine.configure(this, lic, mode,
             BBTheme.CUSTOM
         )
 
@@ -90,20 +93,38 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
         }
 
         viewBinding.btnStart.setOnClickListener {
-            bbSideEngine.setUserEmail(viewBinding.etvUserEmail.text.toString().trim())
-            bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
+            if (checkConfiguration) {
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                    || ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                        0
+                    )
+                } else {
+                    bbSideEngine.setUserEmail(viewBinding.etvUserEmail.text.toString().trim())
+                    bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
 
-            if (bbSideEngine.isEngineStarted) {
-                bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
-                bbSideEngine.stopSideEngine()
-            } else {
-                bbSideEngine.startSideEngine(this)
-            }
-            viewBinding.mConfidence.text =""
-            if (bbSideEngine.isEngineStarted){
-                viewBinding.btnStart.text = getString (R.string.stop)
-            } else {
-                viewBinding.btnStart.text =getString(R.string.start)
+                    if (bbSideEngine.isEngineStarted) {
+                        bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
+                        bbSideEngine.stopSideEngine()
+                    } else {
+                        bbSideEngine.startSideEngine(this)
+                    }
+                    viewBinding.mConfidence.text =""
+                    if (bbSideEngine.isEngineStarted){
+                        viewBinding.btnStart.text = getString (R.string.stop)
+                    } else {
+                        viewBinding.btnStart.text =getString(R.string.start)
+                    }
+                }
             }
         }
     }
@@ -159,24 +180,22 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
     ) {
         when (type) {
             BBSideOperation.CONFIGURE -> {
-                // if status = true Now you can ready to start Side engine process
+                //You are now able to initiate the SIDE engine process at any time. In the event that there is no user input button available to commence the activity, you may commence the SIDE engine by executing the following command:
                 checkConfiguration = status
                 viewBinding.progressBar.visibility = View.GONE
             }
             BBSideOperation.START -> {
-                //Update your UI here (e.g. update START button color or text here when SIDE engine started)
+                //Update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.
             }
             BBSideOperation.STOP -> {
-                //Update your UI here (e.g. update STOP button color or text here when SIDE engine started)
-            }
-            BBSideOperation.SMS -> {
-                //Returns SMS delivery status and response payload
-            }
-            BBSideOperation.EMAIL -> {
-                //Returns email delivery status and response payload
+                //Update the user interface (UI) in this section to reflect the cessation of the side engine (e.g., amend the colour or text of the STOP button accordingly).
             }
             BBSideOperation.INCIDENT_DETECTED -> {
-                //Threshold reached and you will redirect to countdown page
+
+                //You can initiate your bespoke countdown page from this interface, which must have a minimum timer interval of 30 seconds.
+
+                //Upon completion of your custom countdown, it is imperative to invoke the 'notify partner' method to record the event on the dashboard and dispatch notifications via webhook, Slack, email and SMS.
+
                 Log.w("CustomThemeActivity", "INCIDENT_DETECTED")
                 setNotification()
 
@@ -203,23 +222,22 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
                             if (Common.getInstance().isAppInBackground) {
 
                                 //TODO: Set user id
-                                BBSideEngine.getInstance(null).setUserId(getRandomNumberString())
+                                BBSideEngine.getInstance().setUserId(getRandomNumberString())
 
                                 //TODO: Set rider name
-                                BBSideEngine.getInstance(null).setRiderName(viewBinding.etvUserName.text.toString().trim())
+                                BBSideEngine.getInstance().setRiderName(viewBinding.etvUserName.text.toString().trim())
 
                                 //TODO: call method for fetching W3W Location data
-                                BBSideEngine.getInstance(null).fetchWhat3WordLocation(this@CustomThemeActivity)
+                                BBSideEngine.getInstance().fetchWhat3WordLocation(this@CustomThemeActivity)
 
                                 //TODO: Send Email and SMS
-                                sendSMS()
                                 sendEmail()
-//                                BBSideEngine.getInstance(null).sendEmail(viewBinding.etvUserEmail.text.toString().trim()) // Replace your emergency email address
+                                sendSMS()
 
                                 //TODO: notify to partner
-                                BBSideEngine.getInstance(null).notifyPartner()
+                                BBSideEngine.getInstance().notifyPartner()
 
-                                BBSideEngine.getInstance(null).resumeSensorIfAppInBackground()
+                                BBSideEngine.getInstance().resumeSensorIfAppInBackground()
 
                             } else {
                                 val intent = Intent(this, CustomUiActivity::class.java)
@@ -237,23 +255,20 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
                     }
                 }
             }
-            BBSideOperation.INCIDENT_CANCEL -> {
-                //User canceled countdown countdown to get event here, this called only for if you configured standard theme.
-            }
             BBSideOperation.INCIDENT_AUTO_CANCEL -> {
-                //Auto canceled countdown countdown to get event here, this called only for if you configured standard theme.
+                //Ignore your personalized countdown page for now and avoid using any features from external engines. The external engine will automatically take care of any required tasks.
             }
             BBSideOperation.INCIDENT_ALERT_SENT ->{
-                //Return the alert sent (returns alert details (i.e. time, location, recipient, success/failure))
+                //This message is intended solely to provide notification regarding the transmission status of alerts. It is unnecessary to invoke any SIDE engine functions in this context.
             }
             BBSideOperation.RESUME_SIDE_ENGINE ->{
-                //
+                //The lateral engine has been restarted, and we are currently monitoring the device's sensors and location in order to analyse another potential incident.
             }
-            BBSideOperation.TIMER_STARTED -> {
-                //Countdown timer started after breach delay, this called only if you configured standard theme.
+            BBSideOperation.SMS -> {
+                //This message is intended solely to provide notification regarding the transmission status of SMS. It is unnecessary to invoke any SIDE engine functions in this context.
             }
-            BBSideOperation.TIMER_FINISHED -> {
-                //Countdown timer finished and jump to the incident summary page, this called only if you configured standard theme.
+            BBSideOperation.EMAIL -> {
+                //This message is intended solely to provide notification regarding the transmission status of Email. It is unnecessary to invoke any SIDE engine functions in this context.
             }
             else -> {
                 Log.e("No Events Find",":")
@@ -306,6 +321,8 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        bbSideEngine.stopSideEngine()
+        if (bbSideEngine.isEngineStarted) {
+            bbSideEngine.stopSideEngine()
+        }
     }
 }

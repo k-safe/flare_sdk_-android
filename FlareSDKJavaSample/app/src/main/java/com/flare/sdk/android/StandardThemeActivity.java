@@ -3,7 +3,9 @@ package com.flare.sdk.android;
 import static com.sos.busbysideengine.Constants.BBTheme.STANDARD;
 import static com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.sos.busbysideengine.BBSideEngine;
 import com.sos.busbysideengine.Constants;
@@ -75,10 +78,9 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
 
     public void setupEngine() {
 
-        bbSideEngine = BBSideEngine.getInstance(this);
+        bbSideEngine = BBSideEngine.getInstance();
         bbSideEngine.showLogs(true);
         bbSideEngine.setBBSideEngineListener(this);
-        bbSideEngine.enableActivityTelemetry(true);
 
 //        bbSideEngine.setEnableFlareAwareNetwork(true); //The "enableFlareAwareNetwork" feature is a safety measure designed for cyclists, which allows them to send notifications to nearby fleet users.
 //        bbSideEngine.setDistanceFilterMeters(20); //It is possible to activate the distance filter in order to transmit location data in the live tracking URL. This will ensure that location updates are transmitted every 20 meters, once the timer interval has been reached.
@@ -87,11 +89,11 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
 //        bbSideEngine.setHighFrequencyModeEnabled(false); //It is recommended to activate the high frequency mode when the SOS function is engaged in order to enhance the quality of the live tracking experience.
         bbSideEngine.enableActivityTelemetry(true);
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
-        bbSideEngine.setStickyEnable(false);
+        bbSideEngine.setStickyEnable(true);
 
         //"Your production license key here" or "Your sandbox license key here"
         String lic = intent.getStringExtra("lic");
-        BBSideEngine.configure(this,
+        bbSideEngine.configure(this,
                 lic,
                 mode,
                 STANDARD
@@ -127,24 +129,42 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
 
     public void setListener() {
         btnStart.setOnClickListener(v -> {
-            bbSideEngine.setUserEmail(etvUserEmail.getText().toString().trim());
-            bbSideEngine.setUserName(etvUserName.getText().toString().trim());
-            bbSideEngine.setUserCountryCode(etvCountryCode.getText().toString().trim());
-            bbSideEngine.setUserMobile(etvMobileNumber.getText().toString().trim());
+            if (checkConfiguration) {
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+                        || ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    ActivityCompat.requestPermissions(
+                            this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            0
+                    );
+                } else {
+                    bbSideEngine.setUserEmail(etvUserEmail.getText().toString().trim());
+                    bbSideEngine.setUserName(etvUserName.getText().toString().trim());
+                    bbSideEngine.setUserCountryCode(etvCountryCode.getText().toString().trim());
+                    bbSideEngine.setUserMobile(etvMobileNumber.getText().toString().trim());
 
-            btnTestClicked = false;
-            if (bbSideEngine.isEngineStarted()) {
-                bbSideEngine.setUserName(etvUserName.getText().toString().trim());
-                bbSideEngine.stopSideEngine();
-            } else {
-                bbSideEngine.startSideEngine(StandardThemeActivity.this);
+                    btnTestClicked = false;
+                    if (bbSideEngine.isEngineStarted()) {
+                        bbSideEngine.setUserName(etvUserName.getText().toString().trim());
+                        bbSideEngine.stopSideEngine();
+                    } else {
+                        bbSideEngine.startSideEngine(StandardThemeActivity.this);
 //                bbSideEngine.setUserId(getRandomNumberString())
-            }
-            tvConfidence.setText("");
-            if (bbSideEngine.isEngineStarted()) {
-                btnStart.setText(getString (R.string.stop));
-            } else {
-                btnStart.setText(getString(R.string.start));
+                    }
+                    tvConfidence.setText("");
+                    if (bbSideEngine.isEngineStarted()) {
+                        btnStart.setText(getString(R.string.stop));
+                    } else {
+                        btnStart.setText(getString(R.string.start));
+                    }
+                }
             }
         });
 

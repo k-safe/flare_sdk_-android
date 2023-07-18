@@ -53,7 +53,7 @@ public class EnableFlareAwareActivity extends AppCompatActivity implements BBSid
         //"Your production license key here"
         String lic = intent.getStringExtra("lic");
 
-        bbSideEngine = BBSideEngine.getInstance(this);
+        bbSideEngine = BBSideEngine.getInstance();
         bbSideEngine.showLogs(true);
         bbSideEngine.setBBSideEngineListener(this);
         bbSideEngine.enableActivityTelemetry(true);
@@ -63,7 +63,7 @@ public class EnableFlareAwareActivity extends AppCompatActivity implements BBSid
         bbSideEngine.setLowFrequencyIntervalsSeconds(15); //The default value is 15 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(false) is invoked.
         bbSideEngine.setHighFrequencyIntervalsSeconds(3); //The default value is 3 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(true) is invoked.
 
-        BBSideEngine.configure(this,
+        bbSideEngine.configure(this,
                 lic,
                 ENVIRONMENT_PRODUCTION,
                 Constants.BBTheme.STANDARD

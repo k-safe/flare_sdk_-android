@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -14,7 +13,6 @@ import com.sos.busbysideengine.BBSideEngine;
 import com.sos.busbysideengine.Constants;
 import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener;
 import com.sos.busbysideengine.utils.Common;
-import com.sos.busbysideengine.utils.ContactClass;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +36,6 @@ import static com.sos.busbysideengine.Constants.BBSideOperation.SOS_DEACTIVATE;
 import static com.sos.busbysideengine.Constants.BBSideOperation.START_FLARE_AWARE;
 import static com.sos.busbysideengine.Constants.BBSideOperation.STOP_FLARE_AWARE;
 import static com.sos.busbysideengine.Constants.BBSideOperation.TIMER_FINISHED;
-import static com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION;
 
 import static com.sos.busbysideengine.Constants.BBTheme.CUSTOM;
 import static com.sos.busbysideengine.Constants.BBTheme.STANDARD;
@@ -50,7 +47,6 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
     private MethodChannel.Result methodChannelResultSOS;
     private MethodChannel.Result methodChannelResultFlareAware;
     private MethodChannel.Result methodChannelResultIncidentAlerts;
-    private  Map<String,Object> callbackObject = new HashMap<>();
     BBSideEngine bbSideEngine;
     String email = null;
     String userName = null;
@@ -61,11 +57,11 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        bbSideEngine = BBSideEngine.getInstance(MainActivity.this);
+        bbSideEngine = BBSideEngine.getInstance();
         bbSideEngine.showLogs(true);
         bbSideEngine.setBBSideEngineListener(MainActivity.this);
         bbSideEngine.enableActivityTelemetry(true);
-        bbSideEngine.setStickyEnable(false);
+        bbSideEngine.setStickyEnable(true);
         email = null;
         userName = null;
         //Custom Notification
@@ -241,6 +237,7 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                                 bbSideEngine.setUserName(userName);
                                 bbSideEngine.setRiderName(userName);
                             }
+                            @SuppressLint("HardwareIds")
                             String deviceId = Settings.Secure.getString(
                                     getContentResolver(), Settings.Secure.ANDROID_ID);
                             bbSideEngine.setUserId(deviceId);
@@ -261,17 +258,18 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                             userName = Objects.requireNonNull(param.get("userName")).toString();
                             email = Objects.requireNonNull(param.get("email")).toString();
                         }
+                        @SuppressLint("HardwareIds")
                         String deviceId = Settings.Secure.getString(bbSideEngine.context.getContentResolver(), Settings.Secure.ANDROID_ID);
                         //TODO: Set user id
-                        BBSideEngine.getInstance(null).setUserId(deviceId);
+                        bbSideEngine.setUserId(deviceId);
                         //TODO: Set rider name
-                        BBSideEngine.getInstance(null).setRiderName(userName);
+                        bbSideEngine.setRiderName(userName);
                         //TODO: call method for fetching W3W Location data
-                        BBSideEngine.getInstance(null).fetchWhat3WordLocation(this);
+                        bbSideEngine.fetchWhat3WordLocation(this);
                         //TODO: Send Email
-                        BBSideEngine.getInstance(null).sendEmail(email);// Replace your emergency email address
+                        bbSideEngine.sendEmail(email);// Replace your emergency email address
                         //TODO: notify to partner
-                        BBSideEngine.getInstance(null).notifyPartner();
+                        bbSideEngine.notifyPartner();
 
                     }else if(call.method.contentEquals("customPartnerNotify")){
 //                        methodChannelResultIncidentAlerts = result;
@@ -283,26 +281,28 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                             userName = Objects.requireNonNull(param.get("userName")).toString();
                             email = Objects.requireNonNull(param.get("email")).toString();
                         }
-                        String deviceId = Settings.Secure.getString(bbSideEngine.context.getContentResolver(), Settings.Secure.ANDROID_ID);
+                        @SuppressLint("HardwareIds")
+                        String deviceId =
+                                Settings.Secure.getString(bbSideEngine.context.getContentResolver(), Settings.Secure.ANDROID_ID);
                         //TODO: Set user id
-                        BBSideEngine.getInstance(null).setUserId(deviceId);
+                        bbSideEngine.setUserId(deviceId);
                         //TODO: Set rider name
-                        BBSideEngine.getInstance(null).setRiderName(userName);
+                        bbSideEngine.setRiderName(userName);
                         //TODO: call method for fetching W3W Location data
-                        BBSideEngine.getInstance(null).fetchWhat3WordLocation(this);
+                        bbSideEngine.fetchWhat3WordLocation(this);
                         //TODO: Send Email
-                        BBSideEngine.getInstance(null).sendEmail(email);// Replace your emergency email address
+                        bbSideEngine.sendEmail(email);// Replace your emergency email address
                         //TODO: notify to partner
-                        BBSideEngine.getInstance(null).notifyPartner();
+                        bbSideEngine.notifyPartner();
 
                     }else if(call.method.contentEquals("resumeSideEngine")){
-                        BBSideEngine.getInstance(null).resumeSideEngine();
+                        bbSideEngine.resumeSideEngine();
                     }else if(call.method.contentEquals("openSurveyUrl")){
-                        BBSideEngine.getInstance(null).startSurveyVideoActivity();
+                        bbSideEngine.startSurveyVideoActivity();
                     }else if(call.method.contentEquals("checkSurveyUrl")){
                         Map<String,Object> objects = new HashMap<>();
-                        if((BBSideEngine.getInstance(null).surveyVideoURL() == null ||
-                                BBSideEngine.getInstance(null).surveyVideoURL() == "")){
+                        if((bbSideEngine.surveyVideoURL() == null ||
+                                bbSideEngine.surveyVideoURL() == "")){
                             objects.put("isSurveyUrl",false);
                         }else{
                             objects.put("isSurveyUrl",true);
@@ -330,7 +330,7 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                         }
                         bbSideEngine.setUserEmail("");
                         bbSideEngine.setUserName("");
-                        BBSideEngine.configure(MainActivity.this,
+                        bbSideEngine.configure(MainActivity.this,
                                 lic, mode, theme);
                     }else if(call.method.contentEquals("startSOSML")){
                         methodChannelResultSOS = result;

@@ -80,7 +80,6 @@ let shared = BBSideEngineManager.shared
 
                     }
 
-                    shared.deviceId = self.uniqueId()
                     shared.riderId = self.uniqueId();
 
                     self.startStopSideEngine(isStarted: isStarted)
@@ -202,7 +201,7 @@ let shared = BBSideEngineManager.shared
                         if let value = args["isActive"] as? Bool {
                             if(value){
                                 shared.enable_flare_aware_network = true
-                                shared.distance_filter_meters = 0
+                                shared.distance_filter_meters = 20
                                 shared.low_frequency_intervals_seconds = 15
                                 shared.high_frequency_intervals_seconds = 3
                                 shared.high_frequency_mode_enabled = true

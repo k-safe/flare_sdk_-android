@@ -26,11 +26,6 @@
         </activity>
 
         <activity
-            android:name=".TestIncidentActivity"
-            android:exported="true">
-        </activity>
-
-        <activity
             android:name=".CustomUiActivity"
             android:exported="true">
         </activity>

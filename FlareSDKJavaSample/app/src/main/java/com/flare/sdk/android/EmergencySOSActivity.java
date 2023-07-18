@@ -62,12 +62,12 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
         //"Your production license key here"
         String lic = getIntent().getStringExtra("lic");
 
-        bbSideEngine = BBSideEngine.getInstance(this);
+        bbSideEngine = BBSideEngine.getInstance();
         bbSideEngine.showLogs(true);
         bbSideEngine.setBBSideEngineListener(this);
         bbSideEngine.enableActivityTelemetry(true);
 
-        BBSideEngine.configure(this,
+        bbSideEngine.configure(this,
                 lic,
                 ENVIRONMENT_PRODUCTION,
                 Constants.BBTheme.STANDARD

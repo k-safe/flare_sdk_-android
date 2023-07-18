@@ -36,12 +36,12 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
         //"Your production license key here"
         val lic = intent.getStringExtra("lic")
 
-        bbSideEngine = BBSideEngine.getInstance(this)
+        bbSideEngine = BBSideEngine.getInstance()
         bbSideEngine.showLogs(true)
         bbSideEngine.setBBSideEngineListener(this)
         bbSideEngine.enableActivityTelemetry(true)
 
-        BBSideEngine.configure(this,
+        bbSideEngine.configure(this,
             lic,
             ENVIRONMENT_PRODUCTION,
             Constants.BBTheme.STANDARD
@@ -124,50 +124,13 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
     ) {
         when (type) {
             Constants.BBSideOperation.CONFIGURE -> {
-                // if status = true Now you can ready to start Side engine process
+                //*You now have the capability to activate an SOS signal at any time. In the event that a user input button is unavailable, you may activate the SOS signal using the function provided below.:*//
                 checkConfiguration = status
                 Log.e("Configured", status.toString())
                 viewBinding.progressBar.visibility = View.GONE
             }
-
-            Constants.BBSideOperation.START -> {
-                //Update your UI here (e.g. update START button color or text here when SIDE engine started)
-            }
-
-            Constants.BBSideOperation.STOP -> {
-                //Update your UI here (e.g. update STOP button color or text here when SIDE engine started)
-            }
-
-            Constants.BBSideOperation.SMS -> {
-                //Returns SMS delivery status and response payload
-            }
-
-            Constants.BBSideOperation.EMAIL -> {
-                //Returns email delivery status and response payload
-            }
-
-            Constants.BBSideOperation.INCIDENT_DETECTED -> {
-                Toast.makeText(this, "INCIDENT_DETECTED", Toast.LENGTH_LONG).show()
-                //Threshold reached and you will redirect to countdown page
-            }
-
-            Constants.BBSideOperation.INCIDENT_CANCEL -> {
-                //User canceled countdown countdown to get event here, this called only for if you configured standard theme.
-            }
-
-            Constants.BBSideOperation.INCIDENT_ALERT_SENT -> {
-                //Return the alert sent (returns alert details (i.e. time, location, recipient, success/failure))
-            }
-
-            Constants.BBSideOperation.TIMER_STARTED -> {
-                //Countdown timer started after breach delay, this called only if you configured standard theme.
-            }
-
-            Constants.BBSideOperation.TIMER_FINISHED -> {
-                //Countdown timer finished and jump to the incident summary page, this called only if you configured standard theme.
-            }
-
             Constants.BBSideOperation.SOS_ACTIVATE -> {
+                //*The SOS function has been activated. You may now proceed to update your user interface and share a live location tracking link with your social contacts, thereby enabling them to access your real-time location.*//
                 if (response!!.has("sosLiveTrackingUrl")) {
                     sosLiveTrackingUrl = response!!.getString("sosLiveTrackingUrl")
                     viewBinding.btnSOSLinkShare.visibility = View.VISIBLE
@@ -176,12 +139,11 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
                     //
                 }
             }
-
             Constants.BBSideOperation.SOS_DEACTIVATE -> {
+                //Disabling the SOS function will cease the transmission of location data to the live tracking dashboard and free up system memory resources, thereby conserving battery and data consumption.
                 viewBinding.btnSOSLinkShare.visibility = View.GONE
                 viewBinding.btnSos.text = "Activate SOS"
             }
-
             else -> {
                 Log.e("No Events Find", ":")
             }

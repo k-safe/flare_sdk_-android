@@ -190,6 +190,34 @@ class _CustomThemeActivity extends State<CustomThemeActivity> with WidgetsBindin
                                     ? const Text('Start')
                                     : const Text('Stop'),
                               ),
+                              )),
+                        Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: SizedBox(
+                              width: 200.0,
+                              height: 50.0,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  primary: Colors.white,
+                                  //background color of button
+                                  side: const BorderSide(
+                                      width: 2, color: Colors.redAccent),
+                                  //border width and color
+                                  elevation: 3,
+                                  //elevation of button
+                                  shape: RoundedRectangleBorder(
+                                    //to set border radius to button
+                                      borderRadius: BorderRadius.circular(30)),
+                                  // padding: const EdgeInsets.fromLTRB(100,18,100,18), //content padding inside button
+                                  foregroundColor: Colors.black,
+                                ),
+                                onPressed: () {
+                                  Navigator.pushNamed(context,
+                                      "/IncidentTimer", arguments: IncidentTimerScreenArguments(
+                                          false, cUserName.text, cEmail.text));
+                                },
+                                child: const Text('Start Incident'),
+                              ),
                             ))
                       ],
                     ),
