@@ -17,8 +17,8 @@ late TextEditingController cCode = TextEditingController();
 late TextEditingController cMobile = TextEditingController();
 late TextEditingController cUserName = TextEditingController();
 String selectedMode = Constants.ENVIRONMENT_SANDBOX;
-String productionLicense = "";
-String sandboxLicense = "";
+String productionLicense = "Your production license key here";
+String sandboxLicense = "Your sandbox license key here";
 class MyApp extends StatelessWidget {
   static const channel = MethodChannel("com.sideml.flutersideml");
   const MyApp({Key? key}) : super(key: key);
