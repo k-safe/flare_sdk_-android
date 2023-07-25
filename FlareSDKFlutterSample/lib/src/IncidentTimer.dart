@@ -50,6 +50,7 @@ class _IncidentTimer extends State<IncidentTimer> {
 
       startTimer();
       setCountDown();
+      callForAutoCancelEvent();
     });
   }
 
@@ -169,6 +170,24 @@ class _IncidentTimer extends State<IncidentTimer> {
     if (kDebugMode) {
       print(result.entries.first.value);
     }
+  }
+
+  Future<void> callForAutoCancelEvent() async {
+    final LinkedHashMap<Object?, Object?> result =
+    await channel.invokeMethod("autoCancel");
+    if (kDebugMode) {
+      print(result);
+    }
+
+    callForResumeSideEngine();
+    if(Platform.isAndroid) {
+      Vibration.cancel();
+    }
+    Navigator.pop(mContext);
+    if (kDebugMode) {
+      print("ERROR⚠️|️" + "autoCancel: " + ": " + 'result: $result');
+    }
+
   }
 }
 class IncidentTimerScreenArguments {

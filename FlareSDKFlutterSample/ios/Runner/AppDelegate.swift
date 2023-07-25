@@ -212,7 +212,12 @@ let shared = BBSideEngineManager.shared
                             }
                         }
                     }
-                } else {
+                } else if(call.method == "autoCancel") {
+                    
+                 print("auto cancel listener registered")
+                    
+                   
+                }else {
                     result(FlutterMethodNotImplemented)
                         return
                 }
@@ -266,6 +271,13 @@ let shared = BBSideEngineManager.shared
                     if let tempResult = self.globResult {
                         tempResult(checkoutResult.dictionaryRepresentation)
                     }
+                    
+//                    let timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { timer in
+//                        let checkoutResult = CheckoutResult(success: true, type: 10, payload: ["isAutoCancel": true])
+//                        if let tempResult = self.globResult {
+//                            tempResult(checkoutResult.dictionaryRepresentation)
+//                        }
+//                    }
 
                 } else if response.type == .stop && response.success == true {
                     print("SIDE engine response is: \(response.type)")
@@ -295,8 +307,13 @@ let shared = BBSideEngineManager.shared
 
                     //User canceled countdown countdown to get event here, this is called only if you configured then standard theme.
                 } else if response.type == .incidentAutoCancel {
-                    print("SIDE engine response is: \(response.type)")
-
+                    if BBSideEngineManager.shared.applicationTheme == .custom{
+                        print("SIDE engine response is: \(response.type)")
+                        let checkoutResult = CheckoutResult(success: response.success, type: response.type.rawValue, payload: ["isAutoCancel": true])
+                        if let tempResult = self.globResult {
+                            tempResult(checkoutResult.dictionaryRepresentation)
+                        }
+                    }
                     //GPS reports that user is still moving at average speed or distance - assume speed bump or similar
                 } else if response.type == .timerStarted {
                     print("SIDE engine response is: \(response.type)")
