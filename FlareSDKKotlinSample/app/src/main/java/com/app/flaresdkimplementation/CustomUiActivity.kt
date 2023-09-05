@@ -1,6 +1,8 @@
 package com.app.flaresdkimplementation
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -40,8 +42,8 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
     var btnTestClicked = false
     private var ivCUIClose: ImageView? = null
 
-    private var isIncidentCanceled = true;
-    private var isSurvey = false;
+    private var isIncidentCanceled = true
+    private var isSurvey = false
 
     var rlCUIAlertView: RelativeLayout? = null
     var rlCUIIncidentView:RelativeLayout? = null
@@ -119,10 +121,10 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
 
     private fun setListener() {
         startVibrate()
-        val time = common?.timerInterval;
-        countDownTimer = object : CountDownTimer((time?.times(1000))?.toLong()!!, 1000) {
+        val time = common?.timerInterval
+        countDownTimer = object : CountDownTimer((time?.times(1000))!!, 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                tvCUISeconds!!.text = "" + millisUntilFinished / 1000
+                tvCUISeconds!!.text = (millisUntilFinished / 1000).toString()
                 //here you can have your logic to set text to edittext
             }
 
@@ -140,17 +142,6 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
                 //TODO: call method for fetching W3W Location data
                 BBSideEngine.getInstance().fetchWhat3WordLocation(this@CustomUiActivity)
 
-                //TODO: Send Email and SMS
-                sendEmail()
-                sendSMS()
-
-                //TODO: notify to partner
-                BBSideEngine.getInstance().notifyPartner()
-
-                if(Common.getInstance().isAppInBackground()) {
-                    BBSideEngine.getInstance().resumeSensorIfAppInBackground();
-                    finish();
-                }
                 isSurvey = true
                 rlCUIAlertView!!.visibility = View.VISIBLE
                 rlCUIIncidentView?.visibility = View.GONE
@@ -174,17 +165,55 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
             }
             stopVibrate()
             //inactive function
-            if (!isSurvey ||
-                (BBSideEngine.getInstance().surveyVideoURL() == null ||
-                        BBSideEngine.getInstance().surveyVideoURL() == "")) {
-                BBSideEngine.getInstance().resumeSideEngine();
-                finish()
-            }else{
-                BBSideEngine.getInstance().startSurveyVideoActivity()
-            }
+            feedbackWarning()
         }
     }
 
+    private fun feedbackWarning() {
+        val appName = "Flare SDK Sample"
+        val builder = AlertDialog.Builder(this)
+            .setTitle("Help $appName become smarter")
+            .setMessage("$appName incident detection can be improved by learning from your incident. Was this an accurate alert?")
+            .setCancelable(false)
+            .setNegativeButton(
+                "No"
+            ) { dialog: DialogInterface, _: Int ->
+                dialog.dismiss()
+                BBSideEngine.getInstance().incidentDecline()
+                completeConfirmation()
+            }
+            .setPositiveButton(
+                "Yes"
+            ) { _: DialogInterface?, _: Int ->
+
+                //TODO: Send Email and SMS
+                sendEmail()
+                sendSMS()
+
+                //TODO: notify to partner
+                BBSideEngine.getInstance().notifyPartner()
+
+                if(Common.getInstance().isAppInBackground) {
+                    BBSideEngine.getInstance().resumeSensorIfAppInBackground();
+                    finish();
+                }else{
+                    completeConfirmation()
+                }
+
+            }
+        val alert = builder.create()
+        alert.show()
+    }
+    private fun completeConfirmation(){
+        if (!isSurvey ||
+            (BBSideEngine.getInstance().surveyVideoURL() == null ||
+                    BBSideEngine.getInstance().surveyVideoURL() == "")) {
+            BBSideEngine.getInstance().resumeSideEngine();
+            finish()
+        }else{
+            BBSideEngine.getInstance().startSurveyVideoActivity()
+        }
+    }
     private fun startVibrate() {
         val pattern = longArrayOf(0, 100, 1000, 1500, 2000, 2500, 3000)
         vibrator = this.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?

@@ -29,4 +29,5 @@
     <string name="stop_flare_aware">STOP Flare Aware</string>
     <string name="production_mode">Production mode</string>
     <string name="sandbox_mode">Sandbox mode</string>
+    <string name="mapKey">Your Map Key Here</string>
 </resources>

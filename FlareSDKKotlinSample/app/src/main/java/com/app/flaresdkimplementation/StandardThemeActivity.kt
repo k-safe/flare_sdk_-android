@@ -1,21 +1,18 @@
 package com.app.flaresdkimplementation
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import com.app.flaresdkimplementation.databinding.ActivityThemeBinding
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.sos.busbysideengine.BBSideEngine
 import com.sos.busbysideengine.Constants.BBSideOperation
 import com.sos.busbysideengine.Constants.BBTheme
 import com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION
 import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener
-import com.sos.busbysideengine.utils.ContactClass
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
@@ -59,6 +56,8 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
         bbSideEngine.enableActivityTelemetry(true)
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
         bbSideEngine.setStickyEnable(true)
+        bbSideEngine.setActivityType("Horse Riding")
+//        bbSideEngine.setAppName("Flare SDK Sample")
 
         //"Your production license key here" or "Your sandbox license key here"
         val lic = intent.getStringExtra("lic")
@@ -75,7 +74,7 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
 //        bbSideEngine.setNotificationDescText("Notification Description")
 
         //TODO: Customise the SideEngine theme(Optional).
-//        bbSideEngine.setIncidentTimeInterval = 45 = //Default 30 seconds
+//        bbSideEngine.setIncidentTimeInterval(45) //Default 30 seconds
 //        bbSideEngine.setIncidentHeader("header")  //Only for standard theme
 //        bbSideEngine.setIncidentInfoMessage("message") //Only for standard theme
 //        bbSideEngine.setIncidentPageHeaderColor("#ff0000") //Only for standard theme
@@ -99,85 +98,52 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
 
         viewBinding.btnStart.setOnClickListener {
             if (checkConfiguration) {
-                if (ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
-                    || ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    ActivityCompat.requestPermissions(
-                        this,
-                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                        0
-                    )
-                } else {
-                    bbSideEngine.setUserEmail(viewBinding.etvUserEmail.text.toString().trim())
-                    bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
-                    bbSideEngine.setUserCountryCode(viewBinding.etvCountryCode.text.toString().trim())
-                    bbSideEngine.setUserMobile(viewBinding.etvMobileNumber.text.toString().trim())
+                bbSideEngine.setUserEmail(viewBinding.etvUserEmail.text.toString().trim())
+                bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
+                bbSideEngine.setUserCountryCode(viewBinding.etvCountryCode.text.toString().trim())
+                bbSideEngine.setUserMobile(viewBinding.etvMobileNumber.text.toString().trim())
 
-                    btnTestClicked = false
-                    if (bbSideEngine.isEngineStarted) {
-                        bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
-                        bbSideEngine.stopSideEngine()
-                    } else {
+                btnTestClicked = false
+                if (bbSideEngine.isEngineStarted) {
+                    bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
+                    bbSideEngine.stopSideEngine()
+                } else {
+
+                    val dialog = BottomSheetDialog(this)
+                    val view = layoutInflater.inflate(R.layout.dialog_activity, null)
+                    val llBike = view.findViewById<LinearLayout>(R.id.llBike)
+                    val llScooter = view.findViewById<LinearLayout>(R.id.llScooter)
+                    val llCycling = view.findViewById<LinearLayout>(R.id.llCycling)
+                    val llCancel = view.findViewById<LinearLayout>(R.id.llCancel)
+
+                    llBike.setOnClickListener {
+                        bbSideEngine.setActivityType("Bike")
                         bbSideEngine.startSideEngine(this)
-//                bbSideEngine.setUserId(getRandomNumberString())
+                        dialog.dismiss()
                     }
-                    viewBinding.mConfidence.text =""
-                    if (bbSideEngine.isEngineStarted) {
-                        viewBinding.btnStart.text = getString (R.string.stop)
-                    } else {
-                        viewBinding.btnStart.text =getString(R.string.start)
+                    llScooter.setOnClickListener {
+                        bbSideEngine.setActivityType("Scooter")
+                        bbSideEngine.startSideEngine(this)
+                        dialog.dismiss()
                     }
+                    llCycling.setOnClickListener {
+                        bbSideEngine.setActivityType("Cycling")
+                        bbSideEngine.startSideEngine(this)
+                        dialog.dismiss()
+                    }
+                    llCancel.setOnClickListener {
+                        dialog.dismiss()
+                    }
+
+                    dialog.dismiss()
+                    dialog.setCancelable(true)
+                    dialog.setContentView(view)
+                    val screenHeight = resources.displayMetrics.heightPixels
+                    dialog.behavior.peekHeight = screenHeight
+                    dialog.show()
+
                 }
             }
-        }
-    }
-
-    private fun sendEmail() {
-        if (viewBinding.etvUserEmail.text.toString() == "") {
-            return
-        }
-        bbSideEngine.sendEmail(viewBinding.etvUserEmail.text.toString())
-    }
-
-    private fun sendSMS() {
-        if (viewBinding.etvCountryCode.text.toString() == "" ||
-            viewBinding.etvUserName.text.toString() == "" ||
-            viewBinding.etvMobileNumber.text.toString() == "") {
-            return
-        }
-
-        val contact = ContactClass()
-        contact.countryCode = viewBinding.etvCountryCode.text.toString()
-        contact.phoneNumber = viewBinding.etvMobileNumber.text.toString()
-        contact.userName = viewBinding.etvUserName.text.toString()
-        bbSideEngine.sendSMS(contact)
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (!checkConfiguration) {
-            return
-        }
-
-        if (requestCode == 0) {
-            bbSideEngine.startSideEngine(this)
-            if (bbSideEngine.isEngineStarted) {
-                viewBinding.btnStart.text = getString(R.string.stop)
-            } else {
-                viewBinding.btnStart.text = getString(R.string.start)
-            }
-        } else if (requestCode == 1) {
-            viewBinding.btnStart.text = getString(R.string.start)
         }
     }
 
@@ -195,15 +161,28 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 viewBinding.progressBar.visibility = View.GONE
             }
             BBSideOperation.START -> {
-                //*Update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.*//
+                //*Please update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.*//
+                viewBinding.mConfidence.text =""
+                if (bbSideEngine.isEngineStarted) {
+                    viewBinding.btnStart.text = getString (R.string.stop)
+                } else {
+                    viewBinding.btnStart.text =getString(R.string.start)
+                }
             }
             BBSideOperation.STOP -> {
-                //Update the user interface (UI) in this section to reflect the cessation of the side engine (e.g., amend the colour or text of the STOP button accordingly).
+                viewBinding.mConfidence.text =""
+                if (bbSideEngine.isEngineStarted) {
+                    viewBinding.btnStart.text = getString (R.string.stop)
+                } else {
+                    viewBinding.btnStart.text =getString(R.string.start)
+                }
+                //Please update the user interface (UI) in this section to reflect the cessation of the side engine (e.g., amend the colour or text of the STOP button accordingly).
             }
             BBSideOperation.INCIDENT_DETECTED -> {
-                //The user has identified an incident, and if necessary, it may be appropriate to log the incident in either the analytics system or an external database. Refrain from invoking any side engine methods at this juncture.
-                Toast.makeText(this, "INCIDENT_DETECTED",Toast.LENGTH_LONG).show()
+                //The user has identified an incident, and if necessary, it may be appropriate to log the incident in either the analytics system or an external database. Please refrain from invoking any side engine methods at this juncture.
+//                Toast.makeText(this, "INCIDENT_DETECTED",Toast.LENGTH_LONG).show()
                 //Threshold reached and you will redirect to countdown page
+
                 //TODO: Set user id
                 bbSideEngine.setUserId(getRandomNumberString())
                 //TODO: Set rider name
@@ -225,6 +204,7 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
                         e.printStackTrace()
                     }
                 }
+
             }
             BBSideOperation.INCIDENT_CANCEL -> {
                 //The incident has been canceled because of something the user did, so you can go ahead and register any analytics events if needed.
@@ -239,12 +219,10 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 //A 30-second countdown timer has started, and the SIDE engine is waiting for a response from the user or an automatic cancellation event. If no events are received within the 30-second intervals of the timer, the SIDE engine will log the incident on the dashboard.
             }
             BBSideOperation.INCIDENT_AUTO_CANCEL -> {
-                //The incident has been automatically cancelled. If necessary, you may log the incident in the analytics system. Refrain from invoking any side engine methods at this juncture.
+                //The incident has been automatically cancelled. If necessary, you may log the incident in the analytics system. Please refrain from invoking any side engine methods at this juncture.
             }
             BBSideOperation.TIMER_FINISHED -> {
                 //After the 30-second timer ended, the SIDE engine began the process of registering the incident on the dashboard and sending notifications to emergency contacts.
-                sendSMS()
-                sendEmail()
             }
             BBSideOperation.SMS -> {
                 //This message is intended solely to provide notification regarding the transmission status of SMS. It is unnecessary to invoke any SIDE engine functions in this context.

@@ -76,7 +76,8 @@ class MainActivity : AppCompatActivity() {
             }
             val intent = Intent(this, EnableFlareAwareActivity::class.java)
             intent.putExtra("mode", mode)
-            intent.putExtra("lic", productionLicense)
+            intent.putExtra("lic",
+                if(Constants.ENVIRONMENT_PRODUCTION.equals(mode)) productionLicense else sandboxLicense)
             startActivity(intent)
         }
     }

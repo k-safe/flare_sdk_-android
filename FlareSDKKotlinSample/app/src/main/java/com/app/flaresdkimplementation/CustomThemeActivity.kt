@@ -15,10 +15,12 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.app.flaresdkimplementation.databinding.ActivityThemeBinding
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.sos.busbysideengine.BBSideEngine
 import com.sos.busbysideengine.Constants.BBSideOperation
 import com.sos.busbysideengine.Constants.BBTheme
@@ -70,6 +72,7 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
         bbSideEngine.enableActivityTelemetry(false)
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
         bbSideEngine.setStickyEnable(true)
+//        bbSideEngine.setAppName("Flare SDK Sample")
 
         //"Your production license key here" or "Your sandbox license key here"
         val lic = intent.getStringExtra("lic")
@@ -94,60 +97,55 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
 
         viewBinding.btnStart.setOnClickListener {
             if (checkConfiguration) {
-                if (ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
-                    || ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    ActivityCompat.requestPermissions(
-                        this,
-                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                        0
-                    )
-                } else {
-                    bbSideEngine.setUserEmail(viewBinding.etvUserEmail.text.toString().trim())
-                    bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
+                bbSideEngine.setUserEmail(viewBinding.etvUserEmail.text.toString().trim())
+                bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
 
-                    if (bbSideEngine.isEngineStarted) {
-                        bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
-                        bbSideEngine.stopSideEngine()
-                    } else {
+                if (bbSideEngine.isEngineStarted) {
+                    bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
+                    bbSideEngine.stopSideEngine()
+                } else {
+
+
+                    val dialog = BottomSheetDialog(this)
+                    val view = layoutInflater.inflate(R.layout.dialog_activity, null)
+                    val llBike = view.findViewById<LinearLayout>(R.id.llBike)
+                    val llScooter = view.findViewById<LinearLayout>(R.id.llScooter)
+                    val llCycling = view.findViewById<LinearLayout>(R.id.llCycling)
+                    val llCancel = view.findViewById<LinearLayout>(R.id.llCancel)
+
+                    llBike.setOnClickListener {
+                        bbSideEngine.setActivityType("Bike")
                         bbSideEngine.startSideEngine(this)
+                        dialog.dismiss()
                     }
-                    viewBinding.mConfidence.text =""
-                    if (bbSideEngine.isEngineStarted){
-                        viewBinding.btnStart.text = getString (R.string.stop)
-                    } else {
-                        viewBinding.btnStart.text =getString(R.string.start)
+                    llScooter.setOnClickListener {
+                        bbSideEngine.setActivityType("Scooter")
+                        bbSideEngine.startSideEngine(this)
+                        dialog.dismiss()
                     }
+                    llCycling.setOnClickListener {
+                        bbSideEngine.setActivityType("Cycling")
+                        bbSideEngine.startSideEngine(this)
+                        dialog.dismiss()
+                    }
+                    llCancel.setOnClickListener {
+                        dialog.dismiss()
+                    }
+
+                    dialog.dismiss()
+                    dialog.setCancelable(true)
+                    dialog.setContentView(view)
+                    val screenHeight = resources.displayMetrics.heightPixels
+                    dialog.behavior.peekHeight = screenHeight
+                    dialog.show()
+                }
+                viewBinding.mConfidence.text =""
+                if (bbSideEngine.isEngineStarted){
+                    viewBinding.btnStart.text = getString (R.string.stop)
+                } else {
+                    viewBinding.btnStart.text =getString(R.string.start)
                 }
             }
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (!checkConfiguration) {
-            return
-        }
-
-        if (requestCode == 0) {
-            bbSideEngine.startSideEngine(this)
-            if (bbSideEngine.isEngineStarted) {
-                viewBinding.btnStart.text = getString(R.string.stop)
-            } else {
-                viewBinding.btnStart.text = getString(R.string.start)
-            }
-        } else if (requestCode == 1) {
-            viewBinding.btnStart.text = getString(R.string.start)
         }
     }
 
@@ -185,10 +183,20 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 viewBinding.progressBar.visibility = View.GONE
             }
             BBSideOperation.START -> {
-                //Update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.
+                if (bbSideEngine.isEngineStarted) {
+                    viewBinding.btnStart.text = getString(R.string.stop)
+                } else {
+                    viewBinding.btnStart.text = getString(R.string.start)
+                }
+                //Please update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.
             }
             BBSideOperation.STOP -> {
-                //Update the user interface (UI) in this section to reflect the cessation of the side engine (e.g., amend the colour or text of the STOP button accordingly).
+                if (bbSideEngine.isEngineStarted) {
+                    viewBinding.btnStart.text = getString(R.string.stop)
+                } else {
+                    viewBinding.btnStart.text = getString(R.string.start)
+                }
+                //Please update the user interface (UI) in this section to reflect the cessation of the side engine (e.g., amend the colour or text of the STOP button accordingly).
             }
             BBSideOperation.INCIDENT_DETECTED -> {
 

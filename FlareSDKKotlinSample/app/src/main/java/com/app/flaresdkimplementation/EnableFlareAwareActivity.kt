@@ -18,7 +18,7 @@ import com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION
 import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener
 import org.json.JSONObject
 
-class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
+class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener  {
 
     private val viewBinding: ActivityFlareawareBinding by lazy {
         ActivityFlareawareBinding.inflate(layoutInflater)
@@ -49,7 +49,7 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
 
         bbSideEngine.configure(this,
             lic,
-            ENVIRONMENT_PRODUCTION,
+            mode,
             Constants.BBTheme.STANDARD
         )
         setListener()
