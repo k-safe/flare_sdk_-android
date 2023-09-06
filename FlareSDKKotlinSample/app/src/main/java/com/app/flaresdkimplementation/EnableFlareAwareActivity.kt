@@ -8,7 +8,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.app.flaresdkimplementation.databinding.ActivityFlareawareBinding
@@ -32,6 +31,11 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener  {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
 
+        init();
+        setListener()
+    }
+
+    private fun init() {
         val intent = intent
         mode = intent.getStringExtra("mode")
 
@@ -52,7 +56,7 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener  {
             mode,
             Constants.BBTheme.STANDARD
         )
-        setListener()
+
     }
 
     @SuppressLint("HardwareIds")
@@ -122,7 +126,8 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener  {
                 //*The Flare Aware function has been activated. You may now proceed to update your user interface.*//
                 if (response != null) {
                     try {
-                        var error = response.getString("Error")
+                        val error = response.getString("Error")
+                        Log.e("flareAware error", error)
                     } catch (e: Exception) {
                         Log.e("Error: ", e.stackTraceToString())
                     }

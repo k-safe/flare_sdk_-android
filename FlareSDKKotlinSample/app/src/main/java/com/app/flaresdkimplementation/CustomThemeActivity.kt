@@ -56,9 +56,31 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
+
+        init()
+        setupEngine()
+        setListener()
+    }
+
+    private fun init() {
+        intent = getIntent();
         val intent = intent
         mode = intent.getStringExtra("mode")
         viewBinding.tvThemeName.text = getString(R.string.custom_theme)
+
+
+        //Custom Notification
+//        bbSideEngine.setNotificationMainBackgroundColor(R.color.white)
+//        bbSideEngine.setNotificationMainIcon(R.drawable.ic_launcher)
+//        bbSideEngine.setLocationNotificationTitle("Notification Title")
+//        bbSideEngine.setNotificationDescText("Notification Description")
+
+    }
+
+    private fun setupEngine() {
+
+        //"Your production license key here" or "Your sandbox license key here"
+        val lic = intent.getStringExtra("lic")
 
         bbSideEngine = BBSideEngine.getInstance()
         bbSideEngine.showLogs(true)
@@ -72,22 +94,13 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
         bbSideEngine.enableActivityTelemetry(false)
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
         bbSideEngine.setStickyEnable(true)
-//        bbSideEngine.setAppName("Flare SDK Sample")
 
-        //"Your production license key here" or "Your sandbox license key here"
-        val lic = intent.getStringExtra("lic")
-
-        bbSideEngine.configure(this, lic, mode,
+        bbSideEngine.configure(this,
+            lic,
+            mode,
             BBTheme.CUSTOM
         )
 
-        //Custom Notification
-//        bbSideEngine.setNotificationMainBackgroundColor(R.color.white)
-//        bbSideEngine.setNotificationMainIcon(R.drawable.ic_launcher)
-//        bbSideEngine.setLocationNotificationTitle("Notification Title")
-//        bbSideEngine.setNotificationDescText("Notification Description")
-
-        setListener()
     }
 
     private fun setListener() {
@@ -104,7 +117,6 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
                     bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
                     bbSideEngine.stopSideEngine()
                 } else {
-
 
                     val dialog = BottomSheetDialog(this)
                     val view = layoutInflater.inflate(R.layout.dialog_activity, null)
@@ -294,6 +306,7 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
         val intent = Intent(this, CustomThemeActivity::class.java)
         var builder: Notification.Builder? = null
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel =
                 NotificationChannel(channelId, "Incident Detected", NotificationManager.IMPORTANCE_HIGH)

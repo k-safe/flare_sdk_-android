@@ -22,8 +22,9 @@ import com.sos.busbysideengine.location.PreferencesHelper
 import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineUIListener
 import com.sos.busbysideengine.utils.Common
 import com.sos.busbysideengine.utils.ContactClass
+import org.json.JSONException
 import org.json.JSONObject
-import java.util.*
+import java.util.Random
 
 class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
 
@@ -31,14 +32,17 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
     private var tvCUIFallDetected: TextView? = null
     var tvCUILatLong: TextView? = null
     private var tvCUIWord: TextView? = null
+
     private var countDownTimer: CountDownTimer? = null
     private var rlCUIMainBg: RelativeLayout? = null
+
     private var userName: String? = ""
     private var email: String? = ""
     private var mobileNo: String? = ""
     private var countryCode: String? = ""
     private var word: String? = ""
     private var mapUri: String? = ""
+
     var btnTestClicked = false
     private var ivCUIClose: ImageView? = null
 
@@ -46,9 +50,9 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
     private var isSurvey = false
 
     var rlCUIAlertView: RelativeLayout? = null
-    var rlCUIIncidentView:RelativeLayout? = null
+    var rlCUIIncidentView: RelativeLayout? = null
     var latitude = 0.0
-    var longitude:Double = 0.0
+    var longitude: Double = 0.0
     private var vibrator: Vibrator? = null
     var preferencesHelper: PreferencesHelper? = null
 
@@ -65,17 +69,21 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
 
     private fun init() {
         BBSideEngine.getInstance().setBBSideEngineListenerInLib(this)
+
         val intent = intent
         userName = intent.getStringExtra("userName")
         email = intent.getStringExtra("email")
         mobileNo = intent.getStringExtra("mobileNo")
         countryCode = intent.getStringExtra("countryCode")
         btnTestClicked = intent.getBooleanExtra("btnTestClicked", false)
+
+        // UI
         rlCUIAlertView = findViewById(R.id.rlCUIAlertView)
         rlCUIIncidentView = findViewById(R.id.rlCUIIncidentView)
         tvCUILatLong = findViewById(R.id.tvCUIlatlong)
         tvCUIWord = findViewById(R.id.tvCUIWord)
         ivCUIClose = findViewById(R.id.ivCUIClose)
+
         tvCUIFallDetected = findViewById(R.id.tvCUIFallDetected)
         tvCUISeconds = findViewById(R.id.tvCUISeconds)
         rlCUIMainBg = findViewById(R.id.rlCUIMainBg)
@@ -107,7 +115,8 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
     private fun sendSMS() {
         if (countryCode == "" ||
             userName == "" ||
-            mobileNo == "") {
+            mobileNo == ""
+        ) {
             return
         }
 
@@ -152,7 +161,8 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
                         longitude = locationData.longitude
                     }
                     setMap()
-                    tvCUILatLong?.text = "Latitude: " + locationData!!.latitude + ' ' + "Longitude: " + locationData.longitude
+                    tvCUILatLong?.text =
+                        "Latitude: " + locationData!!.latitude + ' ' + "Longitude: " + locationData.longitude
                 } catch (e: Exception) {
                     e.message
                 }
@@ -193,10 +203,10 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
                 //TODO: notify to partner
                 BBSideEngine.getInstance().notifyPartner()
 
-                if(Common.getInstance().isAppInBackground) {
+                if (Common.getInstance().isAppInBackground) {
                     BBSideEngine.getInstance().resumeSensorIfAppInBackground();
                     finish();
-                }else{
+                } else {
                     completeConfirmation()
                 }
 
@@ -204,16 +214,19 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
         val alert = builder.create()
         alert.show()
     }
-    private fun completeConfirmation(){
+
+    private fun completeConfirmation() {
         if (!isSurvey ||
             (BBSideEngine.getInstance().surveyVideoURL() == null ||
-                    BBSideEngine.getInstance().surveyVideoURL() == "")) {
+                    BBSideEngine.getInstance().surveyVideoURL() == "")
+        ) {
             BBSideEngine.getInstance().resumeSideEngine();
             finish()
-        }else{
+        } else {
             BBSideEngine.getInstance().startSurveyVideoActivity()
         }
     }
+
     private fun startVibrate() {
         val pattern = longArrayOf(0, 100, 1000, 1500, 2000, 2500, 3000)
         vibrator = this.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator?
@@ -274,23 +287,27 @@ class CustomUiActivity : AppCompatActivity(), BBSideEngineUIListener {
     }
 
     override fun onIncidentAlertCallback(status: Boolean, response: JSONObject?) {
-        if (response!= null){
-            val mJSONObjectResult = response.getJSONObject("result")
-            if (mJSONObjectResult.has("words")) {
-                word = mJSONObjectResult.getString("words")
+        try {
+            if (response != null) {
+                val mJSONObjectResult = response.getJSONObject("result")
+                if (mJSONObjectResult.has("words")) {
+                    word = mJSONObjectResult.getString("words")
+                }
+                if (mJSONObjectResult.has("map")) {
+                    mapUri = mJSONObjectResult.getString("map")
+                }
+                tvCUIWord?.text = "//$word"
+                if (mJSONObjectResult.has("latitude")) {
+                    latitude = mJSONObjectResult.getDouble("latitude")
+                }
+                if (mJSONObjectResult.has("longitude")) {
+                    longitude = mJSONObjectResult.getDouble("longitude")
+                }
+                setMap()
+                tvCUILatLong?.text = "Latitude: $latitude Longitude: $longitude"
             }
-            if (mJSONObjectResult.has("map")) {
-                mapUri = mJSONObjectResult.getString("map")
-            }
-            tvCUIWord?.text = "//$word"
-            if (mJSONObjectResult.has("latitude")) {
-                latitude = mJSONObjectResult.getDouble("latitude")
-            }
-            if (mJSONObjectResult.has("longitude")) {
-                longitude = mJSONObjectResult.getDouble("longitude")
-            }
-            setMap()
-            tvCUILatLong?.text = "Latitude: $latitude Longitude: $longitude"
+        } catch (e: JSONException) {
+            e.printStackTrace();
         }
     }
 

@@ -26,12 +26,19 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
     private lateinit var bbSideEngine: BBSideEngine
     private var checkConfiguration = false
     private var sosLiveTrackingUrl: String = ""
+
     private var mode: String? = ENVIRONMENT_PRODUCTION
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
         mode = intent.getStringExtra("mode")
+
+        init();
+        setListener()
+    }
+
+    private fun init() {
 
         //"Your production license key here"
         val lic = intent.getStringExtra("lic")
@@ -46,7 +53,6 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
             ENVIRONMENT_PRODUCTION,
             Constants.BBTheme.STANDARD
         )
-        setListener()
     }
 
     @SuppressLint("HardwareIds")

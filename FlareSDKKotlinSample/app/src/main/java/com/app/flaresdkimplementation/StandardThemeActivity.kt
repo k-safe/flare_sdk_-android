@@ -14,7 +14,7 @@ import com.sos.busbysideengine.Constants.BBTheme
 import com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION
 import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener
 import org.json.JSONException
-import org.json.JSONObject
+import org.json.JSONObject;
 import java.util.*
 
 class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
@@ -41,8 +41,15 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
         val intent = intent
-        mode = intent.getStringExtra("mode")
 
+
+        init();
+        setListener()
+    }
+
+    private fun init() {
+
+        mode = intent.getStringExtra("mode")
         viewBinding.tvThemeName.text = getString(R.string.standard_theme)
 
         bbSideEngine = BBSideEngine.getInstance()
@@ -87,7 +94,6 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
 
         //enableFlareAwareNetwork is a safety for cyclist to send notifcation for near by fleet users
 
-        setListener()
     }
 
     private fun setListener() {
