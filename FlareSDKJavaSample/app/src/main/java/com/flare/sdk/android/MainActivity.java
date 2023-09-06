@@ -15,8 +15,8 @@ public class MainActivity extends AppCompatActivity {
     Button btnStandard, btnCustom, btnSOS, btnEnableFlareAware;
     RadioGroup rgEnvironment;
     RadioButton rbProduction, rbSandBox;
-    String productionLicense = "";
-    String sandboxLicense = "";
+    String productionLicense = "your production key";
+    String sandboxLicense = "your sandbox key";
 
     String mode = Constants.ENVIRONMENT_SANDBOX;
     @Override

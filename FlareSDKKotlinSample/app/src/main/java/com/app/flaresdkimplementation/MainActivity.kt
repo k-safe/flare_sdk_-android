@@ -10,8 +10,8 @@ import com.sos.busbysideengine.Constants
 
 class MainActivity : AppCompatActivity() {
 
-    private var productionLicense = ""
-    private var sandboxLicense = ""
+    private var productionLicense = "your production key"
+    private var sandboxLicense = "your sandbox key"
 
     private var mode = Constants.ENVIRONMENT_PRODUCTION
     private val viewBinding: ActivityMainBinding by lazy {
