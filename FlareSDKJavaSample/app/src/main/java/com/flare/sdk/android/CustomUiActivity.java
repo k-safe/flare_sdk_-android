@@ -1,6 +1,8 @@
 package com.flare.sdk.android;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,12 +13,9 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -35,24 +34,25 @@ import java.util.Random;
 
 public class CustomUiActivity extends AppCompatActivity implements BBSideEngineUIListener {
 
-    TextView tvCUISeconds, tvCUIFallDetected, tvCUIlatlong, tvCUIWord;
+    TextView tvCUISeconds, tvCUIFallDetected, tvCUILatLong, tvCUIWord;
 
     CountDownTimer countDownTimer;
     RelativeLayout rlCUIMainBg;
     String userName = "", email = "", word = "", mapUri = "", mobileNo= "", countryCode= "";
     boolean btnTestClicked = false;
-    boolean isSurvey = false;
     ImageView ivCUIClose;
 
+    boolean isIncidentCanceled = true;
+    boolean isSurvey = false;
+
     RelativeLayout rlCUIAlertView, rlCUIIncidentView;
-    double latitude, longitude;
+    double latitude = 0.0, longitude = 0.0;
 
     Vibrator vibrator;
 
     PreferencesHelper preferencesHelper = null;
     private Common common;
 
-    boolean isIncidentCanceled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +80,7 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
         // Ui
         rlCUIAlertView = findViewById(R.id.rlCUIAlertView);
         rlCUIIncidentView = findViewById(R.id.rlCUIIncidentView);
-        tvCUIlatlong = findViewById(R.id.tvCUIlatlong);
+        tvCUILatLong = findViewById(R.id.tvCUIlatlong);
         tvCUIWord = findViewById(R.id.tvCUIWord);
         ivCUIClose = findViewById(R.id.ivCUIClose);
 
@@ -137,7 +137,7 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
         countDownTimer = new CountDownTimer((time * 1000), 1000) {
 
             public void onTick(long millisUntilFinished) {
-                tvCUISeconds.setText("" + millisUntilFinished / 1000);
+                tvCUISeconds.setText(String.format("%d", millisUntilFinished / 1000));
                 //here you can have your logic to set text to edittext
             }
 
@@ -154,18 +154,6 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
                 //TODO: call method for fetching W3W Location data
                 BBSideEngine.getInstance().fetchWhat3WordLocation(CustomUiActivity.this);
 
-                //TODO: Send Email and SMS
-                sendEmail();
-                sendSMS();
-
-                //TODO: notify to partner
-                BBSideEngine.getInstance().notifyPartner();
-
-                if(common.isAppInBackground()) {
-                    BBSideEngine.getInstance().resumeSensorIfAppInBackground();
-                    finish();
-                }
-
                 isSurvey = true;
                 rlCUIAlertView.setVisibility(View.VISIBLE);
                 rlCUIIncidentView.setVisibility(View.GONE);
@@ -176,11 +164,11 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
                         longitude = locationData.getLongitude();
                     }
                     setMap();
-                    tvCUIlatlong.setText("Latitude: " + locationData.getLatitude() + ' ' + "Longitude: " + locationData.getLongitude());
+                    tvCUILatLong.setText(String.format("Latitude: %s Longitude: %s", locationData.getLatitude(), locationData.getLongitude()));
                 } catch (Exception e) {
-                    e.getMessage();
+                    e.printStackTrace();
                 }
-            }
+              }
         }.start();
 
         ivCUIClose.setOnClickListener(v -> {
@@ -188,20 +176,65 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
                 countDownTimer.cancel();
             }
             stopVibrate();
-            if(!isSurvey ||
-                    (BBSideEngine.getInstance().surveyVideoURL() == null ||
-                    BBSideEngine.getInstance().surveyVideoURL().equals(""))){
-                BBSideEngine.getInstance().resumeSideEngine();
-                finish();
-            }else{
-                BBSideEngine.getInstance().startSurveyVideoActivity();
-            }
             //inactive function
+            feedbackWarning();
         });
     }
 
+    private void feedbackWarning() {
+        String appName = "Flare SDK Sample";
+        AlertDialog.Builder builder = new AlertDialog.Builder(CustomUiActivity.this);
+        builder.setTitle("Help " + appName + " become smarter")
+                .setMessage(appName + " incident detection can be improved by learning from your incident. Was this an accurate alert?")
+                .setCancelable(false)
+                .setNegativeButton(
+                        "No",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                BBSideEngine.getInstance().incidentDecline();
+                                completeConfirmation();
+                            }
+                        })
+                .setPositiveButton(
+                        "Yes",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // TODO: Send Email and SMS
+                                sendEmail();
+                                sendSMS();
+
+                                // TODO: Notify partner
+                                BBSideEngine.getInstance().notifyPartner();
+
+                                if (Common.getInstance().isAppInBackground()) {
+                                    BBSideEngine.getInstance().resumeSensorIfAppInBackground();
+                                    CustomUiActivity.this.finish();
+                                } else {
+                                    completeConfirmation();
+                                }
+                            }
+                        });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void completeConfirmation(){
+        if (!isSurvey ||
+                (BBSideEngine.getInstance().surveyVideoURL() == null ||
+                        BBSideEngine.getInstance().surveyVideoURL() == "")) {
+            BBSideEngine.getInstance().resumeSideEngine();
+            finish();
+        }else{
+            BBSideEngine.getInstance().startSurveyVideoActivity();
+        }
+    }
+
+
     public void startVibrate() {
-        long pattern[] = {0, 100, 200, 300, 400};
+        long[] pattern = {0, 100, 200, 300, 400};
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.vibrate(pattern, 0);
     }
@@ -213,28 +246,21 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
     public void setMap() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.CUIMap);
-        mapFragment.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull GoogleMap googleMap) {
-                GoogleMap mMap = googleMap;
 
-                // Add a marker in Sydney and move the camera
-                LatLng currentLoc = new LatLng(latitude, longitude);
-                mMap.setMinZoomPreference(10.0f);
-                mMap.setMaxZoomPreference(20.0f);
-                mMap.addMarker(new MarkerOptions()
-                        .position(currentLoc)
-                        .title("Current Location"));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLoc));
-                mMap.animateCamera(CameraUpdateFactory.newLatLng(currentLoc));
-            }
+        mapFragment.getMapAsync(googleMap -> {
+
+            // Add a marker in Sydney and move the camera
+            LatLng currentLoc = new LatLng(latitude, longitude);
+            googleMap.setMinZoomPreference(10.0f);
+            googleMap.setMaxZoomPreference(20.0f);
+            googleMap.addMarker(new MarkerOptions()
+                    .position(currentLoc)
+                    .title("Current Location"));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(currentLoc));
+            googleMap.animateCamera(CameraUpdateFactory.newLatLng(currentLoc));
         });
     }
 
-    @Override
-    public void onBackPressed() {
-
-    }
     @Override
     public void onCloseSurveyVideoActivityCallback() {
         BBSideEngine.getInstance().resumeSideEngine();
@@ -281,7 +307,7 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
                 if (mJSONObjectResult.has("map")) {
                     mapUri = mJSONObjectResult.getString("map");
                 }
-                tvCUIWord.setText("//" + word);
+                tvCUIWord.setText(String.format("//%s", word));
                 if (mJSONObjectResult.has("latitude")) {
                     latitude = mJSONObjectResult.getDouble("latitude");
                 }
@@ -289,7 +315,7 @@ public class CustomUiActivity extends AppCompatActivity implements BBSideEngineU
                     longitude = mJSONObjectResult.getDouble("longitude");
                 }
                 setMap();
-                tvCUIlatlong.setText("Latitude: " + latitude + ' ' + "Longitude: " + longitude);
+                tvCUILatLong.setText(String.format("Latitude: %s Longitude: %s", latitude, longitude));
             }
 
         } catch (JSONException e) {

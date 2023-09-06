@@ -15,8 +15,9 @@ public class MainActivity extends AppCompatActivity {
     Button btnStandard, btnCustom, btnSOS, btnEnableFlareAware;
     RadioGroup rgEnvironment;
     RadioButton rbProduction, rbSandBox;
-    String productionLicense = "Your production license key here";
-    String sandboxLicense = "Your sandbox license key here";
+    String productionLicense = "";
+    String sandboxLicense = "";
+
     String mode = Constants.ENVIRONMENT_SANDBOX;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +86,9 @@ public class MainActivity extends AppCompatActivity {
 
         btnEnableFlareAware.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, EnableFlareAwareActivity.class);
-            intent.putExtra("lic",productionLicense);
+            intent.putExtra("mode", mode);
+            intent.putExtra("lic",(mode.equals(Constants.ENVIRONMENT_PRODUCTION)) ?
+                    productionLicense : sandboxLicense);
             startActivity(intent);
         });
     }

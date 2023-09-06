@@ -3,32 +3,31 @@ package com.flare.sdk.android;
 import static com.sos.busbysideengine.Constants.BBTheme.CUSTOM;
 import static com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION;
 
-import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.sos.busbysideengine.BBSideEngine;
 import com.sos.busbysideengine.Constants;
 import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener;
@@ -63,7 +62,10 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_theme);
+
         init();
+        setupEngine();
+        setListener();
     }
 
     public void init() {
@@ -92,8 +94,6 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
         //        bbSideEngine.setLocationNotificationTitle("Notification Title")
         //        bbSideEngine.setNotificationDescText("Notification Description")
 
-        setupEngine();
-        setListener();
     }
 
     public void setupEngine() {
@@ -121,70 +121,65 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
     }
 
     public void setListener() {
+
+        ivCloseMain.setOnClickListener(
+                v -> finish()
+        );
+
         btnStart.setOnClickListener(v -> {
             if (checkConfiguration) {
-                if (ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-                        || ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    ActivityCompat.requestPermissions(
-                            this,
-                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                            0
-                    );
-                } else {
+
                     bbSideEngine.setUserEmail(etvUserEmail.getText().toString().trim());
                     bbSideEngine.setUserName(etvUserName.getText().toString().trim());
                     if (bbSideEngine.isEngineStarted()) {
                         bbSideEngine.setUserName(etvUserName.getText().toString().trim());
                         bbSideEngine.stopSideEngine();
                     } else {
+
+                        BottomSheetDialog dialog = new BottomSheetDialog(CustomThemeActivity.this);
+                        View view = getLayoutInflater().inflate(R.layout.dialog_activity, null);
+                        LinearLayout llBike = view.findViewById(R.id.llBike);
+                        LinearLayout llScooter = view.findViewById(R.id.llScooter);
+                        LinearLayout llCycling = view.findViewById(R.id.llCycling);
+                        LinearLayout llCancel = view.findViewById(R.id.llCancel);
+
+                        llBike.setOnClickListener(v14 -> {
+                            bbSideEngine.setActivityType("Bike");
+                            bbSideEngine.startSideEngine(CustomThemeActivity.this);
+                            dialog.dismiss();
+                        });
+
+                        llScooter.setOnClickListener(v13 -> {
+                            bbSideEngine.setActivityType("Scooter");
+                            bbSideEngine.startSideEngine(CustomThemeActivity.this);
+                            dialog.dismiss();
+                        });
+
+                        llCycling.setOnClickListener(v12 -> {
+                            bbSideEngine.setActivityType("Cycling");
+                            bbSideEngine.startSideEngine(CustomThemeActivity.this);
+                            dialog.dismiss();
+                        });
+
+                        llCancel.setOnClickListener(v1 -> dialog.dismiss());
+
+                        dialog.dismiss();
+                        dialog.setCancelable(true);
+                        dialog.setContentView(view);
+                        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+                        int screenHeight = displayMetrics.heightPixels;
+                        dialog.getBehavior().setPeekHeight(screenHeight);
+                        dialog.show();
+
                         bbSideEngine.startSideEngine(CustomThemeActivity.this);
                     }
 
                     tvConfidence.setText("");
                     btnStart.setText(bbSideEngine.isEngineStarted() ? getString(R.string.stop) : getString(R.string.start));
                 }
-            }
         });
 
-        ivCloseMain.setOnClickListener(
-                v -> {
-                   finish();
-                }
-        );
-
     }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (!checkConfiguration) {
-            return;
-        }
-
-        if (requestCode == 0) {
-            bbSideEngine.startSideEngine(this);
-            btnStart.setText(bbSideEngine.isEngineStarted() ? getString(R.string.stop) : getString(R.string.start));
-        } else if (requestCode == 1) {
-            btnStart.setText(getString(R.string.start));
-        }
-    }
-
-    public static String getRandomNumberString() {
-        // It will generate 6 digit random Number.
-        // from 0 to 999999
-        Random rnd = new Random();
-        int number = rnd.nextInt(999999);
-        // this will convert any number sequence into 6 character.
-        return String.format("%06d", number);
-    }
-
 
     private void sendEmail() {
         if (etvUserEmail.getText().toString().equals("")) {
@@ -207,11 +202,13 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
         bbSideEngine.sendSMS(contact);
     }
 
-
     @Override
-    public void onSideEngineCallback(boolean status, Constants.BBSideOperation type, JSONObject response) {
+    public void onSideEngineCallback(
+            boolean status,
+            Constants.BBSideOperation type,
+            JSONObject response
+    ) {
 
-        Log.w("SIDE_ENGINE_SDK", type.ordinal() + " " + (response != null ? response : ""));
         switch (type) {
             case CONFIGURE:
                 // if status = true Now you can ready to start Side engine process
@@ -220,11 +217,16 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
 
                 break;
             case START:
-                //Update your UI here (e.g. update START button color or text here when SIDE engine started)
-                break;
             case STOP:
-                //Update your UI here (e.g. update STOP button color or text here when SIDE engine started)
+
+                if (bbSideEngine.isEngineStarted()) {
+                    btnStart.setText(getString(R.string.stop));
+                } else {
+                    btnStart.setText(getString(R.string.start));
+                }
+                //Please update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.
                 break;
+            //Please update the user interface (UI) in this section to reflect the cessation of the side engine (e.g., amend the colour or text of the STOP button accordingly).
             case SMS:
                 //Returns SMS delivery status and response payload
                 Log.e("SMS: ", String.valueOf(response));
@@ -234,7 +236,10 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
                 Log.e("Email: ", String.valueOf(response));
                 break;
             case INCIDENT_DETECTED:
-                //Threshold reached and you will redirect to countdown page
+                //You can initiate your bespoke countdown page from this interface, which must have a minimum timer interval of 30 seconds.
+
+                //Upon completion of your custom countdown, it is imperative to invoke the 'notify partner' method to record the event on the dashboard and dispatch notifications via webhook, Slack, email and SMS.
+
                 Log.w("CustomThemeActivity", "INCIDENT_DETECTED");
                 setNotification();
 
@@ -242,7 +247,6 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
                 bbSideEngine.setUserId(getRandomNumberString());
 
                 //TODO: Set rider name
-                bbSideEngine.setRiderName(etvUserName.getText().toString().trim());
                 bbSideEngine.setRiderName(etvUserName.getText().toString().trim());
 
                 if (status) {
@@ -277,7 +281,6 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
                                 //TODO: Send Email and SMS
                                 sendSMS();
                                 sendEmail();
-//                                BBSideEngine.getInstance(null).sendEmail(viewBinding.etvUserEmail.text.toString().trim()) // Replace your emergency email address
 
                                 //TODO: notify to partner
                                 bbSideEngine.notifyPartner();
@@ -318,6 +321,7 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
     }
 
     private void setNotification(){
+
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Calendar calendar = Calendar.getInstance();
         long randomNumber = calendar.getTimeInMillis();
@@ -325,6 +329,7 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
         Intent intent = new Intent(this, CustomThemeActivity.class);
         Notification.Builder builder;
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel =
                     new NotificationChannel(channelId, "Incident Detected", NotificationManager.IMPORTANCE_HIGH);
@@ -357,9 +362,21 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
         }
     }
 
+
+    public static String getRandomNumberString() {
+        // It will generate 6 digit random Number.
+        // from 0 to 999999
+        Random rnd = new Random();
+        int number = rnd.nextInt(999999);
+        // this will convert any number sequence into 6 character.
+        return String.format("%06d", number);
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        bbSideEngine.stopSideEngine();
+        if (bbSideEngine.isEngineStarted()) {
+            bbSideEngine.stopSideEngine();
+        }
     }
 }

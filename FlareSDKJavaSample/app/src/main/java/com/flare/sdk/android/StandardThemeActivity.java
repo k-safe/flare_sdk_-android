@@ -7,11 +7,13 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.sos.busbysideengine.BBSideEngine;
 import com.sos.busbysideengine.Constants;
 import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener;
@@ -45,6 +48,7 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
     boolean checkConfiguration = false;
     String mConfidence = "";
     Intent intent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +75,10 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
         tvConfidence = findViewById(R.id.tvConfidence);
 
         progressBar = findViewById(R.id.progressBar);
-        Log.d("mConfidence1", "" + mConfidence);
+
+
+        tvThemeName.setText(getString(R.string.standard_theme));
+
 
         setupEngine();
     }
@@ -90,6 +97,7 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
         bbSideEngine.enableActivityTelemetry(true);
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
         bbSideEngine.setStickyEnable(true);
+        bbSideEngine.setActivityType("Horse Riding");
 
         //"Your production license key here" or "Your sandbox license key here"
         String lic = intent.getStringExtra("lic");
@@ -98,12 +106,6 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
                 mode,
                 STANDARD
         );
-
-
-        //Sandbox mode used only for while developing your App (You can use theme STANDARD OR CUSTOM)
-        //BBSideEngine.configure(this,
-        //"Your license key here",
-        //ENVIRONMENT_SANDBOX, STANDARD);
 
         //Custom Notification
         //        bbSideEngine.setLocationNotificationTitle("Protection is active");
@@ -119,32 +121,23 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
         //bbSideEngine.setIncidentPageHeaderColor("#ff0000"); //Only for standard theme
         //bbSideEngine.setIncidentPageBackgroundColor("#ff00ff"); //Only for standard theme
         //bbSideEngine.setIncidentPageHeaderMessageColor("#ffffff"); //Only for standard theme
-        //bbSideEngine.setSwipeButtonBgColor(R.color.white) = Default "ffffff" //Only for standard theme
+        //bbSideEngine.setSwipeButtonBgColor(R.color.white) = Default "#ffffff" //Only for standard theme
         //bbSideEngine.setSwipeButtonTextSize(18) = Default 16 //Only for standard theme
         //bbSideEngine.setSwipeButtonText("Swipe to Cancel"); //Only for standard theme
-        //bbSideEngine.setImpactBody("Detected a potential fall or impact involving"); //This message show in the SMS, email, webook and slack body with rider name passed in this method (bbSideEngine.setRiderName("App user name here");) parameter
+        //bbSideEngine.setImpactBody("Detected a potential fall or impact involving"); //This message show in the SMS, email, webhook and slack body with rider name passed in this method (bbSideEngine.setRiderName("App user name here");) parameter
 
+        //enableFlareAwareNetwork is a safety for cyclist to send notification for near by fleet users
 
     }
 
     public void setListener() {
+
+        ivCloseMain.setOnClickListener(
+                v -> finish()
+        );
+
         btnStart.setOnClickListener(v -> {
             if (checkConfiguration) {
-                if (ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-                        || ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    ActivityCompat.requestPermissions(
-                            this,
-                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                            0
-                    );
-                } else {
                     bbSideEngine.setUserEmail(etvUserEmail.getText().toString().trim());
                     bbSideEngine.setUserName(etvUserName.getText().toString().trim());
                     bbSideEngine.setUserCountryCode(etvCountryCode.getText().toString().trim());
@@ -155,65 +148,46 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
                         bbSideEngine.setUserName(etvUserName.getText().toString().trim());
                         bbSideEngine.stopSideEngine();
                     } else {
-                        bbSideEngine.startSideEngine(StandardThemeActivity.this);
-//                bbSideEngine.setUserId(getRandomNumberString())
+                        BottomSheetDialog dialog = new BottomSheetDialog(this);
+                        View view = getLayoutInflater().inflate(R.layout.dialog_activity, null);
+                        LinearLayout llBike = view.findViewById(R.id.llBike);
+                        LinearLayout llScooter = view.findViewById(R.id.llScooter);
+                        LinearLayout llCycling = view.findViewById(R.id.llCycling);
+                        LinearLayout llCancel = view.findViewById(R.id.llCancel);
+
+                        llBike.setOnClickListener(v13 -> {
+                            bbSideEngine.setActivityType("Bike");
+                            bbSideEngine.startSideEngine(StandardThemeActivity.this);
+                            dialog.dismiss();
+                        });
+
+                        llScooter.setOnClickListener(v12 -> {
+                            bbSideEngine.setActivityType("Scooter");
+                            bbSideEngine.startSideEngine(StandardThemeActivity.this);
+                            dialog.dismiss();
+                        });
+
+                        llCycling.setOnClickListener(v1 -> {
+                            bbSideEngine.setActivityType("Cycling");
+                            bbSideEngine.startSideEngine(StandardThemeActivity.this);
+                            dialog.dismiss();
+                        });
+
+                        llCancel.setOnClickListener(v14 -> dialog.dismiss());
+
+                        dialog.dismiss();
+                        dialog.setCancelable(true);
+                        dialog.setContentView(view);
+                        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+                        int screenHeight = displayMetrics.heightPixels;
+                        dialog.getBehavior().setPeekHeight(screenHeight);
+                        dialog.show();
+
                     }
-                    tvConfidence.setText("");
-                    if (bbSideEngine.isEngineStarted()) {
-                        btnStart.setText(getString(R.string.stop));
-                    } else {
-                        btnStart.setText(getString(R.string.start));
-                    }
+
                 }
-            }
         });
 
-        ivCloseMain.setOnClickListener(
-                v -> {
-                    finish();
-                }
-        );
-
-    }
-
-    private void sendEmail() {
-        if (etvUserEmail.getText().toString().equals("")) {
-            return;
-        }
-        bbSideEngine.sendEmail(etvUserEmail.getText().toString());
-    }
-
-    private void sendSMS() {
-        if (etvCountryCode.getText().toString().equals("") ||
-                etvUserName.getText().toString().equals("") ||
-                etvMobileNumber.getText().toString().equals("")) {
-            return;
-        }
-
-        ContactClass contact = new ContactClass();
-        contact.setCountryCode(etvCountryCode.getText().toString());
-        contact.setPhoneNumber(etvMobileNumber.getText().toString());
-        contact.setUserName(etvUserName.getText().toString());
-        bbSideEngine.sendSMS(contact);
-    }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (!checkConfiguration) {
-            return;
-        }
-        if (requestCode == 0) {
-            bbSideEngine.startSideEngine(this);
-            if (bbSideEngine.isEngineStarted()) {
-                btnStart.setText(getString(R.string.stop));
-            } else {
-                btnStart.setText(getString(R.string.start));
-            }
-        } else if (requestCode == 1) {
-            btnStart.setText(getString(R.string.start));
-        }
     }
 
     public static String getRandomNumberString() {
@@ -237,10 +211,14 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
                 progressBar.setVisibility(View.GONE);
                 break;
             case START:
-                //Update your UI here (e.g. update START button color or text here when SIDE engine started)
-                break;
             case STOP:
-                //Update your UI here (e.g. update STOP button color or text here when SIDE engine started)
+                //*Please update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.*//
+                tvConfidence.setText("");
+                if (bbSideEngine.isEngineStarted()) {
+                    btnStart.setText(getString(R.string.stop));
+                } else {
+                    btnStart.setText(getString(R.string.start));
+                }
                 break;
             case INCIDENT_DETECTED:
                 //Threshold reached and you will redirect to countdown page
@@ -260,7 +238,7 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
                         if (!mConfidence.equals("")) {
                             tvConfidence.setVisibility(View.VISIBLE);
                             try {
-                                tvConfidence.setText("Confidence: $mConfidence");
+                                tvConfidence.setText(String.format("Confidence: %s", mConfidence));
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -271,30 +249,34 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
                 }
                 break;
             case INCIDENT_CANCEL:
-            case INCIDENT_AUTO_CANCEL:
-                tvConfidence.setVisibility(View.GONE);
-                //User canceled countdown countdown to get event here, this called only for if you configured standard theme.
-                break;
-            case TIMER_STARTED:
-                //Countdown timer started after breach delay, this called only if you configured standard theme.
-                break;
-            case TIMER_FINISHED:
-                sendSMS();
-                sendEmail();
-                //Countdown timer finished and jump to the incident summary page, this called only if you configured standard theme.
+                //The incident has been canceled because of something the user did, so you can go ahead and register any analytics events if needed.
                 break;
             case INCIDENT_ALERT_SENT:
-                //Return the alert sent (returns alert details (i.e. time, location, recipient, success/failure))
+                //This message is intended solely to provide notification regarding the transmission status of alerts. It is unnecessary to invoke any SIDE engine functions in this context.
+                break;
+            case RESUME_SIDE_ENGINE:
+                //The lateral engine has been restarted, and we are currently monitoring the device's sensors and location in order to analyse another potential incident. There is no requirement to invoke any functions from either party in this context, as the engine on the side will handle the task automatically.
+                break;
+            case TIMER_STARTED:
+                //A 30-second countdown timer has started, and the SIDE engine is waiting for a response from the user or an automatic cancellation event. If no events are received within the 30-second intervals of the timer, the SIDE engine will log the incident on the dashboard.
+                break;
+            case INCIDENT_AUTO_CANCEL:
+                //The incident has been automatically cancelled. If necessary, you may log the incident in the analytics system. Please refrain from invoking any side engine methods at this juncture.
+                break;
+            case TIMER_FINISHED:
+                //After the 30-second timer ended, the SIDE engine began the process of registering the incident on the dashboard and sending notifications to emergency contacts.
                 break;
             case SMS:
-                //Returns SMS delivery status and response payload
-                Log.e("SMS: ", String.valueOf(response));
+                //This message is intended solely to provide notification regarding the transmission status of SMS. It is unnecessary to invoke any SIDE engine functions in this context.
                 break;
             case EMAIL:
-                //Returns email delivery status and response payload
-                Log.e("Email: ", String.valueOf(response));
+                //This message is intended solely to provide notification regarding the transmission status of Email. It is unnecessary to invoke any SIDE engine functions in this context.
+                break;
+            case INCIDENT_VERIFIED_BY_USER:
+                //The user has confirmed that the incident is accurate, therefore you may transmit the corresponding events to analytics, if needed. There is no requirement to invoke any functions from either party in this context, as the engine on the side will handle the task automatically.
                 break;
             default:
+                Log.e("No Events Find",":");
                 break;
         }
     }

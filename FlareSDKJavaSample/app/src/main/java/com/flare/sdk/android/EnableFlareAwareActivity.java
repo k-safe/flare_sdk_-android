@@ -1,17 +1,16 @@
 package com.flare.sdk.android;
 
-import static com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -51,13 +50,14 @@ public class EnableFlareAwareActivity extends AppCompatActivity implements BBSid
 
         Intent intent = getIntent();
         //"Your production license key here"
+        String mode = intent.getStringExtra("mode");
+
         String lic = intent.getStringExtra("lic");
 
         bbSideEngine = BBSideEngine.getInstance();
         bbSideEngine.showLogs(true);
         bbSideEngine.setBBSideEngineListener(this);
-        bbSideEngine.enableActivityTelemetry(true);
-        bbSideEngine.setEnableFlareAwareNetwork(true);
+        //    bbSideEngine.enableActivityTelemetry(true);
         bbSideEngine.setHighFrequencyModeEnabled(true); //It is recommended to activate the high frequency mode when the SOS function is engaged in order to enhance the quality of the live tracking experience.
         bbSideEngine.setDistanceFilterMeters(20); //It is possible to activate the distance filter in order to transmit location data in the live tracking URL. This will ensure that location updates are transmitted every 20 meters, once the timer interval has been reached.
         bbSideEngine.setLowFrequencyIntervalsSeconds(15); //The default value is 15 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(false) is invoked.
@@ -65,7 +65,7 @@ public class EnableFlareAwareActivity extends AppCompatActivity implements BBSid
 
         bbSideEngine.configure(this,
                 lic,
-                ENVIRONMENT_PRODUCTION,
+                mode,
                 Constants.BBTheme.STANDARD
         );
     }
@@ -76,29 +76,50 @@ public class EnableFlareAwareActivity extends AppCompatActivity implements BBSid
     private void setListener() {
         ivCloseMain.setOnClickListener(view -> finish());
 
-        btnStartFlareAware.setOnClickListener(this::onClick);
+        btnStartFlareAware.setOnClickListener(view -> {
+            if (checkConfiguration) {
+                // code here
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+                        || ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    ActivityCompat.requestPermissions(
+                            this,
+                            per,
+                            0
+                    );
+                } else {
+                    if (isStartFlareAware) {
+                        bbSideEngine.stopFlareAware();
+                    } else {
+                        bbSideEngine.startFlareAware();
+                    }
+                }
+            }
+        });
 
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(
+            int requestCode,
+            @NonNull String[] permissions,
+            @NonNull int[] grantResults
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (!checkConfiguration) {
             return;
         }
         if (requestCode == 0) {
-
-            bbSideEngine.startFlareAware();
-
+            new Handler(Looper.getMainLooper()).postDelayed(() -> bbSideEngine.startFlareAware(), 2000);
         } else if (requestCode == 1) {
-
+//            viewBinding.btnStart.text = getString(R.string.start)
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        bbSideEngine.stopFlareAware();
     }
 
     @Override
@@ -111,56 +132,12 @@ public class EnableFlareAwareActivity extends AppCompatActivity implements BBSid
                 progressBar.setVisibility(View.GONE);
                 break;
 
-            case START:
-                //Update your UI here (e.g. update START button color or text here when SIDE engine started)
-                break;
-
-            case STOP:
-                //Update your UI here (e.g. update STOP button color or text here when SIDE engine started)
-                break;
-
-            case SMS:
-                //Returns SMS delivery status and response payload
-                break;
-
-            case EMAIL:
-                //Returns email delivery status and response payload
-                break;
-
-            case INCIDENT_DETECTED:
-                Toast.makeText(this, "INCIDENT_DETECTED", Toast.LENGTH_LONG).show();
-                //Threshold reached and you will redirect to countdown page
-                break;
-
-            case INCIDENT_CANCEL:
-                //User canceled countdown countdown to get event here, this called only for if you configured standard theme.
-                break;
-
-            case INCIDENT_ALERT_SENT:
-                //Return the alert sent (returns alert details (i.e. time, location, recipient, success/failure))
-                break;
-
-            case TIMER_STARTED:
-                //Countdown timer started after breach delay, this called only if you configured standard theme.
-                break;
-
-            case TIMER_FINISHED:
-                //Countdown timer finished and jump to the incident summary page, this called only if you configured standard theme.
-                break;
-
-            case SOS_ACTIVATE:
-                // sos activate
-                break;
-
-            case SOS_DEACTIVATE:
-                // sos deactivate
-                break;
-
             case START_FLARE_AWARE:
                 // Start flare aware
                 if (response != null) {
                     try {
                         String error = response.getString("Error");
+                        Log.e("flareAware error", error);
                     } catch (Exception e) {
                         Log.e("Error: ", e.toString());
                     }
@@ -183,30 +160,10 @@ public class EnableFlareAwareActivity extends AppCompatActivity implements BBSid
         }
     }
 
-    private void onClick(View view) {
-        if (checkConfiguration) {
-            // code here
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-                    || ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                        this,
-                        per,
-                        0
-                );
-            } else {
-                if (isStartFlareAware) {
-                    bbSideEngine.stopFlareAware();
-                } else {
-                    bbSideEngine.startFlareAware();
-                }
-            }
-        }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        bbSideEngine.stopFlareAware();
     }
+
 }

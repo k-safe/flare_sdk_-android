@@ -15,7 +15,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -81,6 +80,7 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
         ivCloseMain.setOnClickListener(View -> {
             finish();
         });
+
         btnSos.setOnClickListener(View -> {
             if (checkConfiguration) {
                 if (btnSos.getText().toString().equals("Deactivate SOS")) {
@@ -150,45 +150,8 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
                 progressBar.setVisibility(View.GONE);
                 break;
 
-            case START:
-                //Update your UI here (e.g. update START button color or text here when SIDE engine started)
-                break;
-
-            case STOP:
-                //Update your UI here (e.g. update STOP button color or text here when SIDE engine started)
-                break;
-
-            case SMS:
-                //Returns SMS delivery status and response payload
-                break;
-
-            case EMAIL:
-                //Returns email delivery status and response payload
-                break;
-
-            case INCIDENT_DETECTED:
-                Toast.makeText(this, "INCIDENT_DETECTED", Toast.LENGTH_LONG).show();
-                //Threshold reached and you will redirect to countdown page
-                break;
-
-            case INCIDENT_CANCEL:
-                //User canceled countdown countdown to get event here, this called only for if you configured standard theme.
-                break;
-
-            case INCIDENT_ALERT_SENT:
-                //Return the alert sent (returns alert details (i.e. time, location, recipient, success/failure))
-                break;
-
-            case TIMER_STARTED:
-                //Countdown timer started after breach delay, this called only if you configured standard theme.
-                break;
-
-            case TIMER_FINISHED:
-                //Countdown timer finished and jump to the incident summary page, this called only if you configured standard theme.
-                break;
-
-
             case SOS_ACTIVATE:
+                //*The SOS function has been activated. You may now proceed to update your user interface and share a live location tracking link with your social contacts, thereby enabling them to access your real-time location.*//
                 if (response.has("sosLiveTrackingUrl")) {
                     try {
                         sosLiveTrackingUrl = response.getString("sosLiveTrackingUrl");
@@ -196,15 +159,15 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
                         throw new RuntimeException(e);
                     }
                     btnSOSLinkShare.setVisibility(View.VISIBLE);
-                    btnSos.setText("Deactivate SOS");
+                    btnSos.setText(R.string.deactivate_sos);
                 } else if (response.has("Error")) {
-                    //
+                    // log for error
                 }
                 break;
 
             case SOS_DEACTIVATE:
                 btnSOSLinkShare.setVisibility(View.GONE);
-                btnSos.setText("Activate SOS");
+                btnSos.setText(R.string.activate_sos);
                 break;
 
             default:
