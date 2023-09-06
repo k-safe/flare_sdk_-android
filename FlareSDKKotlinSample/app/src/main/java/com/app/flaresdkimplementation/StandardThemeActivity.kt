@@ -63,7 +63,7 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
         bbSideEngine.enableActivityTelemetry(true)
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
         bbSideEngine.setStickyEnable(true)
-        bbSideEngine.setActivityType("Horse Riding")
+        bbSideEngine.setActivityType("Scooter")
 //        bbSideEngine.setAppName("Flare SDK Sample")
 
         //"Your production license key here" or "Your sandbox license key here"
