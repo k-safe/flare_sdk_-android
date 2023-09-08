@@ -12,12 +12,13 @@ dependencyResolutionManagement {
         mavenCentral()
         def decodedBytes = Base64.getDecoder().decode(userToken)
         def decryptedToken = new String(decodedBytes, "UTF-8")
+        def token = decryptedToken.replace("@@@","")
         maven {
             name = "SideEngineSDK"
             url = uri("https://maven.pkg.github.com/k-safe/busbysdk_android")
             credentials {
                 username = userName
-                password = decryptedToken
+                password = token
             }
         }
     }
