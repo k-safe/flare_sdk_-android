@@ -32,5 +32,6 @@
     <string name="sandbox_mode">Sandbox mode</string>
     <string name="activate_sos">Activate SOS</string>
     <string name="deactivate_sos">Deactivate SOS</string>
+    <string name="mapKey">Your Map Key Here</string>
 
 </resources>
