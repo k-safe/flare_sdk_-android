@@ -63,6 +63,7 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
         bbSideEngine.enableActivityTelemetry(true)
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
         bbSideEngine.setStickyEnable(true)
+        bbSideEngine.activateIncidentTestMode(false) //This is only used in sandbox mode and is TRUE by default. This is why you should test your workflow in sandbox mode. You can change it to FALSE if you want to experience real-life incident detection
         bbSideEngine.setActivityType("Scooter")
 //        bbSideEngine.setAppName("Flare SDK Sample")
 
@@ -92,7 +93,7 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
 //        bbSideEngine.setSwipeButtonText("Swipe to Cancel") //Only for standard theme
 //        bbSideEngine.setImpactBody("Detected a potential fall or impact involving") //This message show in the SMS, email, webook and slack body with rider name passed in this method (bbSideEngine.setRiderName("App user name here");) parameter
 
-        //enableFlareAwareNetwork is a safety for cyclist to send notifcation for near by fleet users
+        //enableFlareAwareNetwork is a safety for cyclist to send notification for near by fleet users
 
     }
 
