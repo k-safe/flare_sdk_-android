@@ -7,18 +7,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'src/StandardThemeActivity.dart';
 import 'src/CustomThemeActivity.dart';
-import 'src/CustoMapScreen.dart';
+import 'src/CustomMapScreen.dart';
 import 'src/IncidentTimer.dart';
 void main() {
   runApp(const MyApp());
 }
 
-late TextEditingController cCode = TextEditingController();
-late TextEditingController cMobile = TextEditingController();
-late TextEditingController cUserName = TextEditingController();
+TextEditingController cCode = TextEditingController();
+TextEditingController cMobile = TextEditingController();
+TextEditingController cUserName = TextEditingController();
 String selectedMode = Constants.ENVIRONMENT_SANDBOX;
 String productionLicense = "Your production license key here";
 String sandboxLicense = "Your sandbox license key here";
+
+
+
 class MyApp extends StatelessWidget {
   static const channel = MethodChannel("com.sideml.flutersideml");
   const MyApp({Key? key}) : super(key: key);
@@ -84,7 +87,7 @@ class HomePage extends StatelessWidget {
                     child:
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          primary: Colors.white, //background color of button
+                          backgroundColor: Colors.white, //background color of button
                           side: const BorderSide(width:2, color:Colors.redAccent), //border width and color
                           elevation: 3, //elevation of button
                           shape: RoundedRectangleBorder( //to set border radius to button
@@ -112,7 +115,7 @@ class HomePage extends StatelessWidget {
                         child:
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                            primary: Colors.white, //background color of button
+                            backgroundColor: Colors.white, //background color of button
                             side: const BorderSide(width:2, color:Colors.redAccent), //border width and color
                             elevation: 3, //elevation of button
                             shape: RoundedRectangleBorder( //to set border radius to button
@@ -141,7 +144,7 @@ class HomePage extends StatelessWidget {
                         child:
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              primary: Colors.white, //background color of button
+                              backgroundColor: Colors.white, //background color of button
                               side: const BorderSide(width:2, color:Colors.redAccent), //border width and color
                               elevation: 3, //elevation of button
                               shape: RoundedRectangleBorder( //to set border radius to button
@@ -168,7 +171,7 @@ class HomePage extends StatelessWidget {
                         child:
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              primary: Colors.white, //background color of button
+                              backgroundColor: Colors.white, //background color of button
                               side: const BorderSide(width:2, color:Colors.redAccent), //border width and color
                               elevation: 3, //elevation of button
                               shape: RoundedRectangleBorder( //to set border radius to button

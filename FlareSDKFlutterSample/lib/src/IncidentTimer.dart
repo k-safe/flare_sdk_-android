@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
-import 'package:flutersideml/src/CustoMapScreen.dart';
+import 'package:flutersideml/src/CustomMapScreen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,7 +37,7 @@ class _IncidentTimer extends State<IncidentTimer> {
 
     Future.delayed(const Duration(seconds: 1), () {
       final arg = ModalRoute.of(mContext)!.settings.arguments as IncidentTimerScreenArguments;
-      if(arg.isTestMode != null && arg.isTestMode == true){
+      if(arg.isTestMode == true){
         seconds = 6;
       }else{
         seconds = 31;
@@ -185,7 +185,7 @@ class _IncidentTimer extends State<IncidentTimer> {
     }
     Navigator.pop(mContext);
     if (kDebugMode) {
-      print("ERROR⚠️|️" + "autoCancel: " + ": " + 'result: $result');
+      print("ERROR⚠️|️ autoCancel: result: $result");
     }
 
   }

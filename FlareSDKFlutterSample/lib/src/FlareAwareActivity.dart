@@ -1,19 +1,16 @@
 import 'dart:collection';
-import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
-import 'package:flutersideml/src/IncidentTimer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-late TextEditingController cCode = TextEditingController();
-late TextEditingController cMobile = TextEditingController();
-late TextEditingController cUserName = TextEditingController();
-late TextEditingController cEmail = TextEditingController();
+TextEditingController cCode = TextEditingController();
+TextEditingController cMobile = TextEditingController();
+TextEditingController cUserName = TextEditingController();
+TextEditingController cEmail = TextEditingController();
 
 class FlareAwareActivity extends StatefulWidget {
   const FlareAwareActivity({Key? key}) : super(key: key);
@@ -44,11 +41,11 @@ class _FlareAwareActivity extends State<FlareAwareActivity> with WidgetsBindingO
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
   }
   @override
   void dispose() {
-    WidgetsBinding.instance!.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
   @override
@@ -91,7 +88,7 @@ class _FlareAwareActivity extends State<FlareAwareActivity> with WidgetsBindingO
                               height: 50.0,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  primary: Colors.white,
+                                  backgroundColor: Colors.white,
                                   //background color of button
                                   side: const BorderSide(
                                       width: 2, color: Colors.redAccent),
@@ -135,7 +132,7 @@ class _FlareAwareActivity extends State<FlareAwareActivity> with WidgetsBindingO
     if (kDebugMode) {
       print(result.entries);
     }
-    bool? isActive = null;
+    bool? isActive;
     if (Platform.isAndroid) {
       isActive = result["isActive"] as bool?;
     }else{

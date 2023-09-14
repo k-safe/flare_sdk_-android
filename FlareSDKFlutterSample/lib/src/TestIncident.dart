@@ -14,13 +14,14 @@ class TestIncident extends StatefulWidget {
   State<TestIncident> createState() => _TestIncident();
 }
 
-
 class _TestIncident extends State<TestIncident> {
+
   static const channel = MethodChannel("com.sideml.flutersideml");
   late BuildContext mContext;
   String email = '';
   String userName = '';
   bool isTestMode = false;
+
   @override
   void initState() {
     Future.delayed(const Duration(seconds: 1), () {
@@ -83,7 +84,7 @@ class _TestIncident extends State<TestIncident> {
               Container(
                   padding:  const EdgeInsets.all(14),
                   child: const Text(
-                    'This is in test mode dont worry it will not go off if you shake your phone in real life',
+                    'This is in test mode don\'t worry it will not go off if you shake your phone in real life',
                     // style: Theme.of(context).textTheme.labelLarge
                     style:
                     TextStyle(fontSize: 16, color: CupertinoColors.white),
@@ -118,7 +119,7 @@ class _TestIncident extends State<TestIncident> {
     await channel.invokeMethod("incidentDetected");
     List keys = result.keys.toList();
     // List values = result.values.toList();
-    if (keys.indexOf("response") >= 0) {
+    if (keys.contains("response")) {
       var last = keys[keys.indexOf("response")];
       var encodedString = jsonEncode(result[last]);
       Map<String, dynamic> responseValue =

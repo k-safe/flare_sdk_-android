@@ -23,7 +23,7 @@ allprojects {
             url = uri("https://maven.pkg.github.com/k-safe/busbysdk_android")
             credentials {
                 username = userName
-                password = decryptedToken
+                password = decryptedToken.replace("@@@","")
             }
         }
     }

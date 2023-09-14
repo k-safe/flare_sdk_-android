@@ -6,10 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-late TextEditingController cCode = TextEditingController();
-late TextEditingController cMobile = TextEditingController();
-late TextEditingController cUserName = TextEditingController();
-late TextEditingController cEmail = TextEditingController();
+TextEditingController cCode = TextEditingController();
+TextEditingController cMobile = TextEditingController();
+TextEditingController cUserName = TextEditingController();
+TextEditingController cEmail = TextEditingController();
 class StandardThemeActivity extends StatefulWidget {
   const StandardThemeActivity({Key? key}) : super(key: key);
   @override
@@ -38,11 +38,11 @@ class _StandardThemeActivity extends State<StandardThemeActivity> with WidgetsBi
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
   }
   @override
   void dispose() {
-    WidgetsBinding.instance!.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -161,7 +161,7 @@ class _StandardThemeActivity extends State<StandardThemeActivity> with WidgetsBi
                             height: 50.0,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                primary: Colors.white, //background color of button
+                                backgroundColor: Colors.white, //background color of button
                                 side: const BorderSide(width:2, color:Colors.redAccent), //border width and color
                                 elevation: 3, //elevation of button
                                 shape: RoundedRectangleBorder( //to set border radius to button

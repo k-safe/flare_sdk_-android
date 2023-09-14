@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 class CustomMapScreen extends StatefulWidget {
   const CustomMapScreen({Key? key}) : super(key: key);
 
@@ -178,7 +179,7 @@ class _CustomMapScreen extends State<CustomMapScreen> {
     final LinkedHashMap<Object?, Object?> result =
     await channel.invokeMethod("checkSurveyUrl");
     if (kDebugMode) {
-      print("ERROR⚠️|️" + "callForCheckSurveyUrl: " + ": $result" );
+      print("ERROR⚠️|️callForCheckSurveyUrl: : $result" );
     }
     if (Platform.isAndroid) {
       bool? isSurveyUrl = result["isSurveyUrl"] as bool?;
@@ -209,21 +210,21 @@ class _CustomMapScreen extends State<CustomMapScreen> {
     if (kDebugMode) {
       print(result);
     }
-    print("ERROR⚠️|️" + "CustomMap: " + ": " + 'result: $result');
+    print("ERROR⚠️|️ CustomMap:  :  result: $result");
     List keys = result.keys.toList();
     // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'keys: $keys');
     // List values = result.values.toList();
-    if(keys.indexOf("response") >= 0) {
+    if(keys.contains("response")) {
       var last = keys[keys.indexOf("response")];
       // print("ERROR⚠️|️" + "CustomMap: " + ": " + 'last: $last');
-      print("ERROR⚠️|️" + "CustomMap: " + ": " + 'response cas: $result');
+      print("ERROR⚠️|️ CustomMap: : response cas: $result");
       if(Platform.isAndroid) {
         var encodedStringNm = jsonEncode(result[last]);
         Map<String, dynamic> responseValue =
         json.decode(json.decode(encodedStringNm));
         List keyRes = responseValue.keys.toList();
         List valueRes = responseValue.values.toList();
-        if (valueRes.indexOf("W3W") >= 0) {
+        if (valueRes.contains("W3W")) {
           var resW3W = valueRes[keyRes.indexOf("result")];
           List keyW3W = resW3W.keys.toList();
           List valueW3W = resW3W.values.toList();
@@ -248,7 +249,7 @@ class _CustomMapScreen extends State<CustomMapScreen> {
           }
           if (response["words"]  != null) {
             var w = response["words"] as String;
-            words = "//" + w;
+            words = "//$w";
           }
 
           // List keyW3W = resW3W.keys.toList();

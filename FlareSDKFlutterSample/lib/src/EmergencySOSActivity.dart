@@ -8,7 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:share/share.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-late TextEditingController cUserName = TextEditingController();
+TextEditingController cUserName = TextEditingController();
 
 class EmergencySOSActivity extends StatefulWidget {
   const EmergencySOSActivity({Key? key}) : super(key: key);
@@ -40,11 +40,11 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
   }
   @override
   void dispose() {
-    WidgetsBinding.instance!.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
   @override
@@ -100,7 +100,7 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
                               height: 50.0,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  primary: Colors.white,
+                                  backgroundColor: Colors.white,
                                   //background color of button
                                   side: const BorderSide(
                                       width: 2, color: Colors.redAccent),
@@ -139,7 +139,7 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
                               height: 50.0,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  primary: Colors.white,
+                                  backgroundColor: Colors.white,
                                   //background color of button
                                   side: const BorderSide(
                                       width: 2, color: Colors.redAccent),
@@ -179,20 +179,20 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
       return;
     }
     List keys = result.keys.toList();
-    bool? sosActive = null;
+    bool? sosActive;
     if (Platform.isAndroid) {
       sosActive = result["sosActive"] as bool?;
-      if (keys.indexOf("response") >= 0) {
+      if (keys.contains("response")) {
         var last = keys[keys.indexOf("response")];
         var encodedString = jsonEncode(result[last]);
         Map<String, dynamic> responseValue =
         json.decode(json.decode(encodedString));
         List valueRes = responseValue.values.toList();
         List keyRes = responseValue.keys.toList();
-        if (keyRes.indexOf("sosLiveTrackingUrl") >= 0) {
+        if (keyRes.contains("sosLiveTrackingUrl")) {
           sosLiveTrackingUrl = valueRes[keyRes.indexOf("sosLiveTrackingUrl")];
         }
-        if (keyRes.indexOf("sosActive") >= 0) {
+        if (keyRes.contains("sosActive")) {
           sosActive = valueRes[keyRes.indexOf("sosActive")];
         }
       }
@@ -227,7 +227,7 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
       "lic": lic
     });
     if (kDebugMode) {
-      print("ERROR⚠️|️" + "callConfigure: " + ": $result" );
+      print("ERROR⚠️|️callConfigure: : $result" );
     }
     String key = "success";
     if (Platform.isAndroid) {
@@ -236,7 +236,7 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
 
     List keys = result.keys.toList();
 
-    if (keys.indexOf("sosActive") >= 0) {
+    if (keys.contains("sosActive")) {
       permission();
       setState(() {
         isConfigure = "true";
@@ -244,14 +244,14 @@ class _EmergencySOSActivity extends State<EmergencySOSActivity> with WidgetsBind
       bool? sosActive;
       if (Platform.isAndroid) {
         sosActive = result["sosActive"] as bool?;
-        if (keys.indexOf("response") >= 0) {
+        if (keys.contains("response")) {
           var last = keys[keys.indexOf("response")];
           var encodedString = jsonEncode(result[last]);
           Map<String, dynamic> responseValue =
           json.decode(json.decode(encodedString));
           List valueRes = responseValue.values.toList();
           List keyRes = responseValue.keys.toList();
-          if (keyRes.indexOf("sosLiveTrackingUrl") >= 0) {
+          if (keyRes.contains("sosLiveTrackingUrl")) {
             sosLiveTrackingUrl = valueRes[keyRes.indexOf("sosLiveTrackingUrl")];
           }
         }

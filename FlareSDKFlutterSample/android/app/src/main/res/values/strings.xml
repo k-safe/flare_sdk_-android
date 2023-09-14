@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Flare SDK Sample</string>
+    <string name="start" translatable="false">Start</string>
+    <string name="btn_test_incident" translatable="false">Test Incident</string>
+    <string name="stop" translatable="false">Stop</string>
+    <string name="invalid_country_code">Please enter country code</string>
+    <string name="invalid_mobile_number">"Please enter mobile number"</string>
+    <string name="invalid_user_name">"Please enter user name"</string>
+    <string name="invalid_user_id">"Please enter user id"</string>
+    <string name="invalid_user_email">"Please enter user email"</string>
+    <string name="SHAKE_YOUR_PHONE">Shake your phone repeatedly to simulate an incident</string>
+    <string name="SHAKE_YOUR_PHONE1">This is in test mode, don\'t worry it will not go off if you shake your phone in real life</string>
+    <string name="welcome_to_side_engine">Flare SDK Sample</string>
+    <string name="standard_theme">Standard Theme Demo</string>
+    <string name="custom_theme">Custom Theme Demo</string>
+
+    <string name="emergency_sos">Emergency SOS</string>
+    <string name="enable_flareaware">Enable SOS</string>
+    <string name="incident_detected">Incident Detected</string>
+    <string name="demo_channel_id">sample_id</string>
+    <string name="channel_name">demo_channel</string>
+    <string name="country_code">Country Calling Code</string>
+    <string name="mobile_number">Emergency Contact Number</string>
+    <string name="username">Rider Name</string>
+    <string name="email">Emergency Email</string>
+    <string name="enable_flare_aware">Enable Flare Aware</string>
+    <string name="flare_aware_demo">Flare Aware Demo</string>
+    <string name="start_flare_aware">START Flare Aware</string>
+    <string name="stop_flare_aware">STOP Flare Aware</string>
+    <string name="production_mode">Production mode</string>
+    <string name="sandbox_mode">Sandbox mode</string>
+    <string name="mapKey">Your Map Key Here</string>
+</resources>
