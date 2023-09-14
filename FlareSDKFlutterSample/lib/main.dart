@@ -21,7 +21,6 @@ String productionLicense = "Your production license key here";
 String sandboxLicense = "Your sandbox license key here";
 
 
-
 class MyApp extends StatelessWidget {
   static const channel = MethodChannel("com.sideml.flutersideml");
   const MyApp({Key? key}) : super(key: key);

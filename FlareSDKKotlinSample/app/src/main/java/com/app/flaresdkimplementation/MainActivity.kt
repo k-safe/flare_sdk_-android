@@ -13,6 +13,7 @@ class MainActivity : AppCompatActivity() {
     private var productionLicense = "your production key"
     private var sandboxLicense = "your sandbox key"
 
+
     private var mode = Constants.ENVIRONMENT_PRODUCTION
     private val viewBinding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
