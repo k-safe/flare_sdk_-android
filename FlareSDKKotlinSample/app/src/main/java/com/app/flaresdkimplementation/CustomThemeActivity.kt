@@ -60,6 +60,7 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
         init()
         setupEngine()
         setListener()
+        ForegroundService.startService(this, "Flare SDK Sample")
     }
 
     private fun init() {
@@ -91,9 +92,8 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
 //        bbSideEngine.setHighFrequencyIntervalsSeconds(3) //Default is 3 seconds, you can update this for your requirements, this will be used only when "high_frequency_mode_enabled" = true
 //        bbSideEngine.setHighFrequencyModeEnabled(false) //Recommendation to enable high frequency mode when SOS is active, this will help us to batter live tracking experience.
 
-        bbSideEngine.enableActivityTelemetry(false)
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
-        bbSideEngine.setStickyEnable(true)
+        bbSideEngine.setStickyEnable(false)
         bbSideEngine.activateIncidentTestMode(true) //This is only used in sandbox mode and is TRUE by default. This is why you should test your workflow in sandbox mode. You can change it to FALSE if you want to experience real-life incident detection
 
         bbSideEngine.configure(this,
@@ -212,20 +212,23 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 //Please update the user interface (UI) in this section to reflect the cessation of the side engine (e.g., amend the colour or text of the STOP button accordingly).
             }
             BBSideOperation.INCIDENT_DETECTED -> {
+                //status: involves receiving a "true" or "false" outcome for each event. If you receive a "true" response, you can proceed with your next action. If you receive a "false" response, you should inspect the error logs located in the response payload.
 
                 //You can initiate your bespoke countdown page from this interface, which must have a minimum timer interval of 30 seconds.
 
                 //Upon completion of your custom countdown, it is imperative to invoke the 'notify partner' method to record the event on the dashboard and dispatch notifications via webhook, Slack, email and SMS.
 
                 Log.w("CustomThemeActivity", "INCIDENT_DETECTED")
-                setNotification()
 
-                //TODO: Set user id
-                bbSideEngine.setUserId(getRandomNumberString())
-                //TODO: Set rider name
-                bbSideEngine.setRiderName(viewBinding.etvUserName.text.toString().trim())
                 if (status) {
                     try {
+                        setNotification()
+
+                        //TODO: Set user id
+                        bbSideEngine.setUserId(getRandomNumberString())
+                        //TODO: Set rider name
+                        bbSideEngine.setRiderName(viewBinding.etvUserName.text.toString().trim())
+
                         val mCustomTheme = response!!.getBoolean("customTheme")
                         mConfidence = response.getString("confidence")
                         if (!mConfidence.equals("")) {
@@ -346,5 +349,6 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
         if (bbSideEngine.isEngineStarted) {
             bbSideEngine.stopSideEngine()
         }
+        ForegroundService.stopService(this);
     }
 }

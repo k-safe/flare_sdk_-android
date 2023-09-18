@@ -40,11 +40,10 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
-        val intent = intent
-
 
         init();
         setListener()
+
     }
 
     private fun init() {
@@ -60,7 +59,7 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
 //        bbSideEngine.setLowFrequencyIntervalsSeconds(15) //The default value is 15 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(false) is invoked.
 //        bbSideEngine.setHighFrequencyIntervalsSeconds(3) //The default value is 3 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(true) is invoked.
 //        bbSideEngine.setHighFrequencyModeEnabled(false) //It is recommended to activate the high frequency mode when the SOS function is engaged in order to enhance the quality of the live tracking experience.
-        bbSideEngine.enableActivityTelemetry(true)
+
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
         bbSideEngine.setStickyEnable(true)
         bbSideEngine.activateIncidentTestMode(false) //This is only used in sandbox mode and is TRUE by default. This is why you should test your workflow in sandbox mode. You can change it to FALSE if you want to experience real-life incident detection
@@ -186,17 +185,17 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 //Please update the user interface (UI) in this section to reflect the cessation of the side engine (e.g., amend the colour or text of the STOP button accordingly).
             }
             BBSideOperation.INCIDENT_DETECTED -> {
+                //status: involves receiving a "true" or "false" outcome for each event. If you receive a "true" response, you can proceed with your next action. If you receive a "false" response, you should inspect the error logs located in the response payload.
                 //The user has identified an incident, and if necessary, it may be appropriate to log the incident in either the analytics system or an external database. Please refrain from invoking any side engine methods at this juncture.
-//                Toast.makeText(this, "INCIDENT_DETECTED",Toast.LENGTH_LONG).show()
-                //Threshold reached and you will redirect to countdown page
 
-                //TODO: Set user id
-                bbSideEngine.setUserId(getRandomNumberString())
-                //TODO: Set rider name
-                bbSideEngine.setRiderName(viewBinding.etvUserName.text.toString().trim())
+                //Threshold reached and you will redirect to countdown page
 
                 if (status) {
                     try {
+                        //TODO: Set user id
+                        bbSideEngine.setUserId(getRandomNumberString())
+                        //TODO: Set rider name
+                        bbSideEngine.setRiderName(viewBinding.etvUserName.text.toString().trim())
                         //Return incident status and confidence level, you can fetch confidence using the below code:
                         mConfidence = response!!.getString("confidence")
                         if (!mConfidence.equals("")) {
