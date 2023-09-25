@@ -10,9 +10,6 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -25,7 +22,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.sos.busbysideengine.BBSideEngine;
@@ -172,7 +168,6 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
                         dialog.getBehavior().setPeekHeight(screenHeight);
                         dialog.show();
 
-                        bbSideEngine.startSideEngine(CustomThemeActivity.this);
                     }
 
                     tvConfidence.setText("");
@@ -331,36 +326,22 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
         Notification.Builder builder;
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel =
-                    new NotificationChannel(channelId, "Incident Detected", NotificationManager.IMPORTANCE_HIGH);
-            notificationChannel.setLightColor(Color.BLUE);
-            notificationChannel.enableVibration(true);
-            notificationManager.createNotificationChannel(notificationChannel);
-            builder = new Notification
-                    .Builder(this, channelId)
-                    .setContentTitle(this.getString(R.string.app_name))
-                    .setContentText("Incident Detect")
-                    .setSmallIcon(R.mipmap.ic_launcher_round)
-                    .setLargeIcon(BitmapFactory.decodeResource(getResources(),
-                            R.mipmap.ic_launcher_round
-                    ))
-                    .setContentIntent(pendingIntent);
+        NotificationChannel notificationChannel =
+                new NotificationChannel(channelId, "Incident Detected", NotificationManager.IMPORTANCE_HIGH);
+        notificationChannel.setLightColor(Color.BLUE);
+        notificationChannel.enableVibration(true);
+        notificationManager.createNotificationChannel(notificationChannel);
+        builder = new Notification
+                .Builder(this, channelId)
+                .setContentTitle(this.getString(R.string.app_name))
+                .setContentText("Incident Detect")
+                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(),
+                        R.mipmap.ic_launcher_round
+                ))
+                .setContentIntent(pendingIntent);
 
-            notificationManager.notify((int) randomNumber, builder.build());
-        } else {
-            Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            NotificationCompat.Builder builderLower = new NotificationCompat.Builder(this,channelId)
-                    .setContentTitle(this.getString(R.string.app_name))
-                    .setContentText("Incident Detect")
-                    .setAutoCancel(true)
-                    .setSound(defaultSoundUri)
-                    .setSmallIcon(com.sos.busbysideengine.R.drawable.ic_notification)
-                    .setContentIntent(pendingIntent)
-                    .setStyle(new NotificationCompat.BigTextStyle().setBigContentTitle(this.getString(R.string.app_name)).bigText("Incident Detect")
-                    );
-            notificationManager.notify((int) randomNumber, builderLower.build());
-        }
+        notificationManager.notify((int) randomNumber, builder.build());
     }
 
 

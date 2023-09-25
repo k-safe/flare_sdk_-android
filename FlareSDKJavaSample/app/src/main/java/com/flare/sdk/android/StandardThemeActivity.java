@@ -3,9 +3,7 @@ package com.flare.sdk.android;
 import static com.sos.busbysideengine.Constants.BBTheme.STANDARD;
 import static com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -18,15 +16,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.sos.busbysideengine.BBSideEngine;
 import com.sos.busbysideengine.Constants;
 import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener;
-import com.sos.busbysideengine.utils.ContactClass;
 
 import org.json.JSONException;
 import org.json.JSONObject;

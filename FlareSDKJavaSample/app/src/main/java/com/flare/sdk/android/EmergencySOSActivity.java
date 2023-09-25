@@ -77,9 +77,7 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
 
     @SuppressLint("HardwareIds")
     private void setListener() {
-        ivCloseMain.setOnClickListener(View -> {
-            finish();
-        });
+        ivCloseMain.setOnClickListener(View -> finish());
 
         btnSos.setOnClickListener(View -> {
             if (checkConfiguration) {
