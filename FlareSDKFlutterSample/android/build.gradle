@@ -16,6 +16,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+
         def decodedBytes = Base64.getDecoder().decode(userToken)
         def decryptedToken = new String(decodedBytes, "UTF-8")
         maven {
@@ -23,7 +24,7 @@ allprojects {
             url = uri("https://maven.pkg.github.com/k-safe/busbysdk_android")
             credentials {
                 username = userName
-                password = decryptedToken.replace("@@@","")
+                password = decryptedToken.replace(secretToken,"")
             }
         }
     }
