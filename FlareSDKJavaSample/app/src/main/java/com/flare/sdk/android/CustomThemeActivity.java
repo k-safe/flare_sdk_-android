@@ -239,6 +239,7 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
                 if (bbSideEngine.isEngineStarted()) {
                     btnStart.setText(getString(R.string.stop));
                 } else {
+                    isResumeActivity = false;
                     btnStart.setText(getString(R.string.start));
                     btnPauseResume.setVisibility(View.GONE);
                 }
