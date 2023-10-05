@@ -195,6 +195,7 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 if (bbSideEngine.isEngineStarted) {
                     viewBinding.btnStart.text = getString (R.string.stop)
                 } else {
+                    isResumeActivity = false
                     viewBinding.btnStart.text =getString(R.string.start)
                     viewBinding.btnPauseResume.visibility = View.GONE
                 }
