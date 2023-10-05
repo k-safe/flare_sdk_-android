@@ -28,6 +28,7 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
 
     private var btnTestClicked = false
     private var checkConfiguration = false
+    private var isResumeActivity = false
     private var mConfidence : String? = null
     companion object {
         fun getRandomNumberString (): String {
@@ -101,6 +102,17 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
         viewBinding.ivCloseMain.setOnClickListener{
             finish()
         }
+        viewBinding.btnPauseResume.setOnClickListener {
+            if (bbSideEngine.isEngineStarted) {
+                if (isResumeActivity) {
+                    viewBinding.btnPauseResume.text = getString (R.string.pause)
+                    bbSideEngine.resumeSideEngine();
+                } else {
+                    viewBinding.btnPauseResume.text = getString (R.string.resume)
+                    bbSideEngine.pauseSideEngine();
+                }
+            }
+        }
 
         viewBinding.btnStart.setOnClickListener {
             if (checkConfiguration) {
@@ -171,8 +183,11 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 viewBinding.mConfidence.text =""
                 if (bbSideEngine.isEngineStarted) {
                     viewBinding.btnStart.text = getString (R.string.stop)
+                    viewBinding.btnPauseResume.visibility = View.VISIBLE
+                    viewBinding.btnPauseResume.text = getString (R.string.pause)
                 } else {
                     viewBinding.btnStart.text =getString(R.string.start)
+                    viewBinding.btnPauseResume.visibility = View.GONE
                 }
             }
             BBSideOperation.STOP -> {
@@ -181,6 +196,7 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
                     viewBinding.btnStart.text = getString (R.string.stop)
                 } else {
                     viewBinding.btnStart.text =getString(R.string.start)
+                    viewBinding.btnPauseResume.visibility = View.GONE
                 }
                 //Please update the user interface (UI) in this section to reflect the cessation of the side engine (e.g., amend the colour or text of the STOP button accordingly).
             }
@@ -219,7 +235,15 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 //This message is intended solely to provide notification regarding the transmission status of alerts. It is unnecessary to invoke any SIDE engine functions in this context.
             }
             BBSideOperation.RESUME_SIDE_ENGINE ->{
+                if(isResumeActivity){
+                    isResumeActivity = false
+                    viewBinding.btnPauseResume.text = getString (R.string.pause)
+                }
                 //The lateral engine has been restarted, and we are currently monitoring the device's sensors and location in order to analyse another potential incident. There is no requirement to invoke any functions from either party in this context, as the engine on the side will handle the task automatically.
+            }
+            BBSideOperation.PAUSE_SIDE_ENGINE ->{
+                isResumeActivity = true
+                viewBinding.btnPauseResume.text = getString (R.string.resume)
             }
             BBSideOperation.TIMER_STARTED -> {
                 //A 30-second countdown timer has started, and the SIDE engine is waiting for a response from the user or an automatic cancellation event. If no events are received within the 30-second intervals of the timer, the SIDE engine will log the incident on the dashboard.

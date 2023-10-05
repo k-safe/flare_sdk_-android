@@ -44,6 +44,7 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
 
     private var checkConfiguration = false
     private var mConfidence : String? = null
+    private var isResumeActivity = false
 
     companion object {
         fun getRandomNumberString (): String {
@@ -60,7 +61,6 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
         init()
         setupEngine()
         setListener()
-        ForegroundService.startService(this, "Flare SDK Sample")
     }
 
     private fun init() {
@@ -109,6 +109,17 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
             finish()
         }
 
+        viewBinding.btnPauseResume.setOnClickListener {
+            if (bbSideEngine.isEngineStarted) {
+                if (isResumeActivity) {
+                    viewBinding.btnPauseResume.text = getString (R.string.pause)
+                    bbSideEngine.resumeSideEngine();
+                } else {
+                    viewBinding.btnPauseResume.text = getString (R.string.resume)
+                    bbSideEngine.pauseSideEngine();
+                }
+            }
+        }
         viewBinding.btnStart.setOnClickListener {
             if (checkConfiguration) {
                 bbSideEngine.setUserEmail(viewBinding.etvUserEmail.text.toString().trim())
@@ -197,9 +208,14 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
             }
             BBSideOperation.START -> {
                 if (bbSideEngine.isEngineStarted) {
+                    ForegroundService.startService(this, "Flare SDK Sample")
                     viewBinding.btnStart.text = getString(R.string.stop)
+                    viewBinding.btnPauseResume.visibility = View.VISIBLE
+                    viewBinding.btnPauseResume.text = getString (R.string.pause)
                 } else {
                     viewBinding.btnStart.text = getString(R.string.start)
+                    ForegroundService.stopService(this);
+                    viewBinding.btnPauseResume.visibility = View.GONE
                 }
                 //Please update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.
             }
@@ -207,7 +223,10 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 if (bbSideEngine.isEngineStarted) {
                     viewBinding.btnStart.text = getString(R.string.stop)
                 } else {
+                    ForegroundService.stopService(this);
                     viewBinding.btnStart.text = getString(R.string.start)
+                    isResumeActivity = false
+                    viewBinding.btnPauseResume.visibility = View.GONE
                 }
                 //Please update the user interface (UI) in this section to reflect the cessation of the side engine (e.g., amend the colour or text of the STOP button accordingly).
             }
@@ -286,7 +305,18 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener {
                 //This message is intended solely to provide notification regarding the transmission status of alerts. It is unnecessary to invoke any SIDE engine functions in this context.
             }
             BBSideOperation.RESUME_SIDE_ENGINE ->{
-                //The lateral engine has been restarted, and we are currently monitoring the device's sensors and location in order to analyse another potential incident.
+                if(isResumeActivity){
+                    isResumeActivity = false
+                    viewBinding.btnPauseResume.text = getString (R.string.pause)
+                    ForegroundService.startService(this, "Flare SDK Sample")
+                }
+                //The lateral engine has been restarted, and we are currently monitoring the device's sensors and location in order to analyse another potential incident. There is no requirement to invoke any functions from either party in this context, as the engine on the side will handle the task automatically.
+            }
+            BBSideOperation.PAUSE_SIDE_ENGINE ->{
+                isResumeActivity = true
+                viewBinding.btnPauseResume.text = getString (R.string.resume)
+                ForegroundService.stopService(this);
+                //The lateral engine has been restarted, and we are currently monitoring the device's sensors and location in order to analyse another potential incident. There is no requirement to invoke any functions from either party in this context, as the engine on the side will handle the task automatically.
             }
             BBSideOperation.SMS -> {
                 //This message is intended solely to provide notification regarding the transmission status of SMS. It is unnecessary to invoke any SIDE engine functions in this context.

@@ -40,7 +40,7 @@ import java.util.Random;
 public class CustomThemeActivity extends AppCompatActivity implements BBSideEngineListener {
     BBSideEngine bbSideEngine;
 
-    Button btnStart;
+    Button btnStart, btnPauseResume;
     EditText etvUserName, etvCountryCode, etvMobileNumber, etvUserEmail;
 
     TextView tvConfidence, tvThemeName;
@@ -49,6 +49,7 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
     private ProgressBar progressBar;
 
     boolean checkConfiguration = false;
+    boolean isResumeActivity = false;
     String mConfidence;
 
     private String mode = ENVIRONMENT_PRODUCTION;
@@ -70,6 +71,7 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
 
         tvThemeName = findViewById(R.id.tvThemeName);
         btnStart = findViewById(R.id.btnStart);
+        btnPauseResume = findViewById(R.id.btnPauseResume);
 
         etvCountryCode = findViewById(R.id.etvCountryCode);
         etvMobileNumber = findViewById(R.id.etvMobileNumber);
@@ -105,7 +107,6 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
 //        bbSideEngine.setHighFrequencyIntervalsSeconds(3); //Default is 3 seconds, you can update this for your requirements, this will be used only when "high_frequency_mode_enabled" = true
 //        bbSideEngine.setHighFrequencyModeEnabled(false); //Recommendation to enable high frequency mode when SOS is active, this will help us to batter live tracking experience.
 
-        bbSideEngine.enableActivityTelemetry(false);
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
         bbSideEngine.setStickyEnable(true);
         bbSideEngine.activateIncidentTestMode(true); //This is only used in sandbox mode and is TRUE by default. This is why you should test your workflow in sandbox mode. You can change it to FALSE if you want to experience real-life incident detection
@@ -122,7 +123,17 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
         ivCloseMain.setOnClickListener(
                 v -> finish()
         );
-
+        btnPauseResume.setOnClickListener(v ->{
+            if (bbSideEngine.isEngineStarted()) {
+                if (isResumeActivity) {
+                    btnPauseResume.setText(getString(R.string.pause));
+                    bbSideEngine.resumeSideEngine();
+                } else {
+                    btnPauseResume.setText(getString(R.string.resume));
+                    bbSideEngine.pauseSideEngine();
+                }
+            }
+        });
         btnStart.setOnClickListener(v -> {
             if (checkConfiguration) {
 
@@ -171,7 +182,7 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
                     }
 
                     tvConfidence.setText("");
-                    btnStart.setText(bbSideEngine.isEngineStarted() ? getString(R.string.stop) : getString(R.string.start));
+//                    btnStart.setText(bbSideEngine.isEngineStarted() ? getString(R.string.stop) : getString(R.string.start));
                 }
         });
 
@@ -213,12 +224,23 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
 
                 break;
             case START:
+                //*Please update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.*//
+                tvConfidence.setText("");
+                if (bbSideEngine.isEngineStarted()) {
+                    btnStart.setText(getString(R.string.stop));
+                    btnPauseResume.setVisibility(View.VISIBLE);
+                    btnPauseResume.setText(getString (R.string.pause));
+                } else {
+                    btnStart.setText(getString(R.string.start));
+                    btnPauseResume.setVisibility(View.GONE);
+                }
             case STOP:
 
                 if (bbSideEngine.isEngineStarted()) {
                     btnStart.setText(getString(R.string.stop));
                 } else {
                     btnStart.setText(getString(R.string.start));
+                    btnPauseResume.setVisibility(View.GONE);
                 }
                 //Please update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.
                 break;
@@ -302,6 +324,17 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
                 break;
             case INCIDENT_CANCEL:
                 //User canceled countdown countdown to get event here, this called only for if you configured standard theme.
+                break;
+            case RESUME_SIDE_ENGINE:
+                if(isResumeActivity){
+                    isResumeActivity = false;
+                    btnPauseResume.setText(getString (R.string.pause));
+                }
+                //The lateral engine has been restarted, and we are currently monitoring the device's sensors and location in order to analyse another potential incident. There is no requirement to invoke any functions from either party in this context, as the engine on the side will handle the task automatically.
+                break;
+            case PAUSE_SIDE_ENGINE:
+                isResumeActivity = true;
+                btnPauseResume.setText(getString (R.string.resume));
                 break;
             case TIMER_STARTED:
                 //Countdown timer started after breach delay, this called only if you configured standard theme.

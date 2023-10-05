@@ -3,6 +3,8 @@
     <string name="start" translatable="false">Start</string>
     <string name="btn_test_incident" translatable="false">Test Incident</string>
     <string name="stop" translatable="false">Stop</string>
+    <string name="pause" translatable="false">Pause</string>
+    <string name="resume" translatable="false">Resume</string>
     <string name="invalid_country_code">Please enter country code</string>
     <string name="invalid_mobile_number">"Please enter mobile number"</string>
     <string name="invalid_user_name">"Please enter user name"</string>

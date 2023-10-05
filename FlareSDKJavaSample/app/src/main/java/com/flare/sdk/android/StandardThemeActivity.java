@@ -34,13 +34,15 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
     private String mode = ENVIRONMENT_PRODUCTION;
     TextView tvConfidence, tvThemeName;
     ImageView ivCloseMain;
-    Button btnStart;
+    Button btnStart, btnPauseResume;
     EditText etvUserName, etvCountryCode, etvMobileNumber, etvUserEmail;
     ProgressBar progressBar;
 
     BBSideEngine bbSideEngine;
     boolean btnTestClicked = false;
     boolean checkConfiguration = false;
+    boolean isResumeActivity = false;
+
     String mConfidence = "";
     Intent intent;
 
@@ -60,6 +62,7 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
 
         tvThemeName = findViewById(R.id.tvThemeName);
         btnStart = findViewById(R.id.btnStart);
+        btnPauseResume = findViewById(R.id.btnPauseResume);
 
         etvCountryCode = findViewById(R.id.etvCountryCode);
         etvMobileNumber = findViewById(R.id.etvMobileNumber);
@@ -89,7 +92,6 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
 //        bbSideEngine.setLowFrequencyIntervalsSeconds(15); //The default value is 15 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(false) is invoked.
 //        bbSideEngine.setHighFrequencyIntervalsSeconds(3); //The default value is 3 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(true) is invoked.
 //        bbSideEngine.setHighFrequencyModeEnabled(false); //It is recommended to activate the high frequency mode when the SOS function is engaged in order to enhance the quality of the live tracking experience.
-        bbSideEngine.enableActivityTelemetry(true);
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
         bbSideEngine.setStickyEnable(true);
         bbSideEngine.activateIncidentTestMode(false); //This is only used in sandbox mode and is TRUE by default. This is why you should test your workflow in sandbox mode. You can change it to FALSE if you want to experience real-life incident detection
@@ -131,7 +133,17 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
         ivCloseMain.setOnClickListener(
                 v -> finish()
         );
-
+        btnPauseResume.setOnClickListener(v ->{
+            if (bbSideEngine.isEngineStarted()) {
+                if (isResumeActivity) {
+                    btnPauseResume.setText(getString(R.string.pause));
+                    bbSideEngine.resumeSideEngine();
+                } else {
+                    btnPauseResume.setText(getString(R.string.resume));
+                    bbSideEngine.pauseSideEngine();
+                }
+            }
+        });
         btnStart.setOnClickListener(v -> {
             if (checkConfiguration) {
                     bbSideEngine.setUserEmail(etvUserEmail.getText().toString().trim());
@@ -178,12 +190,9 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
                         int screenHeight = displayMetrics.heightPixels;
                         dialog.getBehavior().setPeekHeight(screenHeight);
                         dialog.show();
-
                     }
-
                 }
         });
-
     }
 
     public static String getRandomNumberString() {
@@ -207,6 +216,16 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
                 progressBar.setVisibility(View.GONE);
                 break;
             case START:
+                //*Please update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.*//
+                tvConfidence.setText("");
+                if (bbSideEngine.isEngineStarted()) {
+                    btnStart.setText(getString(R.string.stop));
+                    btnPauseResume.setVisibility(View.VISIBLE);
+                    btnPauseResume.setText(getString (R.string.pause));
+                } else {
+                    btnStart.setText(getString(R.string.start));
+                    btnPauseResume.setVisibility(View.GONE);
+                }
             case STOP:
                 //*Please update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.*//
                 tvConfidence.setText("");
@@ -214,6 +233,7 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
                     btnStart.setText(getString(R.string.stop));
                 } else {
                     btnStart.setText(getString(R.string.start));
+                    btnPauseResume.setVisibility(View.GONE);
                 }
                 break;
             case INCIDENT_DETECTED:
@@ -251,7 +271,15 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
                 //This message is intended solely to provide notification regarding the transmission status of alerts. It is unnecessary to invoke any SIDE engine functions in this context.
                 break;
             case RESUME_SIDE_ENGINE:
+                if(isResumeActivity){
+                    isResumeActivity = false;
+                    btnPauseResume.setText(getString (R.string.pause));
+                }
                 //The lateral engine has been restarted, and we are currently monitoring the device's sensors and location in order to analyse another potential incident. There is no requirement to invoke any functions from either party in this context, as the engine on the side will handle the task automatically.
+                break;
+            case PAUSE_SIDE_ENGINE:
+                isResumeActivity = true;
+                btnPauseResume.setText(getString (R.string.resume));
                 break;
             case TIMER_STARTED:
                 //A 30-second countdown timer has started, and the SIDE engine is waiting for a response from the user or an automatic cancellation event. If no events are received within the 30-second intervals of the timer, the SIDE engine will log the incident on the dashboard.
