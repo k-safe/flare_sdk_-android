@@ -19,3 +19,10 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class rx.** {*;}
+-keep class retrofit2.** {*;}
+-keep class okhttp3.** {*;}
+-keep class okhttp3.OkHttpClient.** {*;}
+-keep class com.sos.** {*;}
+-keep class androidx.appcompat.** {*;}
