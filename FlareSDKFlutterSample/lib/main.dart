@@ -17,8 +17,8 @@ TextEditingController cCode = TextEditingController();
 TextEditingController cMobile = TextEditingController();
 TextEditingController cUserName = TextEditingController();
 String selectedMode = Constants.ENVIRONMENT_SANDBOX;
-String productionLicense = "Your production license key here";
-String sandboxLicense = "Your sandbox license key here";
+String productionLicense = "your production key";
+String sandboxLicense = "your sandbox key";
 
 
 class MyApp extends StatelessWidget {
@@ -156,7 +156,8 @@ class HomePage extends StatelessWidget {
                               // callConfigure(context, true);
                               Navigator.pushNamed(context, '/EmergencySOSActivity',arguments: {
                                 "mode": Constants.ENVIRONMENT_PRODUCTION,
-                                "lic": productionLicense
+                                "lic":
+                                productionLicense
                               });
                             }, child: const Text('Emergency SOS'),
                           )
@@ -182,8 +183,9 @@ class HomePage extends StatelessWidget {
                             onPressed: () {
                               // callConfigure(context, true);
                               Navigator.pushNamed(context, '/FlareAwareActivity',arguments: {
-                                "mode": Constants.ENVIRONMENT_PRODUCTION,
-                                "lic": productionLicense
+                                "mode": selectedMode,
+                                "lic": (selectedMode == Constants.ENVIRONMENT_SANDBOX)
+                                    ? sandboxLicense : productionLicense
                               });
                             }, child: const Text('Enable Flare Aware'),
                           )

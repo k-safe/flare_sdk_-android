@@ -19,6 +19,7 @@ class StandardThemeActivity extends StatefulWidget {
 class _StandardThemeActivity extends State<StandardThemeActivity> with WidgetsBindingObserver  {
   static const channel = MethodChannel("com.sideml.flutersideml");
   bool pressStart = true;
+  bool isPauseActivity = false;
   String isConfigure = "";
   String mode = '';
   String lic = '';
@@ -44,6 +45,111 @@ class _StandardThemeActivity extends State<StandardThemeActivity> with WidgetsBi
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+  void _showActivityDialog(BuildContext context) {
+    if (pressStart) {
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            margin: EdgeInsets.only(top: 20.0, bottom: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Select Activity',
+                    style: TextStyle(
+                      color: Colors.black54,
+                      // Change the color to your desired color
+                      fontSize: 20,
+                      // Change the font size to your desired size
+                      fontWeight: FontWeight
+                          .bold, // Change the font weight to your desired style
+                      // You can add more style properties as needed
+                    )),
+                Divider(),
+                ListTile(
+                  // contentPadding:EdgeInsets.fromLTRB(0, 10, 0, 0),
+                  title: Center(
+                    child: Text('Bike',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          // Change the color to your desired color
+                          fontSize: 18,
+                          // Change the font size to your desired size
+                          fontWeight: FontWeight
+                              .bold, // Change the font weight to your desired style
+                          // You can add more style properties as needed
+                        )),
+                  ),
+                  onTap: () {
+                    callStartML(cUserName.text, cEmail.text, 'Bike');
+                    Navigator.pop(context);
+                  },
+                ),
+                Divider(),
+                ListTile(
+                  title: Center(
+                    child: Text('Scooter',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          // Change the color to your desired color
+                          fontSize: 18,
+                          // Change the font size to your desired size
+                          fontWeight: FontWeight
+                              .bold, // Change the font weight to your desired style
+                          // You can add more style properties as needed
+                        )),
+                  ),
+                  onTap: () {
+                    callStartML(cUserName.text, cEmail.text, 'Scooter');
+                    Navigator.pop(context);
+                  },
+                ),
+                Divider(),
+                ListTile(
+                  title: Center(
+                    child: Text('Cycling',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          // Change the color to your desired color
+                          fontSize: 18,
+                          // Change the font size to your desired size
+                          fontWeight: FontWeight
+                              .bold, // Change the font weight to your desired style
+                          // You can add more style properties as needed
+                        )),
+                  ),
+                  onTap: () {
+                    callStartML(cUserName.text, cEmail.text, 'Cycling');
+                    Navigator.pop(context);
+                  },
+                ),
+                Divider(),
+                ListTile(
+                  title: Center(
+                    child: Text('Cancel',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          // Change the color to your desired color
+                          fontSize: 20,
+                          // Change the font size to your desired size
+                          fontWeight: FontWeight
+                              .bold, // Change the font weight to your desired style
+                          // You can add more style properties as needed
+                        )),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    } else {
+      callStartML(cUserName.text, cEmail.text, 'Cycling');
+    }
   }
 
   @override
@@ -174,7 +280,9 @@ class _StandardThemeActivity extends State<StandardThemeActivity> with WidgetsBi
                                 if (isConfigure.isEmpty) {
                                   _showToast(context, "Please wait...");
                                 } else if (isConfigure == "true") {
-                                  callStartML(cUserName.text,cEmail.text);
+                                  // callStartML(cUserName.text,cEmail.text);
+                                  FocusScope.of(context).unfocus();
+                                  _showActivityDialog(context);
                                 } else if (isConfigure == "false") {
                                   _showToast(context,
                                       "Please enter valid license key");
@@ -183,6 +291,36 @@ class _StandardThemeActivity extends State<StandardThemeActivity> with WidgetsBi
                               child:pressStart? const Text('Start') : const Text('Stop'),
                             ),
                           )
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.all(10),
+                        child: Visibility(
+                            visible: !pressStart, // Replace with your condition
+                            child:SizedBox(
+                              width: 200.0,
+                              height: 50.0,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white, //background color of button
+                                  side: const BorderSide(width:2, color:Colors.redAccent), //border width and color
+                                  elevation: 3, //elevation of button
+                                  shape: RoundedRectangleBorder( //to set border radius to button
+                                      borderRadius: BorderRadius.circular(30)
+                                  ),
+                                  // padding: const EdgeInsets.fromLTRB(100,18,100,18), //content padding inside button
+                                  foregroundColor: Colors.black,
+                                ),
+                                onPressed: () {
+                                   if(!isPauseActivity){
+                                     pauseSideEngine();
+                                   }else{
+                                     resumeSideEngine();
+                                   }
+                                },
+                                child: !isPauseActivity? const Text('Pause') : const Text('Resume'),
+                              ),
+                            )
+                        )
                       )
                     ],
                   ),
@@ -202,11 +340,12 @@ class _StandardThemeActivity extends State<StandardThemeActivity> with WidgetsBi
     cEmail.clear();
   }
 
-  Future<void> callStartML(String userName,String email) async {
+  Future<void> callStartML(String userName,String email, String activityType) async {
     final LinkedHashMap<Object?,Object?> result = await channel.invokeMethod("startSideML",<String,Object>{
       "userName": userName,
       "email": email,
-      "isStarted": pressStart
+      "isStarted": pressStart,
+      "activityType": activityType
     });
     if (kDebugMode) {
       print(result.entries.first.value);
@@ -219,6 +358,7 @@ class _StandardThemeActivity extends State<StandardThemeActivity> with WidgetsBi
         result[key] == true && pressStart) {
       setState(() {
         pressStart = false;
+        isPauseActivity = false;
       });
     }else{
       setState(() {
@@ -236,6 +376,32 @@ class _StandardThemeActivity extends State<StandardThemeActivity> with WidgetsBi
     });
     if (kDebugMode) {
       print('stopEngine: ${result["type"]}');
+    }
+  }
+  Future<void> pauseSideEngine() async {
+    final LinkedHashMap<Object?, Object?> result =
+    await channel.invokeMethod("pauseSideEngine");
+    if (kDebugMode) {
+      print('pauseSideEngine: ${result["isPauseActivity"]}');
+    }
+    if (result["isPauseActivity"] != null &&
+        result["isPauseActivity"] == true) {
+      setState(() {
+        isPauseActivity = true;
+      });
+    }
+  }
+  Future<void> resumeSideEngine() async {
+    final LinkedHashMap<Object?, Object?> result =
+    await channel.invokeMethod("resumeSideEngine");
+    if (kDebugMode) {
+      print('pauseSideEngine: ${result["isPauseActivity"]}');
+    }
+    if (result["isPauseActivity"] != null &&
+        result["isPauseActivity"] == false) {
+      setState(() {
+        isPauseActivity = false;
+      });
     }
   }
 

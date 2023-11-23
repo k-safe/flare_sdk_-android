@@ -32,6 +32,8 @@ import static com.sos.busbysideengine.Constants.BBSideOperation.CONFIGURE;
 import static com.sos.busbysideengine.Constants.BBSideOperation.INCIDENT_ALERT_SENT;
 import static com.sos.busbysideengine.Constants.BBSideOperation.INCIDENT_AUTO_CANCEL;
 import static com.sos.busbysideengine.Constants.BBSideOperation.INCIDENT_DETECTED;
+import static com.sos.busbysideengine.Constants.BBSideOperation.PAUSE_SIDE_ENGINE;
+import static com.sos.busbysideengine.Constants.BBSideOperation.RESUME_SIDE_ENGINE;
 import static com.sos.busbysideengine.Constants.BBSideOperation.SOS_ACTIVATE;
 import static com.sos.busbysideengine.Constants.BBSideOperation.SOS_DEACTIVATE;
 import static com.sos.busbysideengine.Constants.BBSideOperation.START_FLARE_AWARE;
@@ -49,6 +51,8 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
     private MethodChannel.Result methodChannelResultFlareAware;
     private MethodChannel.Result methodChannelResultAutoCancel;
     private MethodChannel.Result methodChannelResultIncidentAlerts;
+    private MethodChannel.Result methodChannelResultPauseSideEngine;
+    private MethodChannel.Result methodChannelResultResumeSideEngine;
     BBSideEngine bbSideEngine;
     String email = null;
     String userName = null;
@@ -64,6 +68,7 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
         bbSideEngine.setBBSideEngineListener(MainActivity.this);
         bbSideEngine.enableActivityTelemetry(true);
         bbSideEngine.setStickyEnable(true);
+        bbSideEngine.activateIncidentTestMode(true);
         email = null;
         userName = null;
         //Custom Notification
@@ -207,6 +212,29 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
             } catch (Exception e) {
                 Log.e("Error: ", e.toString());
             }
+        }else if (type == PAUSE_SIDE_ENGINE) {
+            Map<String,Object> objects = new HashMap<>();
+            objects.put("isPauseActivity",true);
+            try {
+                if(methodChannelResultPauseSideEngine != null){
+                    methodChannelResultPauseSideEngine.success(objects);
+                }
+            } catch (Exception e) {
+                Log.e("Error: ", e.toString());
+            }
+        }else if (type == RESUME_SIDE_ENGINE) {
+            Log.e("RESUME_SIDE_ENGINE: ", "RESUME_SIDE_ENGINE");
+            Log.e("RESUME_SIDE_ENGINE: ", (methodChannelResultResumeSideEngine != null) +"");
+            Map<String,Object> objects = new HashMap<>();
+            objects.put("isPauseActivity",false);
+            Log.e("RESUME_SIDE_ENGINE: ", objects.get("isPauseActivity") +"");
+            try {
+                if(methodChannelResultResumeSideEngine != null){
+                    methodChannelResultResumeSideEngine.success(objects);
+                }
+            } catch (Exception e) {
+                Log.e("Error: ", e.toString());
+            }
         }
     }
 
@@ -308,6 +336,7 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                         bbSideEngine.notifyPartner();
 
                     }else if(call.method.contentEquals("resumeSideEngine")){
+                        methodChannelResultResumeSideEngine = result;
                         bbSideEngine.resumeSideEngine();
                     }else if(call.method.contentEquals("openSurveyUrl")){
                         bbSideEngine.startSurveyVideoActivity();
@@ -378,6 +407,9 @@ public class MainActivity extends FlutterActivity implements BBSideEngineListene
                         }
                     }else if(call.method.contentEquals("autoCancel")){
                         methodChannelResultAutoCancel = result;
+                    }else if(call.method.contentEquals("pauseSideEngine")){
+                        methodChannelResultPauseSideEngine = result;
+                        bbSideEngine.pauseSideEngine();
                     }else if(call.method.contentEquals("startFlareAwareML")){
                         methodChannelResultFlareAware = result;
                         Map<String,Object> param = call.arguments();

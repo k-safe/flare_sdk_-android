@@ -65,8 +65,7 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
-            minifyEnabled false
-            shrinkResources false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
@@ -74,13 +73,12 @@ android {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.release
             minifyEnabled true
-            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
     dependencies {
-        implementation 'com.k-safe:sideengine:4.2.4'
+        implementation 'com.k-safe:sideengine:4.3.0'
 
         configurations.all {
             resolutionStrategy { force 'androidx.core:core-ktx:1.6.0' }
