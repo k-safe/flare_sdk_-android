@@ -8,6 +8,8 @@
     <color name="black">#FF000000</color>
     <color name="green_221">#00DD01</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="grey">#808080</color>
+    <color name="lightPink1">#F07368</color>
 
     <!-- Custom notification colors for side engine-->
 <!--    <color name="notification_title_text_color" tools:ignore="MissingDefaultResource">#FFFFFFFF</color>-->

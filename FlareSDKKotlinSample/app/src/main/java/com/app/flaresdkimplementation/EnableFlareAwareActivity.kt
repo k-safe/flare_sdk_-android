@@ -17,7 +17,7 @@ import com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION
 import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener
 import org.json.JSONObject
 
-class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener  {
+class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
 
     private val viewBinding: ActivityFlareawareBinding by lazy {
         ActivityFlareawareBinding.inflate(layoutInflater)
@@ -31,16 +31,12 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener  {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
 
-        init();
-        setListener()
-    }
-
-    private fun init() {
         val intent = intent
         mode = intent.getStringExtra("mode")
 
         //"Your production license key here"
         val lic = intent.getStringExtra("lic")
+        val secretKey = intent.getStringExtra("secretKey")
 
         bbSideEngine = BBSideEngine.getInstance()
         bbSideEngine.showLogs(true)
@@ -51,12 +47,14 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener  {
         bbSideEngine.setLowFrequencyIntervalsSeconds(15) //The default value is 15 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(false) is invoked.
         bbSideEngine.setHighFrequencyIntervalsSeconds(3) //The default value is 3 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(true) is invoked.
 
-        bbSideEngine.configure(this,
+        bbSideEngine.configure(
+            this,
             lic,
+            secretKey,
             mode,
             Constants.BBTheme.STANDARD
         )
-
+        setListener()
     }
 
     @SuppressLint("HardwareIds")
@@ -105,8 +103,6 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener  {
             Handler(Looper.getMainLooper()).postDelayed({
                 bbSideEngine.startFlareAware()
             },2000)
-        } else if (requestCode == 1) {
-//            viewBinding.btnStart.text = getString(R.string.start)
         }
     }
 
@@ -117,7 +113,7 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener  {
     ) {
         when (type) {
             Constants.BBSideOperation.CONFIGURE -> {
-                //*You now have the capability to call star Flare Aware funcation at any time. In the event that a user input button is unavailable, you may start the Flare Aware using the function provided below.:*//
+                //*You now have the capability to call star Flare Aware function at any time. In the event that a user input button is unavailable, you may start the Flare Aware using the function provided below.:*//
                 checkConfiguration = status
                 Log.e("Configured", status.toString())
                 viewBinding.progressBar.visibility = View.GONE
@@ -126,8 +122,7 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener  {
                 //*The Flare Aware function has been activated. You may now proceed to update your user interface.*//
                 if (response != null) {
                     try {
-                        val error = response.getString("Error")
-                        Log.e("flareAware error", error)
+                        response.getString("Error")
                     } catch (e: Exception) {
                         Log.e("Error: ", e.stackTraceToString())
                     }
