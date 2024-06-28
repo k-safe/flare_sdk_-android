@@ -56,7 +56,6 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener,
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
         bbSideEngine.setStickyEnable(true)
         bbSideEngine.activateIncidentTestMode(true) //This is only used in sandbox mode and is TRUE by default. This is why you should test your workflow in sandbox mode. You can change it to FALSE if you want to experience real-life incident detection
-        bbSideEngine.setActivityType("Horse Riding")
 //        bbSideEngine.setAppName("Flare SDK Sample")
 
         //"Your production license key here" or "Your sandbox license key here"
@@ -288,7 +287,6 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener,
     }
 
     override fun onActivitySelected(activityType: String) {
-        bbSideEngine.setActivityType(activityType)
-        bbSideEngine.startSideEngine(this)
+        bbSideEngine.startSideEngine(this, activityType)
     }
 }

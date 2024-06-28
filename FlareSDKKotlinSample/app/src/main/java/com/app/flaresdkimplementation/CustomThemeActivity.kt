@@ -367,7 +367,6 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener,
 
     override fun onActivitySelected(activityType: String) {
         bbSideEngine.setRiderName(viewBinding.etvUserName.text.toString().trim())
-        bbSideEngine.setActivityType(activityType)
-        bbSideEngine.startSideEngine(this)
+        bbSideEngine.startSideEngine(this, activityType)
     }
 }
