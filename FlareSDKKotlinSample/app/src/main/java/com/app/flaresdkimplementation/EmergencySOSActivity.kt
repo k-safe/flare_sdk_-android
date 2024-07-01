@@ -57,7 +57,7 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
 
             if (checkConfiguration) {
                 if (viewBinding.btnSos.text == "Deactivate SOS") {
-                    bbSideEngine.deActiveSOS()
+                    bbSideEngine.stopSOS()
                 } else {
 
                         val deviceId = Settings.Secure.getString(
@@ -67,7 +67,7 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
                         bbSideEngine.setUserId(deviceId)
                         bbSideEngine.setUserEmail(viewBinding.etvUserEmail.text.toString().trim())
                         bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
-                        bbSideEngine.activeSOS()
+                        bbSideEngine.startSOS()
                 }
             }
         }
