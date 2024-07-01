@@ -20,7 +20,6 @@ class MainActivity : AppCompatActivity() {
     private var sandboxLicense = ""
     private val secretKey = ""
 
-
     private var mode = Constants.ENVIRONMENT_PRODUCTION
     private var postNotificationCode = 1221
 

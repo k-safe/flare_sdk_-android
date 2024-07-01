@@ -31,7 +31,7 @@
     <string name="stop_flare_aware">STOP Flare Aware</string>
     <string name="production_mode">Production mode</string>
     <string name="sandbox_mode">Sandbox mode</string>
-    <string name="mapKey">Add Map Key here</string>
+    <string name="mapKey">Enter map key</string>
     <string name="deactivate_sos">Deactivate SOS</string>
     <string name="activate_sos">Activate SOS</string>
 
