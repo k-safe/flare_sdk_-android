@@ -20,14 +20,9 @@ import com.flaresafety.sideengine.utils.Common
 class MainActivity : AppCompatActivity() {
 
     // Production Mode
-    private var productionLicense = "4afb485e-a181-4ce7-98f6-38cfe1afc748"
-    private var sandboxLicense = "b6dd8509-d50e-48cc-af9e-ce9dcd712132"
-    private val secretKey = "EN7nPbKOc57COfYaPy66j8bXhlvOkrcX87c7mC76"
-
-    // Sandbox Mode
-//    private var productionLicense = "3b08975d-de34-4850-99e7-997381d8682b"
-//    private val sandboxLicense = "804ff31c-a9e5-404e-8d8c-5b7a1c2589e9"
-//    private var secretKey = "LxbtMfP2My9VXiGWeuvwmaWpkaaWHZ8G415eRvUR"
+    private var productionLicense = ""
+    private var sandboxLicense = ""
+    private val secretKey = ""
 
     private var mode = Constants.ENVIRONMENT_SANDBOX
     private var postNotificationCode = 1221
