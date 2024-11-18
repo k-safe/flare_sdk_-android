@@ -1,11 +1,14 @@
 package com.app.flaresdkimplementation
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
@@ -34,6 +37,7 @@ class ForegroundService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
         //do heavy work on a background thread
         val input = intent?.getStringExtra("inputExtra")
         createNotificationChannel()
@@ -50,7 +54,22 @@ class ForegroundService : Service() {
             .setSmallIcon(R.drawable.ic_notification)
             .setContentIntent(pendingIntent)
             .build()
-        startForeground(1, notification)
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                == PackageManager.PERMISSION_GRANTED) {
+                startForeground(1, notification, FOREGROUND_SERVICE_TYPE_MICROPHONE)
+            } else {
+                startForeground(1, notification)
+            }
+
+        } else {
+            startForeground(1, notification)
+        }
+
+
         //stopSelf();
         return START_STICKY
     }

@@ -1,14 +1,13 @@
 package com.app.flaresdkimplementation.bottomsheets
 
-
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import com.app.flaresdkimplementation.R
 import com.app.flaresdkimplementation.interfaces.OnBottomSheetDismissListener
+import com.app.flaresdkimplementation.R
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class SelectActivityBottomSheet: BottomSheetDialogFragment() {

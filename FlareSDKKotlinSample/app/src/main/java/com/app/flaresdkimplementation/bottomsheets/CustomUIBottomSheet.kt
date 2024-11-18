@@ -10,10 +10,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.app.flaresdkimplementation.R;
+import com.app.flaresdkimplementation.R
 import com.app.flaresdkimplementation.interfaces.OnBottomSheetDismissListener
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.sos.busbysideengine.BBSideEngine
+import com.flaresafety.sideengine.BBSideEngine
 
 class CustomUIBottomSheet : BottomSheetDialogFragment() {
 

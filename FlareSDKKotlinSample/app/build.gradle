@@ -7,7 +7,7 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.flare.sdk.android"
+        applicationId "com.app.flaresdkimplementation"
         minSdk 21
         targetSdk 33
         versionCode 1
@@ -28,7 +28,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.flaresafety:sideengine:4.3.4'
+    implementation 'com.flaresafety:sideengine:4.3.8'
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.2'

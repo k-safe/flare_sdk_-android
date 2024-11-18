@@ -8,10 +8,10 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.app.flaresdkimplementation.databinding.ActivitySosBinding
-import com.sos.busbysideengine.BBSideEngine
-import com.sos.busbysideengine.Constants
-import com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION
-import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener
+import com.flaresafety.sideengine.BBSideEngine
+import com.flaresafety.sideengine.Constants
+import com.flaresafety.sideengine.Constants.ENVIRONMENT_PRODUCTION
+import com.flaresafety.sideengine.rxjavaretrofit.network.model.BBSideEngineListener
 import org.json.JSONObject
 
 class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
@@ -32,18 +32,21 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
         //"Your production license key here"
         val lic = intent.getStringExtra("lic")
         val secretKey = intent.getStringExtra("secretKey")
+        val region = intent.getStringExtra("region")
 
         bbSideEngine = BBSideEngine.getInstance()
         bbSideEngine.showLogs(true)
         bbSideEngine.setBBSideEngineListener(this)
         bbSideEngine.enableActivityTelemetry(true)
+        bbSideEngine.setHazardFeatureEnabled(false) //The default hazard feature is enabled ( deafult value is true ), which can be adjusted to meet specific requirements. You can turn off by passing bbSideEngine.setHazardFeatureEnabled(false).
 
         bbSideEngine.configure(
             this,
             lic,
             secretKey,
             ENVIRONMENT_PRODUCTION,
-            Constants.BBTheme.STANDARD
+            Constants.BBTheme.STANDARD,
+            region
         )
         setListener()
     }
@@ -56,7 +59,7 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
         viewBinding.btnSos.setOnClickListener {
 
             if (checkConfiguration) {
-                if (viewBinding.btnSos.text == "Deactivate SOS") {
+                if (viewBinding.btnSos.text == getString(R.string.stop_sos)) {
                     bbSideEngine.stopSOS()
                 } else {
 
@@ -96,7 +99,7 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
                 if (response!!.has("sosLiveTrackingUrl")) {
                     sosLiveTrackingUrl = response.getString("sosLiveTrackingUrl")
                     viewBinding.btnSOSLinkShare.visibility = View.VISIBLE
-                    viewBinding.btnSos.text = getString(R.string.deactivate_sos)
+                    viewBinding.btnSos.text = getString(R.string.stop_sos)
                 } else if (response.has("Error")) {
                     // handle error here
                 }
@@ -104,7 +107,7 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
             Constants.BBSideOperation.STOP_SOS -> {
                 //Disabling the SOS function will cease the transmission of location data to the live tracking dashboard and free up system memory resources, thereby conserving battery and data consumption.
                 viewBinding.btnSOSLinkShare.visibility = View.GONE
-                viewBinding.btnSos.text = getString(R.string.activate_sos)
+                viewBinding.btnSos.text = getString(R.string.start_sos)
             }
             else -> {
                 Log.e("No Events Find", ":")

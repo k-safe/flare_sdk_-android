@@ -10,9 +10,9 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.sos.busbysideengine.BBSideEngine
-import com.sos.busbysideengine.IncidentTypeCallback
-import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineUIListener
+import com.flaresafety.sideengine.BBSideEngine
+import com.flaresafety.sideengine.IncidentTypeCallback
+import com.flaresafety.sideengine.rxjavaretrofit.network.model.BBSideEngineUIListener
 import org.json.JSONObject
 
 class MapActivity : AppCompatActivity(), BBSideEngineUIListener {

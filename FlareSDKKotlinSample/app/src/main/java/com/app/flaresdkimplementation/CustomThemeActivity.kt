@@ -19,11 +19,11 @@ import com.app.flaresdkimplementation.bottomsheets.CustomUIBottomSheet
 import com.app.flaresdkimplementation.bottomsheets.SelectActivityBottomSheet
 import com.app.flaresdkimplementation.databinding.ActivityThemeBinding
 import com.app.flaresdkimplementation.interfaces.OnBottomSheetDismissListener
-import com.sos.busbysideengine.BBSideEngine
-import com.sos.busbysideengine.Constants.*
-import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener
-import com.sos.busbysideengine.utils.Common
-import com.sos.busbysideengine.utils.ContactClass
+import com.flaresafety.sideengine.BBSideEngine
+import com.flaresafety.sideengine.Constants.*
+import com.flaresafety.sideengine.rxjavaretrofit.network.model.BBSideEngineListener
+import com.flaresafety.sideengine.utils.Common
+import com.flaresafety.sideengine.utils.ContactClass
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
@@ -65,6 +65,7 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener,
 //      bbSideEngine.setHighFrequencyIntervalsSeconds(3) //Default is 3 seconds, you can update this for your requirements, this will be used only when "high_frequency_mode_enabled" = true
 //      bbSideEngine.setHighFrequencyModeEnabled(false) //Recommendation to enable high frequency mode when SOS is active, this will help us to batter live tracking experience.
 //      bbSideEngine.setLocationNotificationTitle("Protection is active")
+        bbSideEngine.setHazardFeatureEnabled(false) //The default hazard feature is enabled ( default value is true ), which can be adjusted to meet specific requirements. You can turn off by passing bbSideEngine.setHazardFeatureEnabled(false).
 
         bbSideEngine.setStickyEnable(false)
         bbSideEngine.activateIncidentTestMode(true) //This is only used in sandbox mode and is TRUE by default. This is why you should test your workflow in sandbox mode. You can change it to FALSE if you want to experience real-life incident detection
@@ -73,6 +74,7 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener,
         //"Your production license key here" or "Your sandbox license key here"
         val lic = intent.getStringExtra("lic")
         val secretKey = intent.getStringExtra("secretKey")
+        val region = intent.getStringExtra("region")
 
         bbSideEngine.configure(
             this,
@@ -80,7 +82,7 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener,
             secretKey,
             mode,
             BBTheme.CUSTOM,
-            "GB"
+            region
         )
 
         //  Custom Notification
@@ -146,6 +148,8 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener,
                 }
             }
         }
+
+
     }
 
     private fun showActivityBottomSheet() {
@@ -338,7 +342,7 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener,
                     .setContentText("Incident Detected")
                     .setAutoCancel(true)
                     .setSound(defaultSoundUri)
-                    .setSmallIcon(com.sos.busbysideengine.R.drawable.ic_notification)
+                    .setSmallIcon(com.flaresafety.sideengine.R.drawable.ic_notification)
                     .setContentIntent(pendingIntent)
                     .setStyle(
                         NotificationCompat.BigTextStyle()

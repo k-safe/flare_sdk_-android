@@ -1,4 +1,4 @@
-package com.app.flaresdkimplementation;
+package com.app.flaresdkimplementation
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -8,10 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.app.flaresdkimplementation.bottomsheets.SelectActivityBottomSheet
 import com.app.flaresdkimplementation.databinding.ActivityThemeBinding
 import com.app.flaresdkimplementation.interfaces.OnBottomSheetDismissListener
-import com.sos.busbysideengine.BBSideEngine
-import com.sos.busbysideengine.Constants.*
-import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener
-import com.sos.busbysideengine.utils.ContactClass
+import com.flaresafety.sideengine.BBSideEngine
+import com.flaresafety.sideengine.Constants.*
+import com.flaresafety.sideengine.rxjavaretrofit.network.model.BBSideEngineListener
+import com.flaresafety.sideengine.utils.ContactClass
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
@@ -57,16 +57,20 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener,
         bbSideEngine.setStickyEnable(true)
         bbSideEngine.activateIncidentTestMode(true) //This is only used in sandbox mode and is TRUE by default. This is why you should test your workflow in sandbox mode. You can change it to FALSE if you want to experience real-life incident detection
 //        bbSideEngine.setAppName("Flare SDK Sample")
+        bbSideEngine.setHazardFeatureEnabled(false) //The default hazard feature is enabled ( default value is true ), which can be adjusted to meet specific requirements. You can turn off by passing bbSideEngine.setHazardFeatureEnabled(false).
 
         //"Your production license key here" or "Your sandbox license key here"
         val lic = intent.getStringExtra("lic")
         val secretKey = intent.getStringExtra("secretKey")
+        val region = intent.getStringExtra("region")
+
         bbSideEngine.configure(
             this@StandardThemeActivity,
             lic,
             secretKey,
             mode,
-            BBTheme.STANDARD
+            BBTheme.STANDARD,
+            region
         )
 
         // Custom Notification

@@ -53,19 +53,57 @@
             android:layout_marginEnd="30dp"
             android:checked="true"
             android:fontFamily="@font/avenir_black"
-            android:text="Production mode"
+            android:text="@string/production_mode"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="@dimen/text_20" />
+
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvRegionTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/avenir_black"
+                android:layout_alignParentStart="true"
+                android:text="@string/select_a_region"
+                android:textColor="@color/black"
+                android:textSize="@dimen/text_18" />
+
+            <Spinner
+                android:id="@+id/spinRegion"
+                android:layout_width="wrap_content"
+                android:layout_toEndOf="@+id/tvRegionTitle"
+                android:layout_marginStart="@dimen/dim_8"
+                android:entries="@array/region_list"
+                android:layout_height="wrap_content" />
+
+        </RelativeLayout>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchHazard"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="@dimen/dim_16"
+            android:textSize="@dimen/text_18"
+            android:layout_gravity="center"
+            android:textColor="@color/black"
+            app:switchPadding="@dimen/dim_12"
+            android:fontFamily="@font/avenir_black"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/hazard_feature" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="@dimen/dim_100"
             android:src="@drawable/logo"
             android:layout_marginTop="@dimen/dim_16"
             android:layout_gravity="center"
+            android:visibility="gone"
             android:layout_height="@dimen/dim_100"/>
-
-
 
     </LinearLayout>
 
@@ -73,6 +111,7 @@
         android:id="@+id/rlBottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dim_16"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -126,6 +165,20 @@
                 android:layout_marginBottom="20dp"
                 android:background="@drawable/btn_bg_corner"
                 android:text="@string/enable_flare_aware" />
+
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnHazards"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="30dp"
+                android:textAllCaps="false"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/btn_bg_corner"
+                android:text="@string/hazards" />
+
+
         </androidx.appcompat.widget.LinearLayoutCompat>
 
 

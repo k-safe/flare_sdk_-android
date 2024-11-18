@@ -23,11 +23,10 @@ import com.app.flaresdkimplementation.bottomsheets.CustomUIBottomSheet
 import com.app.flaresdkimplementation.bottomsheets.SelectActivityBottomSheet
 import com.app.flaresdkimplementation.databinding.SampleUiActivityThemeBinding
 import com.app.flaresdkimplementation.interfaces.OnBottomSheetDismissListener
-
-import com.sos.busbysideengine.BBSideEngine
-import com.sos.busbysideengine.Constants.*
-import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener
-import com.sos.busbysideengine.utils.Common
+import com.flaresafety.sideengine.BBSideEngine
+import com.flaresafety.sideengine.Constants.*
+import com.flaresafety.sideengine.rxjavaretrofit.network.model.BBSideEngineListener
+import com.flaresafety.sideengine.utils.Common
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
@@ -35,13 +34,11 @@ import java.util.*
 class SampleUIThemeActivity : AppCompatActivity(), BBSideEngineListener,
     OnBottomSheetDismissListener {
 
-    private var productionLicense = ""
-    private var sandboxLicense = ""
-    private val secretKey = ""
+    // Production Mode
+    private var productionLicense = "4afb485e-a181-4ce7-98f6-38cfe1afc748"
+    private var sandboxLicense = "b6dd8509-d50e-48cc-af9e-ce9dcd712132"
+    private val secretKey = "0CIyHjdB7HFeW22di09r87Vmb6ibPN82vrsHQTF2"
 
-    /*private var productionLicense = "8b53824f-ed7a-4829-860b-f6161c568fad"
-    private var sandboxLicense = "9518a8f7-a55f-41f4-9eaa-963bdb1fce5f"
-    private val secretKey = "LxbtMfP2My9VXiGWeuvwmaWpkaaWHZ8G415eRvUR"*/
     private var mode = ENVIRONMENT_PRODUCTION
 
     private lateinit var bbSideEngine: BBSideEngine
@@ -62,6 +59,7 @@ class SampleUIThemeActivity : AppCompatActivity(), BBSideEngineListener,
         bbSideEngine = BBSideEngine.getInstance()
         bbSideEngine.showLogs(true)
         bbSideEngine.setBBSideEngineListener(this)
+
 //      bbSideEngine.setEnableFlareAwareNetwork(true) //enableFlareAwareNetwork is a safety for cyclist to send notification for near by fleet users
 //      bbSideEngine.setDistanceFilterMeters(20) //You can switch distance filter to publish location in the live tracking url, this should be send location every 20 meters when timer intervals is reached.
 //      bbSideEngine.setLowFrequencyIntervalsSeconds(15) //Default is 15 sec, you can update this for your requirements, this will be used only when "high_frequency_mode_enabled" = false
@@ -121,13 +119,14 @@ class SampleUIThemeActivity : AppCompatActivity(), BBSideEngineListener,
                 // The switch is checked.
                 viewBinding.rbProduction.text = getString(R.string.production_mode)
                 mode = ENVIRONMENT_PRODUCTION
-                bbSideEngine.activateIncidentTestMode(false) //This is only used in sandbox mode and is TRUE by default. This is why you should test your workflow in sandbox mode. You can change it to FALSE if you want to experience real-life incident detection
+
 
             } else {
                 // The switch isn't checked.
                 viewBinding.rbSandBox.text = getString(R.string.sandbox_mode)
                 mode = ENVIRONMENT_SANDBOX
-                bbSideEngine.activateIncidentTestMode(true) //This is only used in sandbox mode and is TRUE by default. This is why you should test your workflow in sandbox mode. You can change it to FALSE if you want to experience real-life incident detection
+
+
             }
 
             if (checkConfiguration) {
@@ -200,12 +199,12 @@ class SampleUIThemeActivity : AppCompatActivity(), BBSideEngineListener,
                 if (bbSideEngine.isEngineStarted) {
                     ForegroundService.startService(this, "Flare SDK Sample")
                     viewBinding.btnStart.text = getString(R.string.stop)
-                  //  viewBinding.btnPauseResume.visibility = View.VISIBLE
-                    viewBinding.btnPauseResume.text = getString(R.string.pause)
+                //    viewBinding.btnPauseResume.visibility = View.VISIBLE
+                //    viewBinding.btnPauseResume.text = getString(R.string.pause)
                 } else {
                     viewBinding.btnStart.text = getString(R.string.start)
                     ForegroundService.stopService(this)
-                  //  viewBinding.btnPauseResume.visibility = View.GONE
+                   // viewBinding.btnPauseResume.visibility = View.GONE
                 }
                 //Please update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.
             }
@@ -243,7 +242,7 @@ class SampleUIThemeActivity : AppCompatActivity(), BBSideEngineListener,
                             }
                         }*/
 
-                        //TODO: If SDK is configured custom UI to open your screen here (MAKE SURE CONFIGURE SDK SELECTED CUSTOM THEME)
+                        // TODO: If SDK is configured custom UI to open your screen here (MAKE SURE CONFIGURE SDK SELECTED CUSTOM THEME)
                         if (mCustomTheme) {
 
                             if (Common.getInstance().isAppInBackground) {
@@ -269,7 +268,7 @@ class SampleUIThemeActivity : AppCompatActivity(), BBSideEngineListener,
             BBSideOperation.RESUME_SIDE_ENGINE -> {
                 if (isResumeActivity) {
                     isResumeActivity = false
-                    viewBinding.btnPauseResume.text = getString(R.string.pause)
+                  //  viewBinding.btnPauseResume.text = getString(R.string.pause)
                     ForegroundService.startService(this, "Flare SDK Sample")
                 }
                 //The lateral engine has been restarted, and we are currently monitoring the device's sensors and location in order to analyse another potential incident. There is no requirement to invoke any functions from either party in this context, as the engine on the side will handle the task automatically.
@@ -277,7 +276,7 @@ class SampleUIThemeActivity : AppCompatActivity(), BBSideEngineListener,
 
             BBSideOperation.PAUSE_SIDE_ENGINE -> {
                 isResumeActivity = true
-                viewBinding.btnPauseResume.text = getString(R.string.resume)
+              //  viewBinding.btnPauseResume.text = getString(R.string.resume)
                 ForegroundService.stopService(this)
                 //The lateral engine has been restarted, and we are currently monitoring the device's sensors and location in order to analyse another potential incident. There is no requirement to invoke any functions from either party in this context, as the engine on the side will handle the task automatically.
             }
@@ -338,7 +337,7 @@ class SampleUIThemeActivity : AppCompatActivity(), BBSideEngineListener,
                     .setContentText("Incident Detected")
                     .setAutoCancel(true)
                     .setSound(defaultSoundUri)
-                    .setSmallIcon(com.sos.busbysideengine.R.drawable.ic_notification)
+                    .setSmallIcon(com.flaresafety.sideengine.R.drawable.ic_notification)
                     .setContentIntent(pendingIntent)
                     .setStyle(
                         NotificationCompat.BigTextStyle()

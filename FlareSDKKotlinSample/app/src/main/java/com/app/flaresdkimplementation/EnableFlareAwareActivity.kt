@@ -11,10 +11,10 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.app.flaresdkimplementation.databinding.ActivityFlareawareBinding
-import com.sos.busbysideengine.BBSideEngine
-import com.sos.busbysideengine.Constants
-import com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION
-import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener
+import com.flaresafety.sideengine.BBSideEngine
+import com.flaresafety.sideengine.Constants
+import com.flaresafety.sideengine.Constants.ENVIRONMENT_PRODUCTION
+import com.flaresafety.sideengine.rxjavaretrofit.network.model.BBSideEngineListener
 import org.json.JSONObject
 
 class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
@@ -37,6 +37,7 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
         //"Your production license key here"
         val lic = intent.getStringExtra("lic")
         val secretKey = intent.getStringExtra("secretKey")
+        val region = intent.getStringExtra("region")
 
         bbSideEngine = BBSideEngine.getInstance()
         bbSideEngine.showLogs(true)
@@ -46,13 +47,15 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
         bbSideEngine.setDistanceFilterMeters(20) //It is possible to activate the distance filter in order to transmit location data in the live tracking URL. This will ensure that location updates are transmitted every 20 meters, once the timer interval has been reached.
         bbSideEngine.setLowFrequencyIntervalsSeconds(15) //The default value is 15 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(false) is invoked.
         bbSideEngine.setHighFrequencyIntervalsSeconds(3) //The default value is 3 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(true) is invoked.
+        bbSideEngine.setHazardFeatureEnabled(false) //The default hazard feature is enabled ( deafult value is true ), which can be adjusted to meet specific requirements. You can turn off by passing bbSideEngine.setHazardFeatureEnabled(false).
 
         bbSideEngine.configure(
             this,
             lic,
             secretKey,
             mode,
-            Constants.BBTheme.STANDARD
+            Constants.BBTheme.STANDARD,
+            region
         )
         setListener()
     }
