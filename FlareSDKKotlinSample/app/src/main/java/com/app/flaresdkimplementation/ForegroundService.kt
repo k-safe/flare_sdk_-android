@@ -55,20 +55,7 @@ class ForegroundService : Service() {
             .setContentIntent(pendingIntent)
             .build()
 
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-                == PackageManager.PERMISSION_GRANTED) {
-                startForeground(1, notification, FOREGROUND_SERVICE_TYPE_MICROPHONE)
-            } else {
-                startForeground(1, notification)
-            }
-
-        } else {
-            startForeground(1, notification)
-        }
-
+        startForeground(1, notification)
 
         //stopSelf();
         return START_STICKY
