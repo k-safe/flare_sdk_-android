@@ -17,9 +17,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.app.ActivityCompat;
 
-import com.sos.busbysideengine.BBSideEngine;
-import com.sos.busbysideengine.Constants;
-import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener;
+import com.flaresafety.sideengine.BBSideEngine;
+import com.flaresafety.sideengine.Constants;
+import com.flaresafety.sideengine.rxjavaretrofit.network.model.BBSideEngineListener;
 
 import org.json.JSONObject;
 
@@ -53,6 +53,8 @@ public class EnableFlareAwareActivity extends AppCompatActivity implements BBSid
         String mode = intent.getStringExtra("mode");
 
         String lic = intent.getStringExtra("lic");
+        String region = intent.getStringExtra("region");
+        String secretKey = intent.getStringExtra("secretKey");
 
         bbSideEngine = BBSideEngine.getInstance();
         bbSideEngine.showLogs(true);
@@ -65,8 +67,10 @@ public class EnableFlareAwareActivity extends AppCompatActivity implements BBSid
 
         bbSideEngine.configure(this,
                 lic,
+                secretKey,
                 mode,
-                Constants.BBTheme.STANDARD
+                Constants.BBTheme.STANDARD,
+                region
         );
     }
 

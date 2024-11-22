@@ -2,7 +2,8 @@ package com.flare.sdk.android;
 
 
 import static android.provider.Settings.Secure.ANDROID_ID;
-import static com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION;
+
+import static com.flaresafety.sideengine.Constants.ENVIRONMENT_PRODUCTION;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -21,9 +22,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.app.ActivityCompat;
 
-import com.sos.busbysideengine.BBSideEngine;
-import com.sos.busbysideengine.Constants;
-import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener;
+
+import com.flaresafety.sideengine.BBSideEngine;
+import com.flaresafety.sideengine.Constants;
+import com.flaresafety.sideengine.rxjavaretrofit.network.model.BBSideEngineListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,8 +60,13 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
         etvUserName = findViewById(R.id.etvUserName);
         progressBar = findViewById(R.id.progressBar);
 
+        Intent intent = getIntent();
         //"Your production license key here"
-        String lic = getIntent().getStringExtra("lic");
+        String mode = intent.getStringExtra("mode");
+
+        String lic = intent.getStringExtra("lic");
+        String region = intent.getStringExtra("region");
+        String secretKey = intent.getStringExtra("secretKey");
 
         bbSideEngine = BBSideEngine.getInstance();
         bbSideEngine.showLogs(true);
@@ -68,6 +75,7 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
 
         bbSideEngine.configure(this,
                 lic,
+                secretKey,
                 ENVIRONMENT_PRODUCTION,
                 Constants.BBTheme.STANDARD
         );
@@ -82,7 +90,7 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
         btnSos.setOnClickListener(View -> {
             if (checkConfiguration) {
                 if (btnSos.getText().toString().equals("Deactivate SOS")) {
-                    bbSideEngine.deActiveSOS();
+                    bbSideEngine.stopSOS();
                 } else {
                     if (ActivityCompat.checkSelfPermission(
                             this,
@@ -106,7 +114,7 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
                         bbSideEngine.setUserId(deviceId);
                         bbSideEngine.setUserEmail(etvUserEmail.getText().toString().trim());
                         bbSideEngine.setUserName(etvUserName.getText().toString().trim());
-                        bbSideEngine.activeSOS();
+                        bbSideEngine.startSOS();
                     }
                 }
             }
@@ -132,7 +140,7 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
             bbSideEngine.setUserId(deviceId);
             bbSideEngine.setUserEmail(etvUserEmail.getText().toString().trim());
             bbSideEngine.setUserName(etvUserName.getText().toString().trim());
-            bbSideEngine.activeSOS();
+            bbSideEngine.startSOS();
         } else if (requestCode == 1) {
 //            viewBinding.btnStart.text = getString(R.string.start)
         }
@@ -148,7 +156,7 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
                 progressBar.setVisibility(View.GONE);
                 break;
 
-            case SOS_ACTIVATE:
+            case START_SOS:
                 //*The SOS function has been activated. You may now proceed to update your user interface and share a live location tracking link with your social contacts, thereby enabling them to access your real-time location.*//
                 if (response.has("sosLiveTrackingUrl")) {
                     try {
@@ -157,15 +165,15 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
                         throw new RuntimeException(e);
                     }
                     btnSOSLinkShare.setVisibility(View.VISIBLE);
-                    btnSos.setText(R.string.deactivate_sos);
+                    btnSos.setText(R.string.stop_sos);
                 } else if (response.has("Error")) {
                     // log for error
                 }
                 break;
 
-            case SOS_DEACTIVATE:
+            case STOP_SOS:
                 btnSOSLinkShare.setVisibility(View.GONE);
-                btnSos.setText(R.string.activate_sos);
+                btnSos.setText(R.string.start_sos);
                 break;
 
             default:

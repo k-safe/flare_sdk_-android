@@ -1,7 +1,6 @@
 package com.flare.sdk.android;
 
-import static com.sos.busbysideengine.Constants.BBTheme.CUSTOM;
-import static com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION;
+import static com.flaresafety.sideengine.Constants.ENVIRONMENT_PRODUCTION;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -23,12 +22,12 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.flaresafety.sideengine.BBSideEngine;
+import com.flaresafety.sideengine.Constants;
+import com.flaresafety.sideengine.rxjavaretrofit.network.model.BBSideEngineListener;
+import com.flaresafety.sideengine.utils.Common;
+import com.flaresafety.sideengine.utils.ContactClass;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.sos.busbysideengine.BBSideEngine;
-import com.sos.busbysideengine.Constants;
-import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener;
-import com.sos.busbysideengine.utils.Common;
-import com.sos.busbysideengine.utils.ContactClass;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -360,11 +359,14 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
         Notification.Builder builder;
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE);
 
-        NotificationChannel notificationChannel =
-                new NotificationChannel(channelId, "Incident Detected", NotificationManager.IMPORTANCE_HIGH);
-        notificationChannel.setLightColor(Color.BLUE);
-        notificationChannel.enableVibration(true);
-        notificationManager.createNotificationChannel(notificationChannel);
+        NotificationChannel notificationChannel = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            notificationChannel = new NotificationChannel(channelId, "Incident Detected", NotificationManager.IMPORTANCE_HIGH);
+            notificationChannel.setLightColor(Color.BLUE);
+            notificationChannel.enableVibration(true);
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+
         builder = new Notification
                 .Builder(this, channelId)
                 .setContentTitle(this.getString(R.string.app_name))

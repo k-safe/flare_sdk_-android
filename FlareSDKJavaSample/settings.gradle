@@ -22,5 +22,5 @@ dependencyResolutionManagement {
         }
     }
 }
-rootProject.name = "SideEngineSample"
+rootProject.name = "FlareSDKSample"
 include ':app'

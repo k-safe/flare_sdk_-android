@@ -23,5 +23,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Flare SDK Implementation"
+rootProject.name = "FlareSDKSample"
 include ':app'

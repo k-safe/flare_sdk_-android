@@ -1,7 +1,8 @@
 package com.flare.sdk.android;
 
-import static com.sos.busbysideengine.Constants.BBTheme.STANDARD;
-import static com.sos.busbysideengine.Constants.ENVIRONMENT_PRODUCTION;
+
+import static com.flaresafety.sideengine.Constants.BBTheme.STANDARD;
+import static com.flaresafety.sideengine.Constants.ENVIRONMENT_PRODUCTION;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,10 +19,11 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.flaresafety.sideengine.BBSideEngine;
+import com.flaresafety.sideengine.Constants;
+import com.flaresafety.sideengine.rxjavaretrofit.network.model.BBSideEngineListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.sos.busbysideengine.BBSideEngine;
-import com.sos.busbysideengine.Constants;
-import com.sos.busbysideengine.rxjavaretrofit.network.model.BBSideEngineListener;
+
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -95,14 +97,21 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
         bbSideEngine.setStickyEnable(true);
         bbSideEngine.activateIncidentTestMode(true); //This is only used in sandbox mode and is TRUE by default. This is why you should test your workflow in sandbox mode. You can change it to FALSE if you want to experience real-life incident detection
-        bbSideEngine.setActivityType("Horse Riding");
+        bbSideEngine.setHazardFeatureEnabled(false); //The default hazard feature is enabled ( default value is true ), which can be adjusted to meet specific requirements. You can turn off by passing bbSideEngine.setHazardFeatureEnabled(false).
+
+        Intent intent = getIntent();
 
         //"Your production license key here" or "Your sandbox license key here"
         String lic = intent.getStringExtra("lic");
+        String region = intent.getStringExtra("region");
+        String secretKey = intent.getStringExtra("secretKey");
+
         bbSideEngine.configure(this,
                 lic,
+                secretKey,
                 mode,
-                STANDARD
+                Constants.BBTheme.STANDARD,
+                region
         );
 
         //Custom Notification
