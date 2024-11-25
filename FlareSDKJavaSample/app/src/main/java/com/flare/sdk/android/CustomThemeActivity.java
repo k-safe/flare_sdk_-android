@@ -1,7 +1,5 @@
 package com.flare.sdk.android;
 
-import static com.flaresafety.sideengine.Constants.ENVIRONMENT_PRODUCTION;
-
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -10,80 +8,87 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.flare.sdk.android.bottomsheets.CustomUIBottomSheet;
+import com.flare.sdk.android.bottomsheets.SelectActivityBottomSheet;
+import com.flare.sdk.android.databinding.ActivityThemeBinding;
+import com.flare.sdk.android.interfaces.OnBottomSheetDismissListener;
 import com.flaresafety.sideengine.BBSideEngine;
 import com.flaresafety.sideengine.Constants;
+import com.flaresafety.sideengine.SurveyTypeCallback;
 import com.flaresafety.sideengine.rxjavaretrofit.network.model.BBSideEngineListener;
 import com.flaresafety.sideengine.utils.Common;
 import com.flaresafety.sideengine.utils.ContactClass;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Calendar;
-import java.util.Random;
 
 
-public class CustomThemeActivity extends AppCompatActivity implements BBSideEngineListener {
+public class CustomThemeActivity extends AppCompatActivity implements BBSideEngineListener,
+        OnBottomSheetDismissListener {
     BBSideEngine bbSideEngine;
-
-    Button btnStart, btnPauseResume;
-    EditText etvUserName, etvCountryCode, etvMobileNumber, etvUserEmail;
-
-    TextView tvConfidence, tvThemeName;
-    ImageView ivCloseMain;
-
-    private ProgressBar progressBar;
-
     boolean checkConfiguration = false;
+    String mConfidence = null;
     boolean isResumeActivity = false;
-    String mConfidence;
-
-    private String mode = ENVIRONMENT_PRODUCTION;
 
     Intent intent;
+    private ActivityThemeBinding viewBinding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_theme);
+
+        viewBinding = ActivityThemeBinding.inflate(getLayoutInflater());
+        setContentView(viewBinding.getRoot());
 
         init();
-        setupEngine();
         setListener();
     }
 
     public void init() {
+
+        viewBinding.tvThemeName.setText(getString(R.string.custom_theme));
+        setupEngine();
+    }
+
+    public void setupEngine() {
+
         intent = getIntent();
-        mode = intent.getStringExtra("mode");
+        String mode = intent.getStringExtra("mode");
 
-        tvThemeName = findViewById(R.id.tvThemeName);
-        btnStart = findViewById(R.id.btnStart);
-        btnPauseResume = findViewById(R.id.btnPauseResume);
+        // "Your production license key here" or "Your sandbox license key here"
+        String lic = intent.getStringExtra("lic");
+        String region = intent.getStringExtra("region");
+        String secretKey = intent.getStringExtra("secretKey");
 
-        etvCountryCode = findViewById(R.id.etvCountryCode);
-        etvMobileNumber = findViewById(R.id.etvMobileNumber);
-        etvUserName = findViewById(R.id.etvUserName);
-        etvUserEmail = findViewById(R.id.etvUserEmail);
+        bbSideEngine = BBSideEngine.getInstance();
+        bbSideEngine.showLogs(true);
+        bbSideEngine.setBBSideEngineListener(this);
+//      bbSideEngine.setEnableFlareAwareNetwork(true); //enableFlareAwareNetwork is a safety for cyclist to send notification for near by fleet users
+//      bbSideEngine.setDistanceFilterMeters(20); //You can switch distance filter to publish location in the live tracking url, this should be send location every 20 meters when timer intervals is reached.
+//      bbSideEngine.setLowFrequencyIntervalsSeconds(15);//Default is 15 sec, you can update this for your requirements, this will be used only when "high_frequency_mode_enabled" = false
+//      bbSideEngine.setHighFrequencyIntervalsSeconds(3); //Default is 3 seconds, you can update this for your requirements, this will be used only when "high_frequency_mode_enabled" = true
+//      bbSideEngine.setHighFrequencyModeEnabled(false); //Recommendation to enable high frequency mode when SOS is active, this will help us to batter live tracking experience.
+//      bbSideEngine.setLocationNotificationTitle("Protection is active")
+        bbSideEngine.setHazardFeatureEnabled(false); //The default hazard feature is enabled ( default value is true ), which can be adjusted to meet specific requirements. You can turn off by passing bbSideEngine.setHazardFeatureEnabled(false).
 
-        ivCloseMain = findViewById(R.id.ivCloseMain);
-        tvConfidence = findViewById(R.id.tvConfidence);
+        bbSideEngine.setStickyEnable(true);
+        bbSideEngine.activateIncidentTestMode(true); //This is only used in sandbox mode and is TRUE by default. This is why you should test your workflow in sandbox mode. You can change it to FALSE if you want to experience real-life incident detection
 
-        progressBar = findViewById(R.id.progressBar);
-        Log.d("mConfidence1", "" + mConfidence);
-
-        tvThemeName.setText(getString(R.string.custom_theme));
+        bbSideEngine.configure(
+                this,
+                lic,
+                secretKey,
+                mode,
+                Constants.BBTheme.STANDARD,
+                region
+        );
 
         //Custom Notification
         //        bbSideEngine.setNotificationMainBackgroundColor(R.color.white)
@@ -93,118 +98,78 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
 
     }
 
-    public void setupEngine() {
-        //"Your production license key here" or "Your sandbox license key here"
-        String lic = intent.getStringExtra("lic");
-
-        bbSideEngine = BBSideEngine.getInstance();
-        bbSideEngine.showLogs(true);
-        bbSideEngine.setBBSideEngineListener(this);
-//        bbSideEngine.setEnableFlareAwareNetwork(true); //enableFlareAwareNetwork is a safety for cyclist to send notification for near by fleet users
-//        bbSideEngine.setDistanceFilterMeters(20); //You can switch distance filter to publish location in the live tracking url, this should be send location every 20 meters when timer intervals is reached.
-//        bbSideEngine.setLowFrequencyIntervalsSeconds(15);//Default is 15 sec, you can update this for your requirements, this will be used only when "high_frequency_mode_enabled" = false
-//        bbSideEngine.setHighFrequencyIntervalsSeconds(3); //Default is 3 seconds, you can update this for your requirements, this will be used only when "high_frequency_mode_enabled" = true
-//        bbSideEngine.setHighFrequencyModeEnabled(false); //Recommendation to enable high frequency mode when SOS is active, this will help us to batter live tracking experience.
-
-//        bbSideEngine.setLocationNotificationTitle("Protection is active")
-        bbSideEngine.setStickyEnable(true);
-        bbSideEngine.activateIncidentTestMode(true); //This is only used in sandbox mode and is TRUE by default. This is why you should test your workflow in sandbox mode. You can change it to FALSE if you want to experience real-life incident detection
-
-        bbSideEngine.configure(this,
-                lic,
-                mode,
-                CUSTOM
-        );
-    }
-
     public void setListener() {
 
-        ivCloseMain.setOnClickListener(
+        viewBinding.ivCloseMain.setOnClickListener(
                 v -> finish()
         );
-        btnPauseResume.setOnClickListener(v ->{
+
+        viewBinding.btnPauseResume.setOnClickListener(v -> {
             if (bbSideEngine.isEngineStarted()) {
                 if (isResumeActivity) {
-                    btnPauseResume.setText(getString(R.string.pause));
+                    viewBinding.btnPauseResume.setText(getString(R.string.pause));
                     bbSideEngine.resumeSideEngine();
                 } else {
-                    btnPauseResume.setText(getString(R.string.resume));
+                    viewBinding.btnPauseResume.setText(getString(R.string.resume));
                     bbSideEngine.pauseSideEngine();
                 }
             }
         });
-        btnStart.setOnClickListener(v -> {
+
+        viewBinding.btnStart.setOnClickListener(v -> {
+
             if (checkConfiguration) {
+                bbSideEngine.setUserEmail(viewBinding.etvUserEmail.getText().toString().trim());
+                bbSideEngine.setUserName(viewBinding.etvUserName.getText().toString().trim());
 
-                    bbSideEngine.setUserEmail(etvUserEmail.getText().toString().trim());
-                    bbSideEngine.setUserName(etvUserName.getText().toString().trim());
-                    if (bbSideEngine.isEngineStarted()) {
-                        bbSideEngine.setUserName(etvUserName.getText().toString().trim());
-                        bbSideEngine.stopSideEngine();
-                    } else {
-
-                        BottomSheetDialog dialog = new BottomSheetDialog(CustomThemeActivity.this);
-                        View view = getLayoutInflater().inflate(R.layout.dialog_activity, null);
-                        LinearLayout llBike = view.findViewById(R.id.llBike);
-                        LinearLayout llScooter = view.findViewById(R.id.llScooter);
-                        LinearLayout llCycling = view.findViewById(R.id.llCycling);
-                        LinearLayout llCancel = view.findViewById(R.id.llCancel);
-
-                        llBike.setOnClickListener(v14 -> {
-                            bbSideEngine.setActivityType("Bike");
-                            bbSideEngine.startSideEngine(CustomThemeActivity.this);
-                            dialog.dismiss();
-                        });
-
-                        llScooter.setOnClickListener(v13 -> {
-                            bbSideEngine.setActivityType("Scooter");
-                            bbSideEngine.startSideEngine(CustomThemeActivity.this);
-                            dialog.dismiss();
-                        });
-
-                        llCycling.setOnClickListener(v12 -> {
-                            bbSideEngine.setActivityType("Cycling");
-                            bbSideEngine.startSideEngine(CustomThemeActivity.this);
-                            dialog.dismiss();
-                        });
-
-                        llCancel.setOnClickListener(v1 -> dialog.dismiss());
-
-                        dialog.dismiss();
-                        dialog.setCancelable(true);
-                        dialog.setContentView(view);
-                        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-                        int screenHeight = displayMetrics.heightPixels;
-                        dialog.getBehavior().setPeekHeight(screenHeight);
-                        dialog.show();
-
-                    }
-
-                    tvConfidence.setText("");
-//                    btnStart.setText(bbSideEngine.isEngineStarted() ? getString(R.string.stop) : getString(R.string.start));
+                if (bbSideEngine.isEngineStarted()) {
+                    bbSideEngine.setUserName(viewBinding.etvUserName.getText().toString().trim());
+                    bbSideEngine.stopSideEngine();
+                } else {
+                    showActivityBottomSheet();
                 }
+
+                viewBinding.tvConfidence.setText("");
+                if (bbSideEngine.isEngineStarted()) {
+                    viewBinding.btnStart.setText(getString(R.string.stop));
+                } else {
+                    viewBinding.btnStart.setText(getString(R.string.start));
+                }
+            }
         });
 
     }
 
+    private void showActivityBottomSheet() {
+        SelectActivityBottomSheet selectActivityBottomSheet = new SelectActivityBottomSheet();
+        selectActivityBottomSheet.setCancelable(true);
+        selectActivityBottomSheet.show(getSupportFragmentManager(), selectActivityBottomSheet.getTag());
+    }
+
+    private void showIncidentBottomSheet() {
+        CustomUIBottomSheet customUIBottomSheet = new CustomUIBottomSheet();
+        customUIBottomSheet.setCancelable(true);
+        customUIBottomSheet.show(getSupportFragmentManager(), customUIBottomSheet.getTag());
+    }
+
     private void sendEmail() {
-        if (etvUserEmail.getText().toString().equals("")) {
+        if (viewBinding.etvUserEmail.getText().toString().equals("")) {
             return;
         }
-        bbSideEngine.sendEmail(etvUserEmail.getText().toString());
+        bbSideEngine.sendEmail(viewBinding.etvUserEmail.getText().toString());
     }
 
     private void sendSMS() {
-        if (etvCountryCode.getText().toString().equals("") ||
-                etvUserName.getText().toString().equals("") ||
-                etvMobileNumber.getText().toString().equals("")) {
+        if (viewBinding.etvCountryCode.getText().toString().equals("") ||
+                viewBinding.etvUserName.getText().toString().equals("") ||
+                viewBinding.etvMobileNumber.getText().toString().equals("")) {
             return;
         }
 
         ContactClass contact = new ContactClass();
-        contact.setCountryCode(etvCountryCode.getText().toString());
-        contact.setPhoneNumber(etvMobileNumber.getText().toString());
-        contact.setUserName(etvUserName.getText().toString());
+        contact.setCountryCode(viewBinding.etvCountryCode.getText().toString());
+        contact.setPhoneNumber(viewBinding.etvMobileNumber.getText().toString());
+        contact.setUserName(viewBinding.etvUserName.getText().toString());
         bbSideEngine.sendSMS(contact);
     }
 
@@ -219,102 +184,66 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
             case CONFIGURE:
                 // if status = true Now you can ready to start Side engine process
                 checkConfiguration = status;
-                progressBar.setVisibility(View.GONE);
+                viewBinding.progressBar.setVisibility(View.GONE);
 
                 break;
             case START:
                 //*Please update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.*//
-                tvConfidence.setText("");
+                viewBinding.tvConfidence.setText("");
                 if (bbSideEngine.isEngineStarted()) {
-                    btnStart.setText(getString(R.string.stop));
-                    btnPauseResume.setVisibility(View.VISIBLE);
-                    btnPauseResume.setText(getString (R.string.pause));
+                    ForegroundService.startService(this, "Flare SDK Sample");
+                    viewBinding.btnStart.setText(getString(R.string.stop));
+                    viewBinding.btnPauseResume.setVisibility(View.VISIBLE);
+                    viewBinding.btnPauseResume.setText(getString(R.string.pause));
                 } else {
-                    btnStart.setText(getString(R.string.start));
-                    btnPauseResume.setVisibility(View.GONE);
+                    viewBinding.btnStart.setText(getString(R.string.start));
+                    ForegroundService.stopService(this);
+                    viewBinding.btnPauseResume.setVisibility(View.GONE);
                 }
             case STOP:
 
                 if (bbSideEngine.isEngineStarted()) {
-                    btnStart.setText(getString(R.string.stop));
+                    viewBinding.btnStart.setText(getString(R.string.stop));
                 } else {
+                    ForegroundService.stopService(this);
                     isResumeActivity = false;
-                    btnStart.setText(getString(R.string.start));
-                    btnPauseResume.setVisibility(View.GONE);
+                    viewBinding.btnStart.setText(getString(R.string.start));
+                    viewBinding.btnPauseResume.setVisibility(View.GONE);
                 }
                 //Please update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.
                 break;
-            //Please update the user interface (UI) in this section to reflect the cessation of the side engine (e.g., amend the colour or text of the STOP button accordingly).
-            case SMS:
-                //Returns SMS delivery status and response payload
-                Log.e("SMS: ", String.valueOf(response));
-                break;
-            case EMAIL:
-                //Returns email delivery status and response payload
-                Log.e("Email: ", String.valueOf(response));
-                break;
-            case INCIDENT_DETECTED:
-                //You can initiate your bespoke countdown page from this interface, which must have a minimum timer interval of 30 seconds.
 
-                //Upon completion of your custom countdown, it is imperative to invoke the 'notify partner' method to record the event on the dashboard and dispatch notifications via webhook, Slack, email and SMS.
+            case INCIDENT_DETECTED:
 
                 Log.w("CustomThemeActivity", "INCIDENT_DETECTED");
                 setNotification();
 
                 //TODO: Set user id
-                bbSideEngine.setUserId(getRandomNumberString());
+//                bbSideEngine.setUserId(getRandomNumberString());
 
                 //TODO: Set rider name
-                bbSideEngine.setRiderName(etvUserName.getText().toString().trim());
+//                bbSideEngine.setRiderName(viewBinding.etvUserName.getText().toString().trim());
 
                 if (status) {
                     try {
                         boolean mCustomTheme = response.getBoolean("customTheme");
-                        //Return incident status and confidence level, you can fetch confidance using the below code:
+                        //Return incident status and confidence level, you can fetch confidence using the below code:
                         mConfidence = response.getString("confidence");
-                        if (!mConfidence.equals("")){
-                            tvConfidence.setVisibility(View.VISIBLE);
+                        if (!mConfidence.equals("")) {
+                            viewBinding.tvConfidence.setVisibility(View.VISIBLE);
                             try {
-                                tvConfidence.setText("Confidence: "+ mConfidence);
-                            }catch (Exception e){
+                                viewBinding.tvConfidence.setText("Confidence: " + mConfidence);
+                            } catch (Exception e) {
                                 Log.e("Exception: ", e.getMessage());
                             }
                         }
-                        Log.e("", mCustomTheme + "");
-                        Log.e("mConfidence", mConfidence + "");
+
                         //TODO: If SDK is configured custom UI to open your screen here (MAKE SURE CONFIGURE SDK SELECTED CUSTOM THEME)
                         if (mCustomTheme) {
-//                            bbSideEngine.stopSideEngine();
                             if (Common.getInstance().isAppInBackground()) {
-
-                                //TODO: Set user id
-                                bbSideEngine.setUserId(getRandomNumberString());
-
-                                //TODO: Set rider name
-                                bbSideEngine.setRiderName(etvUserName.getText().toString().trim());
-
-                                //TODO: call method for fetching W3W Location data
-                                bbSideEngine.fetchWhat3WordLocation(this);
-
-                                //TODO: Send Email and SMS
-                                sendSMS();
-                                sendEmail();
-
-                                //TODO: notify to partner
-                                bbSideEngine.notifyPartner();
-
-                                bbSideEngine.resumeSensorIfAppInBackground();
-
+                                BBSideEngine.getInstance().resumeSideEngine();
                             } else {
-
-                                Intent intent = new Intent(CustomThemeActivity.this, CustomUiActivity.class);
-                                intent.putExtra("userName", etvUserName.getText().toString().trim());
-                                intent.putExtra("email", etvUserEmail.getText().toString().trim());
-                                intent.putExtra("mobileNo", etvMobileNumber.getText().toString().trim());
-                                intent.putExtra("countryCode", etvCountryCode.getText().toString().trim());
-                                intent.putExtra("btnTestClicked", !ENVIRONMENT_PRODUCTION.equals(mode));
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
+                                showIncidentBottomSheet();
                             }
                         }
                     } catch (JSONException e) {
@@ -322,34 +251,91 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
                     }
                 }
                 break;
+
             case INCIDENT_CANCEL:
                 //User canceled countdown countdown to get event here, this called only for if you configured standard theme.
                 break;
+
+            case INCIDENT_ALERT_SENT:
+                //Return the alert sent (returns alert details (i.e. time, location, recipient, success/failure))
+                break;
+
             case RESUME_SIDE_ENGINE:
-                if(isResumeActivity){
+                if (isResumeActivity) {
                     isResumeActivity = false;
-                    btnPauseResume.setText(getString (R.string.pause));
+                    viewBinding.btnPauseResume.setText(getString(R.string.pause));
+                    ForegroundService.startService(this, "Flare SDK Sample");
                 }
-                //The lateral engine has been restarted, and we are currently monitoring the device's sensors and location in order to analyse another potential incident. There is no requirement to invoke any functions from either party in this context, as the engine on the side will handle the task automatically.
+                // The side engine has been restarted, and we are currently monitoring the device's sensors and location in order to analyse another potential incident. There is no requirement to invoke any functions from either party in this context, as the engine on the side will handle the task automatically.
                 break;
             case PAUSE_SIDE_ENGINE:
                 isResumeActivity = true;
-                btnPauseResume.setText(getString (R.string.resume));
+                viewBinding.btnPauseResume.setText(getString(R.string.resume));
+                ForegroundService.stopService(this);
+                // The side engine has been paused, and we are stop monitoring the device's sensors and location.
+
                 break;
+
+            case SMS:
+                //This message is intended solely to provide notification regarding the transmission status of SMS. It is unnecessary to invoke any SIDE engine functions in this context.
+                break;
+
+            case EMAIL:
+                //This message is intended solely to provide notification regarding the transmission status of Email. It is unnecessary to invoke any SIDE engine functions in this context.
+                break;
+
+            case POST_INCIDENT_FEEDBACK:
+                // When a user gives feedback after receiving a post-incident notification, you will get an event here to identify the type of feedback provided.
+                Log.w("CustomThemeActivity", "POST_INCIDENT_FEEDBACK");
+
+                if (status) {
+                    // User submitted report an incident
+                    callSurveyVideoPage();
+                } else {
+                    // User is alright
+                }
+
+                try {
+                    if (response != null && response.has("message")) {
+                        String message = response.getString("message");
+                        if (!message.isEmpty()) {
+                            Log.w("POST_INCIDENT_FEEDBACK", message);
+                        }
+                    }
+                } catch (Exception ignored) {
+
+                }
+                break;
+
             case TIMER_STARTED:
                 //Countdown timer started after breach delay, this called only if you configured standard theme.
                 break;
             case TIMER_FINISHED:
                 //Countdown timer finished and jump to the incident summary page, this called only if you configured standard theme.
                 break;
-            case INCIDENT_ALERT_SENT:
-                //Return the alert sent (returns alert details (i.e. time, location, recipient, success/failure))
-                break;
 
         }
     }
 
-    private void setNotification(){
+    private void callSurveyVideoPage() {
+        BBSideEngine.getInstance().postIncidentSurvey(Constants.BBSurveyType.VIDEO, new SurveyTypeCallback<>() {
+            @Override
+            public void onEnd(String s) {
+                BBSideEngine.getInstance().resumeSideEngine();
+                finish();
+                Common.getInstance().showToast("End called");
+            }
+
+            @Override
+            public void onCancel() {
+                BBSideEngine.getInstance().resumeSideEngine();
+                finish();
+                Common.getInstance().showToast("Cancel called");
+            }
+        });
+    }
+
+    private void setNotification() {
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Calendar calendar = Calendar.getInstance();
@@ -365,29 +351,18 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
             notificationChannel.setLightColor(Color.BLUE);
             notificationChannel.enableVibration(true);
             notificationManager.createNotificationChannel(notificationChannel);
+
+            builder = new Notification.Builder(this, channelId)
+                    .setContentTitle(this.getString(R.string.app_name))
+                    .setContentText("Incident Detect")
+                    .setSmallIcon(R.mipmap.ic_launcher_round)
+                    .setLargeIcon(BitmapFactory.decodeResource(getResources(),
+                            R.mipmap.ic_launcher_round
+                    ))
+                    .setContentIntent(pendingIntent);
+
+            notificationManager.notify((int) randomNumber, builder.build());
         }
-
-        builder = new Notification
-                .Builder(this, channelId)
-                .setContentTitle(this.getString(R.string.app_name))
-                .setContentText("Incident Detect")
-                .setSmallIcon(R.mipmap.ic_launcher_round)
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(),
-                        R.mipmap.ic_launcher_round
-                ))
-                .setContentIntent(pendingIntent);
-
-        notificationManager.notify((int) randomNumber, builder.build());
-    }
-
-
-    public static String getRandomNumberString() {
-        // It will generate 6 digit random Number.
-        // from 0 to 999999
-        Random rnd = new Random();
-        int number = rnd.nextInt(999999);
-        // this will convert any number sequence into 6 character.
-        return String.format("%06d", number);
     }
 
     @Override
@@ -396,5 +371,21 @@ public class CustomThemeActivity extends AppCompatActivity implements BBSideEngi
         if (bbSideEngine.isEngineStarted()) {
             bbSideEngine.stopSideEngine();
         }
+        ForegroundService.stopService(this);
+    }
+
+    @Override
+    public void onReportAnIncident() {
+        navigateToMap();
+    }
+
+    private void navigateToMap() {
+        startActivity(new Intent(this, MapActivity.class));
+    }
+
+    @Override
+    public void onActivitySelected(String activityType) {
+        bbSideEngine.setRiderName(viewBinding.etvUserName.getText().toString().trim());
+        bbSideEngine.startSideEngine(this, activityType);
     }
 }

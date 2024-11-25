@@ -74,13 +74,13 @@
                 android:textColor="@color/black"
                 android:textSize="@dimen/text_18" />
 
-            <Spinner
-                android:id="@+id/spinRegion"
-                android:layout_width="wrap_content"
-                android:layout_toEndOf="@+id/tvRegionTitle"
-                android:layout_marginStart="@dimen/dim_8"
-                android:entries="@array/region_list"
-                android:layout_height="wrap_content" />
+        <Spinner
+            android:id="@+id/spinRegion"
+            android:layout_width="wrap_content"
+            android:layout_toEndOf="@+id/tvRegionTitle"
+            android:layout_marginStart="@dimen/dim_8"
+            android:entries="@array/region_list"
+            android:layout_height="wrap_content" />
 
         </RelativeLayout>
 
@@ -167,7 +167,7 @@
                 android:text="@string/enable_flare_aware" />
 
 
-            <androidx.appcompat.widget.AppCompatButton
+          <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnHazards"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

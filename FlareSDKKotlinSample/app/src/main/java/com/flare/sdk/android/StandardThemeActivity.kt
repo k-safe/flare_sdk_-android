@@ -10,9 +10,7 @@ import com.flare.sdk.android.databinding.ActivityThemeBinding
 import com.flare.sdk.android.interfaces.OnBottomSheetDismissListener
 import com.flaresafety.sideengine.BBSideEngine
 import com.flaresafety.sideengine.Constants.*
-import com.flaresafety.sideengine.SurveyTypeCallback
 import com.flaresafety.sideengine.rxjavaretrofit.network.model.BBSideEngineListener
-import com.flaresafety.sideengine.utils.Common
 import com.flaresafety.sideengine.utils.ContactClass
 import org.json.JSONException
 import org.json.JSONObject
@@ -43,9 +41,25 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener,
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
 
+        init()
+        setListener()
+    }
+
+
+    private fun init() {
+
+        viewBinding.tvThemeName.text = getString(R.string.standard_theme)
+        setupEngine();
+    }
+    
+    private fun setupEngine() {
+
         val intent = intent
         mode = intent.getStringExtra("mode")
-        viewBinding.tvThemeName.text = getString(R.string.standard_theme)
+        //"Your production license key here" or "Your sandbox license key here"
+        val lic = intent.getStringExtra("lic")
+        val secretKey = intent.getStringExtra("secretKey")
+        val region = intent.getStringExtra("region")
 
         bbSideEngine = BBSideEngine.getInstance()
         bbSideEngine.showLogs(true)
@@ -58,13 +72,8 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener,
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
         bbSideEngine.setStickyEnable(true)
         bbSideEngine.activateIncidentTestMode(true) //This is only used in sandbox mode and is TRUE by default. This is why you should test your workflow in sandbox mode. You can change it to FALSE if you want to experience real-life incident detection
-//        bbSideEngine.setAppName("Flare SDK Sample")
         bbSideEngine.setHazardFeatureEnabled(false) //The default hazard feature is enabled ( default value is true ), which can be adjusted to meet specific requirements. You can turn off by passing bbSideEngine.setHazardFeatureEnabled(false).
 
-        //"Your production license key here" or "Your sandbox license key here"
-        val lic = intent.getStringExtra("lic")
-        val secretKey = intent.getStringExtra("secretKey")
-        val region = intent.getStringExtra("region")
 
         bbSideEngine.configure(
             this@StandardThemeActivity,
@@ -74,12 +83,6 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener,
             BBTheme.STANDARD,
             region
         )
-
-        // Custom Notification
-        //        bbSideEngine.setNotificationMainBackgroundColor(R.color.green_221)
-        //        bbSideEngine.setNotificationMainIcon(R.drawable.ic_lime)
-        //        bbSideEngine.setLocationNotificationTitle("Notification Title")
-        //        bbSideEngine.setNotificationDescText("Notification Description")
 
         //TODO: Customise the SideEngine theme(Optional).
         //        bbSideEngine.setIncidentTimeInterval(45) //Default 30 seconds
@@ -95,7 +98,6 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener,
 
         //  enableFlareAwareNetwork is a safety for cyclist to send notification for near by fleet users
 
-        setListener()
     }
 
     private fun setListener() {
@@ -171,7 +173,6 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener,
             BBSideOperation.CONFIGURE -> {
                 //*You are now able to initiate the SIDE engine process at any time. In the event that there is no user input button available to commence the activity, you may commence the SIDE engine by executing the following command:*//
                 checkConfiguration = status
-                Log.e("Configured", status.toString())
                 viewBinding.progressBar.visibility = View.GONE
             }
 
@@ -192,6 +193,8 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener,
                 viewBinding.mConfidence.text = ""
                 if (bbSideEngine.isEngineStarted) {
                     viewBinding.btnStart.text = getString(R.string.stop)
+                    viewBinding.btnPauseResume.visibility = View.VISIBLE
+                    viewBinding.btnPauseResume.text = getString(R.string.pause)
                 } else {
                     isResumeActivity = false
                     viewBinding.btnStart.text = getString(R.string.start)
@@ -202,7 +205,6 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener,
 
             BBSideOperation.INCIDENT_DETECTED -> {
                 //The user has identified an incident, and if necessary, it may be appropriate to log the incident in either the analytics system or an external database. Please refrain from invoking any side engine methods at this juncture.
-//                Toast.makeText(this, "INCIDENT_DETECTED",Toast.LENGTH_LONG).show()
                 //Threshold reached and you will redirect to countdown page
 
                 //TODO: Set user id
@@ -317,4 +319,6 @@ class StandardThemeActivity : AppCompatActivity(), BBSideEngineListener,
     override fun onActivitySelected(activityType: String) {
         bbSideEngine.startSideEngine(this, activityType)
     }
+
+
 }

@@ -7,23 +7,19 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
-import android.widget.RadioGroup.OnCheckedChangeListener
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.flare.sdk.android.databinding.ActivityMainBinding
 import com.flaresafety.sideengine.Constants
-import com.flaresafety.sideengine.utils.Common
 
 class MainActivity : AppCompatActivity() {
 
     // Production Mode
-    private var productionLicense = "4afb485e-a181-4ce7-98f6-38cfe1afc748"
-    private var sandboxLicense = "b6dd8509-d50e-48cc-af9e-ce9dcd712132"
-    private val secretKey = "EN7nPbKOc57COfYaPy66j8bXhlvOkrcX87c7mC76"
-
+    private var productionLicense = "your production key"
+    private var sandboxLicense = "your sandbox key"
+    private val secretKey = "secret key"
 
     private var mode = Constants.ENVIRONMENT_SANDBOX
     private var postNotificationCode = 1221
@@ -77,14 +73,30 @@ class MainActivity : AppCompatActivity() {
 
         viewBinding.spinRegion.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                    region = resources.getStringArray(R.array.region_list)[p2]
+                override fun onItemSelected(adapterView: AdapterView<*>?, view: View?, position: Int, p3: Long) {
+                    region = resources.getStringArray(R.array.region_list)[position]
                 }
 
                 override fun onNothingSelected(p0: AdapterView<*>?) {
 
                 }
             }
+
+        viewBinding.rgEnvironment.setOnCheckedChangeListener { _, checkedId ->
+            if (checkedId == R.id.rbProduction) {
+                // The switch is checked.
+                viewBinding.rbProduction.text = getString(R.string.production_mode)
+                mode = Constants.ENVIRONMENT_PRODUCTION
+            } else {
+                // The switch isn't checked.
+                viewBinding.rbSandBox.text = getString(R.string.sandbox_mode)
+                mode = Constants.ENVIRONMENT_SANDBOX
+            }
+
+            viewBinding.btnSOS.visibility = View.VISIBLE
+            viewBinding.btnEnableFlareAware.visibility = View.VISIBLE
+
+        }
 
         viewBinding.btnStandard.setOnClickListener {
 
@@ -123,19 +135,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        viewBinding.rgEnvironment.setOnCheckedChangeListener { _, checkedId ->
-            if (checkedId == R.id.rbProduction) {
-                // The switch is checked.
-                viewBinding.rbProduction.text = getString(R.string.production_mode)
-                viewBinding.btnSOS.visibility = View.VISIBLE
-                viewBinding.btnEnableFlareAware.visibility = View.VISIBLE
-            } else {
-                // The switch isn't checked.
-                viewBinding.rbSandBox.text = getString(R.string.sandbox_mode)
-                viewBinding.btnSOS.visibility = View.VISIBLE
-                viewBinding.btnEnableFlareAware.visibility = View.VISIBLE
-            }
-        }
 
         viewBinding.btnEnableFlareAware.setOnClickListener {
 
@@ -162,5 +161,20 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == postNotificationCode) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted. You can now send notifications.
+            } else {
+                // Permission denied. Handle accordingly (e.g., show a message or disable notification functionality).
+            }
+        }
     }
 }

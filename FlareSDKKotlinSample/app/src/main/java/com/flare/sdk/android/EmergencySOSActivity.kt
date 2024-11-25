@@ -27,11 +27,17 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
+
+        init()
+        setListener()
+    }
+
+    private fun init() {
+
         mode = intent.getStringExtra("mode")
 
-        //"Your production license key here"
-        val lic = intent.getStringExtra("lic")
         val secretKey = intent.getStringExtra("secretKey")
+        val lic = intent.getStringExtra("lic")
         val region = intent.getStringExtra("region")
 
         bbSideEngine = BBSideEngine.getInstance()
@@ -49,14 +55,15 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
             Constants.BBTheme.STANDARD,
             region
         )
-        setListener()
     }
 
     @SuppressLint("HardwareIds")
     private fun setListener() {
+
         viewBinding.ivCloseMain.setOnClickListener {
             finish()
         }
+
         viewBinding.btnSos.setOnClickListener {
 
             if (checkConfiguration) {
@@ -75,6 +82,7 @@ class EmergencySOSActivity : AppCompatActivity(), BBSideEngineListener {
                 }
             }
         }
+
         viewBinding.btnSOSLinkShare.setOnClickListener {
             val share = Intent(Intent.ACTION_SEND)
             share.type = "text/plain"

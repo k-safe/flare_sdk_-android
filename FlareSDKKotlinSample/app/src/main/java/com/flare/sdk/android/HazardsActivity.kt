@@ -11,7 +11,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.flare.sdk.android.databinding.HazardsFlareawareBinding
+import com.flare.sdk.android.databinding.ActivityHazardsBinding
 import com.flare.sdk.android.model.Hazard
 import com.flare.sdk.android.utils.MarkerUtils
 import com.flaresafety.sideengine.BBSideEngine
@@ -32,8 +32,8 @@ import org.json.JSONObject
 
 class HazardsActivity : AppCompatActivity(), BBSideEngineListener, OnMapReadyCallback {
 
-    private val viewBinding: HazardsFlareawareBinding by lazy {
-        HazardsFlareawareBinding.inflate(layoutInflater)
+    private val viewBinding: ActivityHazardsBinding by lazy {
+        ActivityHazardsBinding.inflate(layoutInflater)
     }
     private lateinit var bbSideEngine: BBSideEngine
     private var checkConfiguration = false
@@ -46,6 +46,13 @@ class HazardsActivity : AppCompatActivity(), BBSideEngineListener, OnMapReadyCal
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
+
+        init()
+        setListener()
+
+    }
+
+    private fun init() {
 
         val intent = intent
 
@@ -78,7 +85,6 @@ class HazardsActivity : AppCompatActivity(), BBSideEngineListener, OnMapReadyCal
         val mapFragment =
             (supportFragmentManager.findFragmentById(R.id.fragmentMapView) as SupportMapFragment?)!!
         mapFragment.getMapAsync(this)
-        setListener()
 
     }
 
@@ -155,7 +161,10 @@ class HazardsActivity : AppCompatActivity(), BBSideEngineListener, OnMapReadyCal
                  */
                 checkConfiguration = status
                 Log.e("Configured", status.toString())
+
                 val hazards = bbSideEngine.fetchHazards()
+                // parse above json and get the list of active hazards as per specify radius settings.
+
                 viewBinding.progressBar.visibility = View.GONE
             }
 

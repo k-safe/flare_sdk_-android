@@ -50,24 +50,24 @@
                 android:layout_height="60dp"
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="20dp"
+                android:visibility="gone"
                 android:layout_marginEnd="30dp"
                 android:background="@drawable/edt_bg_corner"
                 android:hint="Country code"
-                android:paddingStart="10dp"
-                android:visibility="gone" />
+                android:paddingStart="10dp" />
 
             <EditText
                 android:id="@+id/etvMobileNumber"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_marginStart="30dp"
+                android:visibility="gone"
 
+                android:layout_marginStart="30dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="30dp"
                 android:background="@drawable/edt_bg_corner"
                 android:hint="Mobile number"
-                android:paddingStart="10dp"
-                android:visibility="gone" />
+                android:paddingStart="10dp" />
 
             <EditText
                 android:id="@+id/etvUserName"
@@ -86,13 +86,12 @@
                 android:layout_height="60dp"
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="20dp"
+                android:visibility="gone"
                 android:layout_marginEnd="30dp"
                 android:background="@drawable/edt_bg_corner"
                 android:hint="Email"
-                android:paddingStart="10dp"
-                android:visibility="gone" />
+                android:paddingStart="10dp" />
         </LinearLayout>
-
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnSos"
             android:layout_width="match_parent"
@@ -101,13 +100,13 @@
             android:layout_marginTop="20dp"
             android:layout_marginEnd="30dp"
             android:background="@drawable/btn_bg_corner"
-            android:text="Activate SOS"
+            android:text="@string/start_sos"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
-
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnSOSLinkShare"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
@@ -115,7 +114,6 @@
             android:layout_marginEnd="30dp"
             android:background="@drawable/btn_bg_corner"
             android:text="Share sos link "
-            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
@@ -123,12 +121,12 @@
 
     <ProgressBar
         android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:visibility="visible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

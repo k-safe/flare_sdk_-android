@@ -31,6 +31,12 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
 
+        init()
+        setListener()
+    }
+
+    private fun init() {
+
         val intent = intent
         mode = intent.getStringExtra("mode")
 
@@ -57,7 +63,6 @@ class EnableFlareAwareActivity : AppCompatActivity(), BBSideEngineListener {
             Constants.BBTheme.STANDARD,
             region
         )
-        setListener()
     }
 
     @SuppressLint("HardwareIds")

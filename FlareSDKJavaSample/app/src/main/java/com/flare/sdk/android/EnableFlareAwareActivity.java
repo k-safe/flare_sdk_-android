@@ -1,5 +1,7 @@
 package com.flare.sdk.android;
 
+import static com.flaresafety.sideengine.Constants.ENVIRONMENT_PRODUCTION;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -9,14 +11,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.app.ActivityCompat;
 
+import com.flare.sdk.android.databinding.ActivityFlareawareBinding;
 import com.flaresafety.sideengine.BBSideEngine;
 import com.flaresafety.sideengine.Constants;
 import com.flaresafety.sideengine.rxjavaretrofit.network.model.BBSideEngineListener;
@@ -29,32 +29,30 @@ public class EnableFlareAwareActivity extends AppCompatActivity implements BBSid
     private boolean checkConfiguration = false;
     private boolean isStartFlareAware = false;
 
-    private AppCompatButton btnStartFlareAware;
-    private ImageView ivCloseMain;
+    private String mode  = ENVIRONMENT_PRODUCTION;
 
-    private ProgressBar progressBar;
+    private ActivityFlareawareBinding viewBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_flareaware);
+
+        viewBinding = ActivityFlareawareBinding.inflate(getLayoutInflater());
+        setContentView(viewBinding.getRoot());
 
         init();
         setListener();
     }
 
     public void init() {
-        ivCloseMain = findViewById(R.id.ivCloseMain);
-        btnStartFlareAware = findViewById(R.id.btnStartFlareAware);
-        progressBar = findViewById(R.id.progressBar);
 
         Intent intent = getIntent();
-        //"Your production license key here"
-        String mode = intent.getStringExtra("mode");
+        mode = intent.getStringExtra("mode");
 
+        //"Your production license key here"
         String lic = intent.getStringExtra("lic");
-        String region = intent.getStringExtra("region");
         String secretKey = intent.getStringExtra("secretKey");
+        String region = intent.getStringExtra("region");
 
         bbSideEngine = BBSideEngine.getInstance();
         bbSideEngine.showLogs(true);
@@ -64,8 +62,10 @@ public class EnableFlareAwareActivity extends AppCompatActivity implements BBSid
         bbSideEngine.setDistanceFilterMeters(20); //It is possible to activate the distance filter in order to transmit location data in the live tracking URL. This will ensure that location updates are transmitted every 20 meters, once the timer interval has been reached.
         bbSideEngine.setLowFrequencyIntervalsSeconds(15); //The default value is 15 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(false) is invoked.
         bbSideEngine.setHighFrequencyIntervalsSeconds(3); //The default value is 3 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(true) is invoked.
+        bbSideEngine.setHazardFeatureEnabled(false); //The default hazard feature is enabled ( deafult value is true ), which can be adjusted to meet specific requirements. You can turn off by passing bbSideEngine.setHazardFeatureEnabled(false).
 
-        bbSideEngine.configure(this,
+        bbSideEngine.configure(
+                this,
                 lic,
                 secretKey,
                 mode,
@@ -78,9 +78,10 @@ public class EnableFlareAwareActivity extends AppCompatActivity implements BBSid
 
     @SuppressLint("HardwareIds")
     private void setListener() {
-        ivCloseMain.setOnClickListener(view -> finish());
 
-        btnStartFlareAware.setOnClickListener(view -> {
+        viewBinding.ivCloseMain.setOnClickListener(view -> finish());
+
+        viewBinding.btnStartFlareAware.setOnClickListener(view -> {
             if (checkConfiguration) {
                 // code here
                 if (ActivityCompat.checkSelfPermission(
@@ -121,22 +122,19 @@ public class EnableFlareAwareActivity extends AppCompatActivity implements BBSid
         }
         if (requestCode == 0) {
             new Handler(Looper.getMainLooper()).postDelayed(() -> bbSideEngine.startFlareAware(), 2000);
-        } else if (requestCode == 1) {
-//            viewBinding.btnStart.text = getString(R.string.start)
         }
     }
 
     @Override
     public void onSideEngineCallback(boolean status, Constants.BBSideOperation type, JSONObject response) {
         switch (type) {
-            case CONFIGURE:
+            case CONFIGURE -> {
                 // if status = true Now you can ready to start Side engine process
                 checkConfiguration = status;
                 Log.e("Configured", String.valueOf(status));
-                progressBar.setVisibility(View.GONE);
-                break;
-
-            case START_FLARE_AWARE:
+                viewBinding.progressBar.setVisibility(View.GONE);
+            }
+            case START_FLARE_AWARE -> {
                 // Start flare aware
                 if (response != null) {
                     try {
@@ -147,20 +145,15 @@ public class EnableFlareAwareActivity extends AppCompatActivity implements BBSid
                     }
                 } else {
                     isStartFlareAware = true;
-                    btnStartFlareAware.setText(getString(R.string.stop_flare_aware));
+                    viewBinding.btnStartFlareAware.setText(getString(R.string.stop_flare_aware));
                 }
-
-                break;
-
-            case STOP_FLARE_AWARE:
+            }
+            case STOP_FLARE_AWARE -> {
                 // Stop flare aware
                 isStartFlareAware = false;
-                btnStartFlareAware.setText(getString(R.string.start_flare_aware));
-                break;
-
-            default:
-                Log.e("No Events Find", ":");
-                break;
+                viewBinding.btnStartFlareAware.setText(getString(R.string.start_flare_aware));
+            }
+            default -> Log.e("No Events Find", ":");
         }
     }
 

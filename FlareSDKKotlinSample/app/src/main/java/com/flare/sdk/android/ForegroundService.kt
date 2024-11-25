@@ -1,14 +1,11 @@
 package com.flare.sdk.android
 
-import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
@@ -17,7 +14,7 @@ import androidx.core.content.ContextCompat
 
 class ForegroundService : Service() {
 
-    private val channelId = "ForegroundService Kotlin"
+    private val channelId = "ForegroundService_Kotlin"
 
     companion object {
         fun startService(context: Context, message: String) {

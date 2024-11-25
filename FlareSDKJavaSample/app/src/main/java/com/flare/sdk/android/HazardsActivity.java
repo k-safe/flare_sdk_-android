@@ -5,21 +5,21 @@ import static com.flaresafety.sideengine.Constants.ENVIRONMENT_PRODUCTION;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import com.flare.sdk.android.databinding.ActivityMainBinding;
+import com.flare.sdk.android.databinding.ActivityHazardsBinding;
 import com.flare.sdk.android.model.Hazard;
+import com.flare.sdk.android.utils.MarkerUtils;
 import com.flaresafety.sideengine.BBSideEngine;
 import com.flaresafety.sideengine.Constants;
 import com.flaresafety.sideengine.rxjavaretrofit.network.model.BBSideEngineListener;
@@ -27,19 +27,23 @@ import com.flaresafety.sideengine.utils.Common;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 public class HazardsActivity extends AppCompatActivity implements BBSideEngineListener, OnMapReadyCallback {
-
-    private ActivityMainBinding viewBinding;
 
     private BBSideEngine bbSideEngine;
     private boolean checkConfiguration = false;
@@ -49,17 +53,22 @@ public class HazardsActivity extends AppCompatActivity implements BBSideEngineLi
     private List<Hazard> hazardsList = new ArrayList<>();
     private boolean isReportHazards = true;
 
-    private ActivityMainBinding viewBinding;
+    private ActivityHazardsBinding viewBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        viewBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        viewBinding = ActivityHazardsBinding.inflate(getLayoutInflater());
         setContentView(viewBinding.getRoot());
 
+        init();
+        setListener();
+    }
+
+    public void init() {
+
         Intent intent = getIntent();
-        mode = intent.getStringExtra("mode");
 
         //"Your production license key here"
         String lic = intent.getStringExtra("lic");
@@ -87,30 +96,28 @@ public class HazardsActivity extends AppCompatActivity implements BBSideEngineLi
                 region
         );
 
-        val mapFragment =
-                (supportFragmentManager.findFragmentById(R.id.fragmentMapView) as SupportMapFragment?)!!
-                mapFragment.getMapAsync(this)
-        setListener();
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragmentMapView);
+        mapFragment.getMapAsync(this);
 
-        val hazards = bbSideEngine.fetchHazards();
     }
 
     private void setListener() {
-        viewBinding.ivCloseMain.setOnClickListener {
+        viewBinding.ivCloseMain.setOnClickListener(view -> {
             finish();
-        }
+        });
 
-        viewBinding.btnReportHazards.setOnClickListener {
+        viewBinding.btnReportHazards.setOnClickListener(view -> {
             if (checkConfiguration) {
                 hazardsButtonClicked(true);
             }
-        }
+        });
 
-        viewBinding.btnManageHazards.setOnClickListener {
+        viewBinding.btnManageHazards.setOnClickListener(view -> {
             if (checkConfiguration) {
                 hazardsButtonClicked(false);
             }
-        }
+        });
     }
 
     private void hazardsButtonClicked(Boolean isItemClicked) {
@@ -152,86 +159,6 @@ public class HazardsActivity extends AppCompatActivity implements BBSideEngineLi
         }
     }
 
-
-    private void recenterMap(Double lat,Double lon) {
-        LatLng initialLatLng = new  LatLng(
-                lat,
-                lon
-        );
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(initialLatLng, 15f));
-    }
-
-    private List<Hazard> parseHazardsResponse(String jsonString)  {
-        Gson gson = new Gson();
-        val hazardListType = new TypeToken<List<Hazard>>() {}.type
-        return gson.fromJson(jsonString, hazardListType);
-    }
-
-
-    override fun onMapReady(map: GoogleMap) {
-        googleMap = map
-    }
-
-    private void refreshHazardsMap() {
-
-        Location locationData = Common.getInstance().getLatestLocation();
-        LatLng location;
-        if (locationData != null) {
-            // Set a marker at a specific location (for example, New York City)
-            location = new LatLng(
-                    locationData.getLatitude(),
-                    locationData.getLongitude()
-            ); // Latitude and Longitude for NYC
-            // Move the camera to the marker
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f));
-
-        } else {
-
-            if (hazardsList.size() > 0) {
-                location = new LatLng(
-                        hazardsList[0].lat,
-                        hazardsList[0].lon
-                );
-                // Move the camera to the marker
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
-            }
-        }
-
-        val baseMarkerSize = 100f  // Base size of the marker
-        val markerSize = MarkerUtils.getMarkerSize(this, baseMarkerSize)
-
-        for (hazard in hazardsList!!) {
-
-            val markerLocation = LatLng(hazard.lat, hazard.lon) // Latitude and Longitude for NYC
-            val iconResId =
-                    resources.getIdentifier(hazard.iconDrawableName, "drawable", packageName)
-
-            // Resize the marker icon to a smaller size (e.g., 64x64)
-            val bitmap = BitmapFactory.decodeResource(resources, iconResId)
-            val smallMarker = Bitmap.createScaledBitmap(bitmap, markerSize, markerSize, false)
-
-            val icon = BitmapDescriptorFactory.fromBitmap(smallMarker)
-            googleMap.addMarker(
-                    MarkerOptions().position(markerLocation).title(hazard.name).icon(icon)
-            )
-        }
-
-    }
-
-    public void onDestroy() {
-        super.onDestroy();
-        stopEngine();
-    }
-
-    private void stopEngine() {
-        bbSideEngine.stopSideEngine();
-    }
-
-    public void onBackPressed() {
-        stopEngine();
-        super.onBackPressed();
-    }
-
     @Override
     public void onSideEngineCallback(boolean status, Constants.BBSideOperation type, JSONObject response) {
 
@@ -241,86 +168,137 @@ public class HazardsActivity extends AppCompatActivity implements BBSideEngineLi
                  you may start the Flare Aware using the function provided below.:
                  */
                 checkConfiguration = status;
-                Log.e("Configured", status.toString())
-                viewBinding.progressBar.visibility = View.GONE
-            } case FETCH_HAZARDS -> {
-                Log.w("HazardsActivity", "FETCH_HAZARDS") if (status) {
+                Log.e("Configured", String.valueOf(status));
+                viewBinding.progressBar.setVisibility(View.GONE);
 
-                    if (hazardsList != null && hazardsList !!.isNotEmpty()){
-                        googleMap.clear()
-                    }
+                JSONObject hazardsListResponse = bbSideEngine.fetchHazards();
+                // parse above json and get the list of active hazards as per specify radius settings.
 
-                    val hazards = response !!.getJSONArray("hazards")
-                    if (hazards.length() > 0) {
-                        hazardsList = parseHazardsResponse(hazards.toString())
-                        refreshHazardsMap()
+
+            }
+            case FETCH_HAZARDS -> {
+                Log.w("HazardsActivity", "FETCH_HAZARDS");
+
+                try {
+                    if (status) {
+
+                        if (hazardsList != null && !hazardsList.isEmpty()) {
+                            googleMap.clear();
+                        }
+
+                        JSONArray hazards = response.getJSONArray("hazards");
+                        if (hazards.length() > 0) {
+                            hazardsList = parseHazardsResponse(hazards.toString());
+                            refreshHazardsMap();
+                        }
+                    } else {
+                        String message = response.getString("message");
+                        if (!message.isEmpty()) {
+                            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                        }
                     }
-                } else {
-                    val message = response !!.getString("message")
-                    if (message.isNotEmpty()) {
-                        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-                    }
+                } catch (Exception ignored) {
+
                 }
             } case REPORT_HAZARD -> {
-                Log.w("HazardsActivity", "REPORT_HAZARD") if (status) {
-                    Log.w("Response", response.toString())
-                } if (response !!has("message") {
-
-                    val message = response.getString("message")
-                    if (message.isNotEmpty()) {
-                        Log.w("REPORT_HAZARD", message)
-                    }
+                Log.w("HazardsActivity", "REPORT_HAZARD");
+                if (status) {
+                    Log.w("Response", response.toString());
                 }
-            } case DELETE_HAZARD -> {
-                Log.w("HazardsActivity", "DELETE_HAZARD") if (status) {
-                    Log.w("DELETE_HAZARD", "" + true)
-                } if (response != null && response.has("message")) {
 
-                    String message = response.getString("message");
-                    if (!message.isEmpty()) {
-                        Log.w("DELETE_HAZARD", message);
-                    }
-                }
-            } case MANAGE_HAZARD -> {
-                Log.w("HazardsActivity", "MANAGE_HAZARD") if (status) {
-                    Log.w("MANAGE_HAZARD", "true")
-                } if (response != null && response.has("message")) {
+                try {
+                    if (response != null && response.has("message")) {
 
-                    String message = response.getString("message");
-                    if (!message.isEmpty()) {
-                        Log.w("MANAGE_HAZARD", message);
+                        String message = response.getString("message");
+
+                        if (!message.isEmpty()) {
+                            Log.w("REPORT_HAZARD", message);
+                        }
                     }
+                } catch (Exception ignored) {
+
                 }
+            }
+            case DELETE_HAZARD -> {
+
+                Log.w("HazardsActivity", "DELETE_HAZARD");
+                if (status) {
+                    Log.w("Response", response.toString());
+                }
+                try {
+                    if (response != null && response.has("message")) {
+                        String message = response.getString("message");
+                        if (!message.isEmpty()) {
+                            Log.w("DELETE_HAZARD", message);
+                        }
+                    }
+                } catch (Exception ignored) {
+
+                }
+
+            }
+            case MANAGE_HAZARD -> {
+
+                Log.w("HazardsActivity", "MANAGE_HAZARD");
+
+                if (status) {
+                    Log.w("Response", response.toString());
+                }
+                try {
+                    if (response != null && response.has("message")) {
+                        String message = response.getString("message");
+                        if (!message.isEmpty()) {
+                            Log.w("MANAGE_HAZARD", message);
+                        }
+                    }
+                } catch (Exception ignored) {
+
+                }
+
             } case ALERTED_HAZARD -> {
                 Log.w("HazardsActivity", "ALERTED_HAZARD");
+
                 if (status) {
                     Log.w("ALERTED_HAZARD", response.toString());
                 }
-                if (response != null && response.has("message")) {
 
-                    String message = response.getString("message");
-                    if (!message.isEmpty()) {
-                        Log.w("ALERTED_HAZARD", message);
+                try {
+                    if (response != null && response.has("message")) {
+
+                        String message = response.getString("message");
+                        if (!message.isEmpty()) {
+                            Log.w("ALERTED_HAZARD", message);
+                        }
                     }
+                } catch (Exception ignored) {
+
                 }
             }
             case FEEDBACK_HAZARD -> {
+
                 Log.w("HazardsActivity", "FEEDBACK_HAZARD");
                 if (status) {
                     Log.w("FEEDBACK_HAZARD", response.toString());
                 }
-                if (response != null && response.has("message")) {
-                    String message = response.getString("message");
-                    if (!message.isEmpty()) {
-                        Log.w("FEEDBACK_HAZARD", message);
+
+                try {
+                    if (response != null && response.has("message")) {
+                        String message = response.getString("message");
+                        if (!message.isEmpty()) {
+                            Log.w("FEEDBACK_HAZARD", message);
+                        }
                     }
+                } catch (Exception ignored) {
+
                 }
             }
             case UPDATE_LOCATION -> {
                 Log.w("HazardsActivity", "UPDATE_LOCATION");
+
                 if (status) {
                     Log.w("UPDATE_LOCATION", response.toString());
                 }
+
                 if (ActivityCompat.checkSelfPermission(
                         this,
                         Manifest.permission.ACCESS_FINE_LOCATION
@@ -344,6 +322,7 @@ public class HazardsActivity extends AppCompatActivity implements BBSideEngineLi
                 googleMap.getUiSettings().setRotateGesturesEnabled(true);
                 googleMap.getUiSettings().setScrollGesturesEnabled(true);
                 googleMap.getUiSettings().setZoomGesturesEnabled(true);
+
                 if (response != null && response.has("latitude") && response.has("latitude")) {
                     try {
                         Double latitude = response.getDouble("latitude");
@@ -359,8 +338,81 @@ public class HazardsActivity extends AppCompatActivity implements BBSideEngineLi
         }
     }
 
-    @Override
-    public void onMapReady(@NonNull GoogleMap googleMap) {
+    private void recenterMap(Double lat, Double lon) {
+        LatLng initialLatLng = new LatLng(
+                lat,
+                lon
+        );
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(initialLatLng, 15f));
+    }
 
+    private List<Hazard> parseHazardsResponse(String jsonString) {
+        Gson gson = new Gson();
+        Type hazardListType = new TypeToken<List<Hazard>>() {
+        }.getType();
+        return gson.fromJson(jsonString, hazardListType);
+
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap map) {
+        googleMap = map;
+    }
+
+    private void refreshHazardsMap() {
+
+        Location locationData = Common.getInstance().getLatestLocation();
+        LatLng location;
+        if (locationData != null) {
+            // Set a marker at a specific location (for example, New York City)
+            location = new LatLng(
+                    locationData.getLatitude(),
+                    locationData.getLongitude()
+            ); // Latitude and Longitude for NYC
+            // Move the camera to the marker
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f));
+
+        } else {
+
+            if (hazardsList.size() > 0) {
+                location = new LatLng(
+                        hazardsList.get(0).getLat(),
+                        hazardsList.get(0).getLon()
+                );
+                // Move the camera to the marker
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f));
+            }
+        }
+
+        float baseMarkerSize = 100f;  // Base size of the marker
+        int markerSize = MarkerUtils.getMarkerSize(this, baseMarkerSize);
+
+        for (Hazard hazard : hazardsList) {
+
+            LatLng markerLocation = new LatLng(hazard.getLat(), hazard.getLon()); // Latitude and Longitude for NYC
+            int iconResId = getResources().getIdentifier(hazard.getIconDrawableName(), "drawable", getPackageName());
+
+            // Resize the marker icon to a smaller size (e.g., 64x64)
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), iconResId);
+            Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, markerSize, markerSize, false);
+
+            BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(smallMarker);
+            googleMap.addMarker(new MarkerOptions().position(markerLocation).title(hazard.getName()).icon(icon));
+        }
+
+    }
+
+    public void onDestroy() {
+        super.onDestroy();
+        stopEngine();
+    }
+
+    private void stopEngine() {
+        bbSideEngine.stopSideEngine();
+    }
+
+    public void onBackPressed() {
+        stopEngine();
+        super.onBackPressed();
     }
 }

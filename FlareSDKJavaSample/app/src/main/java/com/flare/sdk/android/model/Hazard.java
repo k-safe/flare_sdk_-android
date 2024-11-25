@@ -1,4 +1,4 @@
-package com.flare.sdk.android.model
+package com.flare.sdk.android.model;
 
 public class Hazard {
     private String partnerId;

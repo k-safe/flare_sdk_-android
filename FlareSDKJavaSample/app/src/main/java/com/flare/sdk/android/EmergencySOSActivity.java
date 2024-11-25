@@ -23,6 +23,8 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.app.ActivityCompat;
 
 
+import com.flare.sdk.android.databinding.ActivityMainBinding;
+import com.flare.sdk.android.databinding.ActivitySosBinding;
 import com.flaresafety.sideengine.BBSideEngine;
 import com.flaresafety.sideengine.Constants;
 import com.flaresafety.sideengine.rxjavaretrofit.network.model.BBSideEngineListener;
@@ -36,16 +38,14 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
     private BBSideEngine bbSideEngine;
     private boolean checkConfiguration = false;
     private String sosLiveTrackingUrl = "";
+    private ActivitySosBinding viewBinding;
 
-    ImageView ivCloseMain;
-    AppCompatButton btnSos, btnSOSLinkShare;
-
-    private EditText etvUserEmail, etvUserName;
-    private ProgressBar progressBar;
-
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sos);
+
+        viewBinding = ActivitySosBinding.inflate(getLayoutInflater());
+        setContentView(viewBinding.getRoot());
 
         init();
         setListener();
@@ -53,73 +53,54 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
 
     public void init() {
 
-        ivCloseMain = findViewById(R.id.ivCloseMain);
-        btnSos = findViewById(R.id.btnSos);
-        btnSOSLinkShare = findViewById(R.id.btnSOSLinkShare);
-        etvUserEmail = findViewById(R.id.etvUserEmail);
-        etvUserName = findViewById(R.id.etvUserName);
-        progressBar = findViewById(R.id.progressBar);
-
         Intent intent = getIntent();
-        //"Your production license key here"
+        // "Your production license key here"
         String mode = intent.getStringExtra("mode");
 
+        String secretKey = intent.getStringExtra("secretKey");
         String lic = intent.getStringExtra("lic");
         String region = intent.getStringExtra("region");
-        String secretKey = intent.getStringExtra("secretKey");
 
         bbSideEngine = BBSideEngine.getInstance();
         bbSideEngine.showLogs(true);
         bbSideEngine.setBBSideEngineListener(this);
         bbSideEngine.enableActivityTelemetry(true);
+        bbSideEngine.setHazardFeatureEnabled(false); //The default hazard feature is enabled ( deafult value is true ), which can be adjusted to meet specific requirements. You can turn off by passing bbSideEngine.setHazardFeatureEnabled(false).
+        bbSideEngine.setStickyEnable(true); //The default hazard feature is enabled ( deafult value is true ), which can be adjusted to meet specific requirements. You can turn off by passing bbSideEngine.setHazardFeatureEnabled(false).
 
         bbSideEngine.configure(this,
                 lic,
                 secretKey,
                 ENVIRONMENT_PRODUCTION,
-                Constants.BBTheme.STANDARD
+                Constants.BBTheme.STANDARD,
+                region
         );
     }
 
-    String[] per = {Manifest.permission.ACCESS_FINE_LOCATION};
-
     @SuppressLint("HardwareIds")
     private void setListener() {
-        ivCloseMain.setOnClickListener(View -> finish());
 
-        btnSos.setOnClickListener(View -> {
+        viewBinding.ivCloseMain.setOnClickListener(View -> finish());
+
+        viewBinding.btnSos.setOnClickListener(View -> {
+
             if (checkConfiguration) {
-                if (btnSos.getText().toString().equals("Deactivate SOS")) {
+                if (viewBinding.btnSos.getText().toString().equals(getString(R.string.stop_sos))) {
                     bbSideEngine.stopSOS();
                 } else {
-                    if (ActivityCompat.checkSelfPermission(
-                            this,
-                            Manifest.permission.ACCESS_FINE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
-                            || ActivityCompat.checkSelfPermission(
-                            this,
-                            Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
-                    ) {
-                        ActivityCompat.requestPermissions(
-                                this,
-                                per,
-                                0
-                        );
-                    } else {
-                        String deviceId = Secure.getString(
-                                getContentResolver(),
-                                ANDROID_ID
-                        );
-                        bbSideEngine.setUserId(deviceId);
-                        bbSideEngine.setUserEmail(etvUserEmail.getText().toString().trim());
-                        bbSideEngine.setUserName(etvUserName.getText().toString().trim());
-                        bbSideEngine.startSOS();
-                    }
+                    String deviceId = Secure.getString(
+                            getContentResolver(),
+                            ANDROID_ID
+                    );
+                    bbSideEngine.setUserId(deviceId);
+                    bbSideEngine.setUserEmail(viewBinding.etvUserEmail.getText().toString().trim());
+                    bbSideEngine.setUserName(viewBinding.etvUserName.getText().toString().trim());
+                    bbSideEngine.startSOS();
                 }
             }
         });
-        btnSOSLinkShare.setOnClickListener(View -> {
+
+        viewBinding.btnSOSLinkShare.setOnClickListener(View -> {
             Intent share = new Intent(Intent.ACTION_SEND);
             share.setType("text/plain");
             share.putExtra(Intent.EXTRA_TEXT, sosLiveTrackingUrl);
@@ -127,36 +108,16 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
         });
     }
 
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (!checkConfiguration) {
-            return;
-        }
-        if (requestCode == 0) {
-            String deviceId = Secure.getString(
-                    getContentResolver(),
-                    ANDROID_ID
-            );
-            bbSideEngine.setUserId(deviceId);
-            bbSideEngine.setUserEmail(etvUserEmail.getText().toString().trim());
-            bbSideEngine.setUserName(etvUserName.getText().toString().trim());
-            bbSideEngine.startSOS();
-        } else if (requestCode == 1) {
-//            viewBinding.btnStart.text = getString(R.string.start)
-        }
-    }
-
     @Override
     public void onSideEngineCallback(boolean status, Constants.BBSideOperation type, JSONObject response) {
         switch (type) {
-            case CONFIGURE:
+            case CONFIGURE -> {
                 // if status = true Now you can ready to start Side engine process
                 checkConfiguration = status;
                 Log.e("Configured", String.valueOf(status));
-                progressBar.setVisibility(View.GONE);
-                break;
-
-            case START_SOS:
+                viewBinding.progressBar.setVisibility(View.GONE);
+            }
+            case START_SOS -> {
                 //*The SOS function has been activated. You may now proceed to update your user interface and share a live location tracking link with your social contacts, thereby enabling them to access your real-time location.*//
                 if (response.has("sosLiveTrackingUrl")) {
                     try {
@@ -164,21 +125,17 @@ public class EmergencySOSActivity extends AppCompatActivity implements BBSideEng
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
-                    btnSOSLinkShare.setVisibility(View.VISIBLE);
-                    btnSos.setText(R.string.stop_sos);
+                    viewBinding.btnSOSLinkShare.setVisibility(View.VISIBLE);
+                    viewBinding.btnSos.setText(R.string.stop_sos);
                 } else if (response.has("Error")) {
                     // log for error
                 }
-                break;
-
-            case STOP_SOS:
-                btnSOSLinkShare.setVisibility(View.GONE);
-                btnSos.setText(R.string.start_sos);
-                break;
-
-            default:
-                Log.e("No Events Find", ":");
-                break;
+            }
+            case STOP_SOS -> {
+                viewBinding.btnSOSLinkShare.setVisibility(View.GONE);
+                viewBinding.btnSos.setText(R.string.start_sos);
+            }
+            default -> Log.e("No Events Find", ":");
         }
     }
 }

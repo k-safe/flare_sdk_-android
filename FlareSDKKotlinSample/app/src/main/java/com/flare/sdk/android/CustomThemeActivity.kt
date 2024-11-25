@@ -20,7 +20,9 @@ import com.flare.sdk.android.bottomsheets.SelectActivityBottomSheet
 import com.flare.sdk.android.databinding.ActivityThemeBinding
 import com.flare.sdk.android.interfaces.OnBottomSheetDismissListener
 import com.flaresafety.sideengine.BBSideEngine
+import com.flaresafety.sideengine.Constants
 import com.flaresafety.sideengine.Constants.*
+import com.flaresafety.sideengine.SurveyTypeCallback
 import com.flaresafety.sideengine.rxjavaretrofit.network.model.BBSideEngineListener
 import com.flaresafety.sideengine.utils.Common
 import com.flaresafety.sideengine.utils.ContactClass
@@ -41,20 +43,29 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener,
     private var mConfidence: String? = null
     private var isResumeActivity = false
 
-    companion object {
-        fun getRandomNumberString(): String {
-            val rnd = Random()
-            val number: Int = rnd.nextInt(999999)
-            return String.format(Locale.ENGLISH, "%06d", number)
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
+
+        init()
+        setListener()
+    }
+
+    private fun init() {
+
+        viewBinding.tvThemeName.text = getString(R.string.custom_theme)
+        setupEngine();
+    }
+
+    private fun setupEngine() {
+
         val intent = intent
         mode = intent.getStringExtra("mode")
-        viewBinding.tvThemeName.text = getString(R.string.custom_theme)
+
+        //"Your production license key here" or "Your sandbox license key here"
+        val lic = intent.getStringExtra("lic")
+        val secretKey = intent.getStringExtra("secretKey")
+        val region = intent.getStringExtra("region")
 
         bbSideEngine = BBSideEngine.getInstance()
         bbSideEngine.showLogs(true)
@@ -69,12 +80,7 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener,
 
         bbSideEngine.setStickyEnable(false)
         bbSideEngine.activateIncidentTestMode(true) //This is only used in sandbox mode and is TRUE by default. This is why you should test your workflow in sandbox mode. You can change it to FALSE if you want to experience real-life incident detection
-//      bbSideEngine.setAppName("Flare SDK Sample")
 
-        //"Your production license key here" or "Your sandbox license key here"
-        val lic = intent.getStringExtra("lic")
-        val secretKey = intent.getStringExtra("secretKey")
-        val region = intent.getStringExtra("region")
 
         bbSideEngine.configure(
             this,
@@ -91,11 +97,11 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener,
         //  bbSideEngine.setLocationNotificationTitle("Notification Title")
         //  bbSideEngine.setNotificationDescText("Notification Description")
 
-        setListener()
     }
 
     @SuppressLint("InflateParams")
     private fun setListener() {
+
         viewBinding.ivCloseMain.setOnClickListener {
             finish()
         }
@@ -113,23 +119,7 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener,
         }
 
         viewBinding.btnStart.setOnClickListener {
-//            BBSideEngine.getInstance().launchIncidentClassification(this, object :
-//                IncidentTypeCallback<String> {
-//                override fun onSubmit(incidentType: String) {
-//                    Log.d("on Submit>>>", incidentType)
-//                }
-//
-//                override fun onClose() {
-//                    Log.d("on onClose>>>", "called")
-//                }
-//            })
-//            return@setOnClickListener
-//            val notificationHelper = NotificationHelper(this)
-//            val _builder = notificationHelper.setNotification("test", mode)
-//            if (_builder != null) {
-//                notificationHelper.manager.notify(101, _builder.build())
-//            }
-//            return@setOnClickListener
+
             if (checkConfiguration) {
                 bbSideEngine.setUserEmail(viewBinding.etvUserEmail.text.toString().trim())
                 bbSideEngine.setUserName(viewBinding.etvUserName.text.toString().trim())
@@ -263,11 +253,11 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener,
             }
 
             BBSideOperation.INCIDENT_AUTO_CANCEL -> {
-                //Ignore your personalized countdown page for now and avoid using any features from external engines. The external engine will automatically take care of any required tasks.
+                //User canceled countdown countdown to get event here, this called only for if you configured standard theme.
             }
 
             BBSideOperation.INCIDENT_ALERT_SENT -> {
-                //This message is intended solely to provide notification regarding the transmission status of alerts. It is unnecessary to invoke any SIDE engine functions in this context.
+                //Return the alert sent (returns alert details (i.e. time, location, recipient, success/failure))
             }
 
             BBSideOperation.RESUME_SIDE_ENGINE -> {
@@ -302,6 +292,7 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener,
 
                 if (status) {
                     // User submitted report an incident
+                    callSurveyVideoPage()
                 } else {
                     // User is alright
                 }
@@ -313,6 +304,15 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener,
                     }
                 }
             }
+            BBSideOperation.TIMER_STARTED -> {
+                //Countdown timer started after breach delay, this called only if you configured standard theme.
+
+            }
+
+            BBSideOperation.TIMER_FINISHED -> {
+                //Countdown timer finished and jump to the incident summary page, this called only if you configured standard theme.
+
+            }
 
             else -> {
                 Log.e("No Events Find", ":")
@@ -320,10 +320,29 @@ class CustomThemeActivity : AppCompatActivity(), BBSideEngineListener,
         }
     }
 
+    private fun callSurveyVideoPage() {
+
+        BBSideEngine.getInstance().postIncidentSurvey(BBSurveyType.VIDEO, object :
+
+            SurveyTypeCallback<String> {
+
+            override fun onEnd(surveyType: String?) {
+                BBSideEngine.getInstance().resumeSideEngine()
+                finish();
+                Common.getInstance().showToast("End called")
+            }
+
+            override fun onCancel() {
+                BBSideEngine.getInstance().resumeSideEngine()
+                finish();
+                Common.getInstance().showToast("Cancel called")
+            }
+        })
+    }
+
     @SuppressLint("SuspiciousIndentation")
     private fun setNotification() {
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as
-                NotificationManager
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val calendar = Calendar.getInstance()
         val randomNumber = calendar.timeInMillis
         val channelId = "12345"

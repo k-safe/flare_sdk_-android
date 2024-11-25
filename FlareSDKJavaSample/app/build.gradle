@@ -35,7 +35,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.flaresafety:sideengine:4.3.9'
+    implementation 'com.flaresafety:sideengine:4.3.10'
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'

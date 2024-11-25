@@ -18,12 +18,11 @@ import com.flaresafety.sideengine.Constants;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final String productionLicense = "4afb485e-a181-4ce7-98f6-38cfe1afc748";
-    private final String sandboxLicense = "b6dd8509-d50e-48cc-af9e-ce9dcd712132";
-    private final String secretKey = "EN7nPbKOc57COfYaPy66j8bXhlvOkrcX87c7mC76";
+    private final String productionLicense = "your production key";
+    private final String sandboxLicense = "your sandbox key";
+    private final String secretKey = "secret key";
 
     String mode = Constants.ENVIRONMENT_SANDBOX;
-
     private final int postNotificationCode = 1221;
     String region = "";
     private boolean isHazardEnabled = true;
@@ -148,11 +147,10 @@ public class MainActivity extends AppCompatActivity {
         viewBinding.btnHazards.setOnClickListener(v -> {
 
             Intent intent = new Intent(MainActivity.this, HazardsActivity.class);
-            intent.putExtra("mode", mode);
             intent.putExtra("secretKey", secretKey);
             intent.putExtra("region", region);
             intent.putExtra("isHazardEnabled", isHazardEnabled);
-            intent.putExtra("lic", Constants.ENVIRONMENT_PRODUCTION.equals(mode) ? productionLicense : sandboxLicense);
+            intent.putExtra("lic", productionLicense);
             startActivity(intent);
         });
     }

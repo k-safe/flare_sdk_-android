@@ -2,9 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -15,10 +23,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:targetApi="31">
-
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
@@ -35,37 +39,36 @@
         </activity>
 
         <activity
-            android:name=".CustomUiActivity"
-            android:exported="true">
-        </activity>
+            android:name=".MapActivity"
+            android:exported="true"/>
 
         <activity
             android:name=".StandardThemeActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true"/>
 
         <activity
             android:name=".CustomThemeActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true"/>
 
         <activity
             android:name=".EmergencySOSActivity"
             android:screenOrientation="portrait"
-            android:exported="true">
-        </activity>
+            android:exported="true"/>
 
         <activity
             android:name=".EnableFlareAwareActivity"
-            android:exported="true">
-        </activity>
-
+            android:exported="true"/>
 
         <activity
             android:name=".HazardsActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true"/>
 
+        <service
+            android:name=".ForegroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location"
+            android:stopWithTask="false" />
 
     </application>
 

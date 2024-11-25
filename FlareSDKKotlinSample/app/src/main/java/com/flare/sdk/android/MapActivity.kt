@@ -32,12 +32,17 @@ class MapActivity : AppCompatActivity(), BBSideEngineUIListener {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        initializeView()
+        init()
+        setListener()
     }
 
-    private fun initializeView() {
+    private fun init() {
         BBSideEngine.getInstance().setBBSideEngineListenerInLib(this)
         BBSideEngine.getInstance().fetchWhat3WordLocation(this@MapActivity)
+    }
+
+    private fun setListener() {
+
         binding.tvCUIWord.setOnClickListener {
             if (mapUri != "") {
                 val i = Intent(Intent.ACTION_VIEW)
@@ -45,6 +50,7 @@ class MapActivity : AppCompatActivity(), BBSideEngineUIListener {
                 startActivity(i)
             }
         }
+
         binding.llCUIAlertTop.setOnClickListener {
             BBSideEngine.getInstance().launchIncidentClassification(this, object :
                 IncidentTypeCallback<String> {
@@ -62,6 +68,7 @@ class MapActivity : AppCompatActivity(), BBSideEngineUIListener {
     }
 
     private fun callSurveyVideoPage() {
+
         BBSideEngine.getInstance().postIncidentSurvey(Constants.BBSurveyType.VIDEO, object :
 
             SurveyTypeCallback<String> {
@@ -79,7 +86,6 @@ class MapActivity : AppCompatActivity(), BBSideEngineUIListener {
             }
         })
     }
-
 
     private fun setMap() {
         val mapFragment = supportFragmentManager

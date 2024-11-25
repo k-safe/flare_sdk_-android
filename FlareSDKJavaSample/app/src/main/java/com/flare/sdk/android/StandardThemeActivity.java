@@ -1,29 +1,20 @@
 package com.flare.sdk.android;
 
 
-import static com.flaresafety.sideengine.Constants.BBTheme.STANDARD;
-import static com.flaresafety.sideengine.Constants.ENVIRONMENT_PRODUCTION;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.flare.sdk.android.bottomsheets.SelectActivityBottomSheet;
+import com.flare.sdk.android.databinding.ActivityThemeBinding;
+import com.flare.sdk.android.interfaces.OnBottomSheetDismissListener;
 import com.flaresafety.sideengine.BBSideEngine;
 import com.flaresafety.sideengine.Constants;
 import com.flaresafety.sideengine.rxjavaretrofit.network.model.BBSideEngineListener;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
-
+import com.flaresafety.sideengine.utils.ContactClass;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,27 +22,22 @@ import org.json.JSONObject;
 import java.util.Random;
 
 
-public class StandardThemeActivity extends AppCompatActivity implements BBSideEngineListener {
-
-    private String mode = ENVIRONMENT_PRODUCTION;
-    TextView tvConfidence, tvThemeName;
-    ImageView ivCloseMain;
-    Button btnStart, btnPauseResume;
-    EditText etvUserName, etvCountryCode, etvMobileNumber, etvUserEmail;
-    ProgressBar progressBar;
+public class StandardThemeActivity extends AppCompatActivity implements BBSideEngineListener,
+        OnBottomSheetDismissListener {
 
     BBSideEngine bbSideEngine;
-    boolean btnTestClicked = false;
     boolean checkConfiguration = false;
     boolean isResumeActivity = false;
-
     String mConfidence = "";
-    Intent intent;
+
+    private ActivityThemeBinding viewBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_theme);
+
+        viewBinding = ActivityThemeBinding.inflate(getLayoutInflater());
+        setContentView(viewBinding.getRoot());
 
         init();
         setListener();
@@ -59,31 +45,20 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
 
     public void init() {
 
-        intent = getIntent();
-        mode = intent.getStringExtra("mode");
-
-        tvThemeName = findViewById(R.id.tvThemeName);
-        btnStart = findViewById(R.id.btnStart);
-        btnPauseResume = findViewById(R.id.btnPauseResume);
-
-        etvCountryCode = findViewById(R.id.etvCountryCode);
-        etvMobileNumber = findViewById(R.id.etvMobileNumber);
-        etvUserName = findViewById(R.id.etvUserName);
-        etvUserEmail = findViewById(R.id.etvUserEmail);
-
-        ivCloseMain = findViewById(R.id.ivCloseMain);
-        tvConfidence = findViewById(R.id.tvConfidence);
-
-        progressBar = findViewById(R.id.progressBar);
-
-
-        tvThemeName.setText(getString(R.string.standard_theme));
-
+        viewBinding.tvThemeName.setText(getString(R.string.standard_theme));
 
         setupEngine();
     }
 
     public void setupEngine() {
+
+        Intent intent = getIntent();
+        String mode = intent.getStringExtra("mode");
+
+        //"Your production license key here" or "Your sandbox license key here"
+        String lic = intent.getStringExtra("lic");
+        String secretKey = intent.getStringExtra("secretKey");
+        String region = intent.getStringExtra("region");
 
         bbSideEngine = BBSideEngine.getInstance();
         bbSideEngine.showLogs(true);
@@ -95,31 +70,19 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
 //        bbSideEngine.setHighFrequencyIntervalsSeconds(3); //The default value is 3 seconds, which can be adjusted to meet specific requirements. This parameter will only be utilized in cases where bbSideEngine.setHighFrequencyModeEnabled(true) is invoked.
 //        bbSideEngine.setHighFrequencyModeEnabled(false); //It is recommended to activate the high frequency mode when the SOS function is engaged in order to enhance the quality of the live tracking experience.
 //        bbSideEngine.setLocationNotificationTitle("Protection is active")
+
         bbSideEngine.setStickyEnable(true);
         bbSideEngine.activateIncidentTestMode(true); //This is only used in sandbox mode and is TRUE by default. This is why you should test your workflow in sandbox mode. You can change it to FALSE if you want to experience real-life incident detection
         bbSideEngine.setHazardFeatureEnabled(false); //The default hazard feature is enabled ( default value is true ), which can be adjusted to meet specific requirements. You can turn off by passing bbSideEngine.setHazardFeatureEnabled(false).
 
-        Intent intent = getIntent();
-
-        //"Your production license key here" or "Your sandbox license key here"
-        String lic = intent.getStringExtra("lic");
-        String region = intent.getStringExtra("region");
-        String secretKey = intent.getStringExtra("secretKey");
-
-        bbSideEngine.configure(this,
+        bbSideEngine.configure(
+                this,
                 lic,
                 secretKey,
                 mode,
                 Constants.BBTheme.STANDARD,
                 region
         );
-
-        //Custom Notification
-        //        bbSideEngine.setLocationNotificationTitle("Protection is active");
-        //        bbSideEngine.setNotificationMainBackgroundColor(R.color.white);
-        //        bbSideEngine.setNotificationMainIcon(R.drawable.ic_launcher);
-        //        bbSideEngine.setNotificationDescText("Notification Description");
-
 
         //TODO: Customise the SideEngine theme(Optional).
         //bbSideEngine.setIncidentTimeInterval(45) = Default 30 seconds
@@ -139,69 +102,44 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
 
     public void setListener() {
 
-        ivCloseMain.setOnClickListener(
+        viewBinding.ivCloseMain.setOnClickListener(
                 v -> finish()
         );
-        btnPauseResume.setOnClickListener(v ->{
+
+        viewBinding.btnPauseResume.setOnClickListener(v ->{
             if (bbSideEngine.isEngineStarted()) {
                 if (isResumeActivity) {
-                    btnPauseResume.setText(getString(R.string.pause));
+                    viewBinding.btnPauseResume.setText(getString(R.string.pause));
                     bbSideEngine.resumeSideEngine();
                 } else {
-                    btnPauseResume.setText(getString(R.string.resume));
+                    viewBinding.btnPauseResume.setText(getString(R.string.resume));
                     bbSideEngine.pauseSideEngine();
                 }
             }
         });
-        btnStart.setOnClickListener(v -> {
+
+        viewBinding.btnStart.setOnClickListener(v -> {
             if (checkConfiguration) {
-                    bbSideEngine.setUserEmail(etvUserEmail.getText().toString().trim());
-                    bbSideEngine.setUserName(etvUserName.getText().toString().trim());
-                    bbSideEngine.setUserCountryCode(etvCountryCode.getText().toString().trim());
-                    bbSideEngine.setUserMobile(etvMobileNumber.getText().toString().trim());
+                    bbSideEngine.setUserEmail(viewBinding.etvUserEmail.getText().toString().trim());
+                    bbSideEngine.setUserName(viewBinding.etvUserName.getText().toString().trim());
+                    bbSideEngine.setUserCountryCode(viewBinding.etvCountryCode.getText().toString().trim());
+                    bbSideEngine.setUserMobile(viewBinding.etvMobileNumber.getText().toString().trim());
 
-                    btnTestClicked = false;
-                    if (bbSideEngine.isEngineStarted()) {
-                        bbSideEngine.setUserName(etvUserName.getText().toString().trim());
-                        bbSideEngine.stopSideEngine();
-                    } else {
-                        BottomSheetDialog dialog = new BottomSheetDialog(this);
-                        View view = getLayoutInflater().inflate(R.layout.dialog_activity, null);
-                        LinearLayout llBike = view.findViewById(R.id.llBike);
-                        LinearLayout llScooter = view.findViewById(R.id.llScooter);
-                        LinearLayout llCycling = view.findViewById(R.id.llCycling);
-                        LinearLayout llCancel = view.findViewById(R.id.llCancel);
+                        if (bbSideEngine.isEngineStarted()) {
+                            bbSideEngine.setUserName(viewBinding.etvUserName.getText().toString().trim());
+                            bbSideEngine.stopSideEngine();
+                        } else {
+                            showActivityBottomSheet();
+                        }
 
-                        llBike.setOnClickListener(v13 -> {
-                            bbSideEngine.setActivityType("Bike");
-                            bbSideEngine.startSideEngine(StandardThemeActivity.this);
-                            dialog.dismiss();
-                        });
-
-                        llScooter.setOnClickListener(v12 -> {
-                            bbSideEngine.setActivityType("Scooter");
-                            bbSideEngine.startSideEngine(StandardThemeActivity.this);
-                            dialog.dismiss();
-                        });
-
-                        llCycling.setOnClickListener(v1 -> {
-                            bbSideEngine.setActivityType("Cycling");
-                            bbSideEngine.startSideEngine(StandardThemeActivity.this);
-                            dialog.dismiss();
-                        });
-
-                        llCancel.setOnClickListener(v14 -> dialog.dismiss());
-
-                        dialog.dismiss();
-                        dialog.setCancelable(true);
-                        dialog.setContentView(view);
-                        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-                        int screenHeight = displayMetrics.heightPixels;
-                        dialog.getBehavior().setPeekHeight(screenHeight);
-                        dialog.show();
-                    }
                 }
         });
+    }
+
+    private void showActivityBottomSheet() {
+        SelectActivityBottomSheet selectActivityBottomSheet = new SelectActivityBottomSheet();
+        selectActivityBottomSheet.setCancelable(true);
+        selectActivityBottomSheet.show(getSupportFragmentManager(), selectActivityBottomSheet.getTag());
     }
 
     public static String getRandomNumberString() {
@@ -213,6 +151,29 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
         // this will convert any number sequence into 6 character.
         return String.format("%06d", number);
     }
+
+    private void sendEmail() {
+        if (viewBinding.etvUserEmail.getText().toString().isEmpty()) {
+            return;
+        }
+        bbSideEngine.sendEmail(viewBinding.etvUserEmail.getText().toString());
+    }
+
+    private void sendSMS() {
+        if (viewBinding.etvCountryCode.getText().toString().isEmpty() ||
+                viewBinding.etvUserName.getText().toString().isEmpty() ||
+                viewBinding.etvMobileNumber.getText().toString().isEmpty()
+        ) {
+            return;
+        }
+
+        ContactClass contact = new ContactClass();
+        contact.setCountryCode(viewBinding.etvCountryCode.getText().toString());
+        contact.setPhoneNumber(viewBinding.etvMobileNumber.getText().toString());
+        contact.setUserName(viewBinding.etvUserName.getText().toString());
+        bbSideEngine.sendSMS(contact);
+    }
+
     @Override
     public void onSideEngineCallback(boolean status, Constants.BBSideOperation type, JSONObject response) {
 
@@ -222,38 +183,41 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
             case CONFIGURE:
                 // if status = true Now you can ready to start Side engine process
                 checkConfiguration = status;
-                progressBar.setVisibility(View.GONE);
+                viewBinding.progressBar.setVisibility(View.GONE);
                 break;
             case START:
                 //*Please update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.*//
-                tvConfidence.setText("");
+                viewBinding.tvConfidence.setText("");
                 if (bbSideEngine.isEngineStarted()) {
-                    btnStart.setText(getString(R.string.stop));
-                    btnPauseResume.setVisibility(View.VISIBLE);
-                    btnPauseResume.setText(getString (R.string.pause));
+                    viewBinding.btnStart.setText(getString(R.string.stop));
+                    viewBinding.btnPauseResume.setVisibility(View.VISIBLE);
+                    viewBinding.btnPauseResume.setText(getString (R.string.pause));
                 } else {
-                    btnStart.setText(getString(R.string.start));
-                    btnPauseResume.setVisibility(View.GONE);
+                    viewBinding.btnStart.setText(getString(R.string.start));
+                    viewBinding.btnPauseResume.setVisibility(View.GONE);
                 }
             case STOP:
-                //*Please update your user interface accordingly once the lateral engine has been initiated (for instance, modify the colour or text of the START button) to reflect the change in state.*//
-                tvConfidence.setText("");
+                viewBinding.tvConfidence.setText("");
                 if (bbSideEngine.isEngineStarted()) {
-                    btnStart.setText(getString(R.string.stop));
+                    viewBinding.btnStart.setText(getString(R.string.stop));
+                    viewBinding.btnPauseResume.setVisibility(View.VISIBLE);
+                    viewBinding.btnPauseResume.setText(getString(R.string.pause));
                 } else {
                     isResumeActivity = false;
-                    btnStart.setText(getString(R.string.start));
-                    btnPauseResume.setVisibility(View.GONE);
+                    viewBinding.btnStart.setText(getString(R.string.start));
+                    viewBinding.btnPauseResume.setVisibility(View.GONE);
                 }
+                //Please update the user interface (UI) in this section to reflect the cessation of the side engine (e.g., amend the colour or text of the STOP button accordingly).
+
                 break;
             case INCIDENT_DETECTED:
+                //The user has identified an incident, and if necessary, it may be appropriate to log the incident in either the analytics system or an external database. Please refrain from invoking any side engine methods at this juncture.
                 //Threshold reached and you will redirect to countdown page
-                Toast.makeText(this, "INCIDENT_DETECTED",Toast.LENGTH_LONG).show();
-                //Threshold reached and you will redirect to countdown page
+
                 //TODO: Set user id
-                bbSideEngine.setUserId(getRandomNumberString());
+//                bbSideEngine.setUserId(getRandomNumberString());
                 //TODO: Set rider name
-                bbSideEngine.setRiderName(etvUserName.getText().toString().trim());
+                bbSideEngine.setRiderName(viewBinding.etvUserName.getText().toString().trim());
 
                 if (status) {
                     try {
@@ -262,9 +226,9 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
                             mConfidence = response.getString("confidence");
                         }
                         if (!mConfidence.equals("")) {
-                            tvConfidence.setVisibility(View.VISIBLE);
+                            viewBinding.tvConfidence.setVisibility(View.VISIBLE);
                             try {
-                                tvConfidence.setText(String.format("Confidence: %s", mConfidence));
+                                viewBinding.tvConfidence.setText(String.format("Confidence: %s", mConfidence));
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -283,13 +247,13 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
             case RESUME_SIDE_ENGINE:
                 if(isResumeActivity){
                     isResumeActivity = false;
-                    btnPauseResume.setText(getString (R.string.pause));
+                    viewBinding.btnPauseResume.setText(getString (R.string.pause));
                 }
                 //The lateral engine has been restarted, and we are currently monitoring the device's sensors and location in order to analyse another potential incident. There is no requirement to invoke any functions from either party in this context, as the engine on the side will handle the task automatically.
                 break;
             case PAUSE_SIDE_ENGINE:
                 isResumeActivity = true;
-                btnPauseResume.setText(getString (R.string.resume));
+                viewBinding.btnPauseResume.setText(getString (R.string.resume));
                 break;
             case TIMER_STARTED:
                 //A 30-second countdown timer has started, and the SIDE engine is waiting for a response from the user or an automatic cancellation event. If no events are received within the 30-second intervals of the timer, the SIDE engine will log the incident on the dashboard.
@@ -309,6 +273,29 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
             case INCIDENT_VERIFIED_BY_USER:
                 //The user has confirmed that the incident is accurate, therefore you may transmit the corresponding events to analytics, if needed. There is no requirement to invoke any functions from either party in this context, as the engine on the side will handle the task automatically.
                 break;
+
+            case POST_INCIDENT_FEEDBACK:
+
+                // When a user gives feedback after receiving a post-incident notification, you will get an event here to identify the type of feedback provided.
+                Log.w("StandardThemeActivity", "POST_INCIDENT_FEEDBACK");
+
+                if (status) {
+                    // User submitted report an incident
+                } else {
+                    // User is alright
+                }
+
+                try {
+                    if (response != null && response.has("message")) {
+                        String message = response.getString("message");
+                        if (!message.isEmpty()) {
+                            Log.w("POST_INCIDENT_FEEDBACK", message);
+                        }
+                    }
+                } catch (Exception ignore) {
+
+                }
+                break;
             default:
                 Log.e("No Events Find",":");
                 break;
@@ -321,5 +308,16 @@ public class StandardThemeActivity extends AppCompatActivity implements BBSideEn
             bbSideEngine.stopSideEngine();
         }
         super.onDestroy();
+    }
+
+
+    @Override
+    public void onReportAnIncident() {
+        //TODO("Not yet implemented")
+    }
+
+    @Override
+    public void onActivitySelected(String activityType) {
+        bbSideEngine.startSideEngine(this, activityType);
     }
 }

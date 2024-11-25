@@ -14,7 +14,6 @@ import com.flare.sdk.android.R
 import com.flare.sdk.android.interfaces.OnBottomSheetDismissListener
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.flaresafety.sideengine.BBSideEngine
-
 class CustomUIBottomSheet : BottomSheetDialogFragment() {
 
     private lateinit var tvCountDown: TextView
